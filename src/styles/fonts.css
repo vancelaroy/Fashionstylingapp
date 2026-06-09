@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Space+Grotesk:wght@300;400;500;600&family=Raleway:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+
+:root {
+  /* Editorial display — Vogue/GQ headlines */
+  --font-display: 'Cormorant Garamond', 'Didot', 'Bodoni MT', Georgia, serif;
+  /* UI body & inputs — clean, readable */
+  --font-body: 'Space Grotesk', system-ui, sans-serif;
+  /* Secondary body — for longer reading paragraphs */
+  --font-reading: 'Raleway', system-ui, sans-serif;
+
+  /* Typography scale — editorial tight */
+  --tracking-display: -0.03em;
+  --tracking-label: 0.18em;
+  --tracking-ui: 0.01em;
+}
+
+body {
+  font-family: var(--font-body);
+  letter-spacing: var(--tracking-ui);
+  -webkit-font-smoothing: antialiased;
+}
