@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Camera, ChevronRight, Check, Sparkles, Ruler, Palette, Upload, Info, X } from "lucide-react";
 import { PremiumBadge } from "../ui/PremiumBadge";
+import { IrysAppIcon } from "../ui/IrysLogo";
 
 interface OnboardingFlowProps {
   onComplete: (profile: StyleProfile) => void;
@@ -377,38 +378,28 @@ function BodyTypeStep({ bodyTypes, selected, gender, onSelect, onNext, onBack, o
 
       {/* AI scan / upload options */}
       <div className="flex gap-2 mb-6">
-        <button
-          onClick={() => setScanMode(scanMode === "camera" ? null : "camera")}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all"
-          style={{
-            background: scanMode === "camera" ? "rgba(201,169,110,0.12)" : "var(--surface)",
-            border: `1px solid ${scanMode === "camera" ? "var(--gold)" : "var(--border)"}`,
-            color: scanMode === "camera" ? "var(--gold)" : "var(--muted-foreground)",
-            cursor: "pointer",
-            fontSize: "12px",
-            fontWeight: 500,
-          }}
-        >
-          <Camera size={15} />
-          AI Body Scan
-          <PremiumBadge />
-        </button>
-        <button
-          onClick={() => setScanMode(scanMode === "upload" ? null : "upload")}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all"
-          style={{
-            background: scanMode === "upload" ? "rgba(201,169,110,0.12)" : "var(--surface)",
-            border: `1px solid ${scanMode === "upload" ? "var(--gold)" : "var(--border)"}`,
-            color: scanMode === "upload" ? "var(--gold)" : "var(--muted-foreground)",
-            cursor: "pointer",
-            fontSize: "12px",
-            fontWeight: 500,
-          }}
-        >
-          <Upload size={15} />
-          Upload Photo
-          <PremiumBadge />
-        </button>
+        {[
+          { mode: "camera" as const, icon: <Camera size={14} />, label: "AI Body Scan" },
+          { mode: "upload" as const, icon: <Upload size={14} />, label: "Upload Photo" },
+        ].map(({ mode, icon, label }) => (
+          <button
+            key={mode}
+            onClick={() => setScanMode(scanMode === mode ? null : mode)}
+            className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all"
+            style={{
+              background: scanMode === mode ? "rgba(201,169,110,0.12)" : "var(--surface)",
+              border: `1px solid ${scanMode === mode ? "var(--gold)" : "var(--border)"}`,
+              color: scanMode === mode ? "var(--gold)" : "var(--muted-foreground)",
+              cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: 500,
+            }}
+          >
+            {icon}
+            <span className="flex-1 text-left">{label}</span>
+            <PremiumBadge />
+          </button>
+        ))}
       </div>
 
       {/* Scan/Upload panel */}
@@ -823,10 +814,9 @@ function CompleteStep({ profile, onFinish }: { profile: Partial<StyleProfile>; o
         <motion.div
           initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          className="w-24 h-24 rounded-full flex items-center justify-center mb-8"
-          style={{ background: "rgba(201,169,110,0.15)", border: "1px solid var(--gold)" }}
+          className="mb-8"
         >
-          <Sparkles size={36} style={{ color: "var(--gold)" }} />
+          <IrysAppIcon size={96} />
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
           <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "30px", lineHeight: 1.2, marginBottom: 12 }}>

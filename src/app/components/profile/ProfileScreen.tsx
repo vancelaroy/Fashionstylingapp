@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Edit3, Share2, ChevronRight, Star, Palette, Ruler, Glasses, Sparkles, BookOpen } from "lucide-react";
+import { Settings, Edit3, Share2, ChevronRight, Star, Palette, Ruler, Glasses, Sparkles, BookOpen, LogOut, Eye } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import { CaseStudyScreen } from "../case-study/CaseStudyScreen";
@@ -7,6 +7,9 @@ import { CaseStudyScreen } from "../case-study/CaseStudyScreen";
 interface ProfileScreenProps {
   profile: StyleProfile;
   onReset: () => void;
+  onPreview?: () => void;
+  onSignOut?: () => void;
+  isLoggedIn?: boolean;
 }
 
 const COLOR_SEASON_DATA: Record<string, { palette: string[]; desc: string; avoid: string }> = {
@@ -31,7 +34,7 @@ const STYLE_INSIGHTS = [
   { label: "Style Consistency", value: "92%", icon: Sparkles, color: "var(--rose)", desc: "Strong personal aesthetic" },
 ];
 
-export function ProfileScreen({ profile, onReset }: ProfileScreenProps) {
+export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLoggedIn }: ProfileScreenProps) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showCaseStudy, setShowCaseStudy] = useState(false);
 
@@ -255,15 +258,38 @@ export function ProfileScreen({ profile, onReset }: ProfileScreenProps) {
           <span style={{ color: "var(--gold)", fontSize: "13px" }}>Read the IRYS Case Study</span>
         </button>
 
-        {/* Redo onboarding */}
-        <button
-          onClick={onReset}
-          className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 mt-2 transition-all active:scale-95"
-          style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}
-        >
-          <Edit3 size={15} style={{ color: "var(--muted-foreground)" }} />
-          <span style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>Redo Style Assessment</span>
-        </button>
+        {/* Assessment options */}
+        {isLoggedIn ? (
+          <div className="mt-2 flex flex-col gap-2">
+            <button onClick={onPreview} className="w-full py-3.5 rounded-2xl flex items-center gap-3 px-4 transition-all active:scale-95" style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
+              <Eye size={15} style={{ color: "var(--slate, #8FA3B1)" }} />
+              <div className="text-left">
+                <span style={{ color: "var(--cream)", fontSize: "13px", display: "block" }}>Preview as Different Style</span>
+                <span style={{ color: "var(--muted-foreground)", fontSize: "10px" }}>Test any gender — won't change your saved profile</span>
+              </div>
+            </button>
+            <button onClick={onReset} className="w-full py-3.5 rounded-2xl flex items-center gap-3 px-4 transition-all active:scale-95" style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
+              <Edit3 size={15} style={{ color: "var(--muted-foreground)" }} />
+              <div className="text-left">
+                <span style={{ color: "var(--muted-foreground)", fontSize: "13px", display: "block" }}>Update My Profile</span>
+                <span style={{ color: "var(--muted-foreground)", fontSize: "10px" }}>Redo assessment and save permanently</span>
+              </div>
+            </button>
+          </div>
+        ) : (
+          <button onClick={onReset} className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 mt-2 transition-all active:scale-95" style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
+            <Edit3 size={15} style={{ color: "var(--muted-foreground)" }} />
+            <span style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>Redo Style Assessment</span>
+          </button>
+        )}
+
+        {/* Sign out */}
+        {onSignOut && (
+          <button onClick={onSignOut} className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 mt-2 mb-6 transition-all active:scale-95" style={{ background: "transparent", border: "1px solid rgba(192,57,43,0.25)", cursor: "pointer" }}>
+            <LogOut size={15} style={{ color: "#c0392b" }} />
+            <span style={{ color: "#c0392b", fontSize: "13px" }}>Sign Out</span>
+          </button>
+        )}
       </div>
     </div>
   );

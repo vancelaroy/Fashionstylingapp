@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Heart, Share2, Bookmark, Star, ChevronRight, Sparkles, Sun, Moon } from "lucide-react";
+import { Heart, Bookmark, Star, Sparkles, Sun } from "lucide-react";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 
 interface HomeScreenProps {
@@ -24,13 +24,14 @@ const HOROSCOPE_STYLES: Record<string, { sign: string; emoji: string; style: str
 
 const ZODIAC_SIGNS = Object.keys(HOROSCOPE_STYLES);
 
-const OUTFIT_SUGGESTIONS = [
+// Gender-specific outfit data
+const OUTFITS_WOMEN = [
   {
     id: 1,
     title: "Autumn Gala",
     occasion: "Evening Out",
     items: ["Silk midi dress", "Block heel mules", "Gold chain bag", "Chandelier earrings"],
-    image: "https://images.unsplash.com/photo-1629511565591-a1d494ad6c58?w=400&h=600&fit=crop&auto=format",
+    image: "https://images.unsplash.com/photo-1662532577856-e8ee8b138a8b?w=400&h=600&fit=crop&auto=format",
     confidence: 97,
     tags: ["Romantic", "Evening"],
   },
@@ -39,9 +40,69 @@ const OUTFIT_SUGGESTIONS = [
     title: "Editorial Monday",
     occasion: "Work Meeting",
     items: ["Tailored blazer", "Wide-leg trousers", "Leather loafers", "Minimal gold jewelry"],
-    image: "https://images.unsplash.com/photo-1533392151650-269f96231f65?w=400&h=600&fit=crop&auto=format",
+    image: "https://images.unsplash.com/photo-1612731486606-2614b4d74921?w=400&h=600&fit=crop&auto=format",
     confidence: 94,
     tags: ["Classic", "Professional"],
+  },
+  {
+    id: 3,
+    title: "Sunday Brunch",
+    occasion: "Casual",
+    items: ["Linen co-ord", "Flat sandals", "Woven tote", "Stacked bracelets"],
+    image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&h=600&fit=crop&auto=format",
+    confidence: 91,
+    tags: ["Casual", "Classic"],
+  },
+];
+
+const OUTFITS_MEN = [
+  {
+    id: 1,
+    title: "Sharp & Decisive",
+    occasion: "Job Interview",
+    items: ["Charcoal slim suit", "White dress shirt", "Burgundy tie", "Oxford brogues"],
+    image: "https://images.unsplash.com/photo-1619603364937-8d7af41ef206?w=400&h=600&fit=crop&auto=format",
+    confidence: 97,
+    tags: ["Classic", "Professional"],
+  },
+  {
+    id: 2,
+    title: "Smart Casual",
+    occasion: "Date Night",
+    items: ["Navy chinos", "Slim-fit white shirt", "Clean white sneakers", "Leather watch"],
+    image: "https://images.unsplash.com/photo-1532332248682-206cc786359f?w=400&h=600&fit=crop&auto=format",
+    confidence: 94,
+    tags: ["Classic", "Evening"],
+  },
+  {
+    id: 3,
+    title: "Weekend Edit",
+    occasion: "Casual",
+    items: ["Dark wash jeans", "Camel coat", "Crew-neck tee", "Chelsea boots"],
+    image: "https://images.unsplash.com/photo-1666932521131-d990bd263a2c?w=400&h=600&fit=crop&auto=format",
+    confidence: 92,
+    tags: ["Casual", "Classic"],
+  },
+];
+
+const OUTFITS_NONBINARY = [
+  {
+    id: 1,
+    title: "Structured Edge",
+    occasion: "Work / Creative",
+    items: ["Oversized blazer", "Wide-leg trousers", "Clean white tee", "Chunky loafers"],
+    image: "https://images.unsplash.com/photo-1550995694-3f5f4a7e1bd2?w=400&h=600&fit=crop&auto=format",
+    confidence: 96,
+    tags: ["Androgynous", "Classic"],
+  },
+  {
+    id: 2,
+    title: "Minimal Statement",
+    occasion: "Evening Out",
+    items: ["Monochrome co-ord", "Square-toe boots", "Silver ring stack", "Mini crossbody"],
+    image: "https://images.unsplash.com/photo-1619603364904-c0498317e145?w=400&h=600&fit=crop&auto=format",
+    confidence: 93,
+    tags: ["Minimalist", "Evening"],
   },
 ];
 
@@ -56,7 +117,10 @@ export function HomeScreen({ profile }: HomeScreenProps) {
   const [savedOutfits, setSavedOutfits] = useState<number[]>([]);
   const [likedOutfits, setLikedOutfits] = useState<number[]>([]);
   const [selectedSign, setSelectedSign] = useState<string>("Leo");
-  const [activeOutfit, setActiveOutfit] = useState(0);
+
+  const outfits = profile.gender === "man" ? OUTFITS_MEN
+    : profile.gender === "nonbinary" ? OUTFITS_NONBINARY
+    : OUTFITS_WOMEN;
 
   const horoscope = HOROSCOPE_STYLES[selectedSign];
   const now = new Date();
@@ -67,11 +131,13 @@ export function HomeScreen({ profile }: HomeScreenProps) {
   const toggleLike = (id: number) =>
     setLikedOutfits((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
 
+  const bodyLabel = profile.gender === "man" ? "Athletic build"
+    : profile.gender === "nonbinary" ? "Your build"
+    : "Hourglass";
+
   return (
-    <div
-      className="flex flex-col h-full overflow-y-auto"
-      style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}
-    >
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
+
       {/* Header */}
       <div className="px-6 pt-14 pb-4">
         <div className="flex items-start justify-between">
@@ -84,16 +150,10 @@ export function HomeScreen({ profile }: HomeScreenProps) {
             </h1>
           </div>
           <div className="flex items-center gap-2 mt-1">
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ background: "var(--surface)" }}
-            >
+            <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "var(--surface)" }}>
               <Sun size={16} style={{ color: "var(--gold)" }} />
             </div>
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ background: "var(--surface)", border: "1.5px solid var(--gold)" }}
-            >
+            <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "var(--surface)", border: "1.5px solid var(--gold)" }}>
               <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--gold)" }}>
                 {profile.name ? profile.name[0].toUpperCase() : "A"}
               </span>
@@ -102,13 +162,9 @@ export function HomeScreen({ profile }: HomeScreenProps) {
         </div>
 
         {/* Style tags */}
-        <div className="flex gap-2 mt-3">
+        <div className="flex gap-2 mt-3 flex-wrap">
           {(profile.stylePersonality || ["Classic", "Romantic"]).map((tag) => (
-            <span
-              key={tag}
-              className="px-3 py-1 rounded-full"
-              style={{ background: "rgba(201,169,110,0.1)", color: "var(--gold)", fontSize: "11px", border: "1px solid rgba(201,169,110,0.2)" }}
-            >
+            <span key={tag} className="px-3 py-1 rounded-full" style={{ background: "rgba(201,169,110,0.1)", color: "var(--gold)", fontSize: "11px", border: "1px solid rgba(201,169,110,0.2)" }}>
               {tag}
             </span>
           ))}
@@ -118,241 +174,134 @@ export function HomeScreen({ profile }: HomeScreenProps) {
       {/* Outfit Cards */}
       <div className="px-6 mb-6">
         <div className="flex items-center justify-between mb-3">
-          <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 500 }}>Curated For You</p>
-          <div className="flex gap-1">
-            {OUTFIT_SUGGESTIONS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveOutfit(i)}
-                className="w-6 h-1 rounded-full transition-all duration-200"
-                style={{ background: i === activeOutfit ? "var(--gold)" : "var(--surface-2)", border: "none", cursor: "pointer" }}
-              />
-            ))}
-          </div>
+          <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 500 }}>Curated for you</p>
+          <p style={{ color: "var(--gold)", fontSize: "11px" }}>Based on your DNA ✦</p>
         </div>
 
-        {OUTFIT_SUGGESTIONS.map((outfit, i) => (
-          <motion.div
-            key={outfit.id}
-            initial={false}
-            animate={{ opacity: i === activeOutfit ? 1 : 0, x: i === activeOutfit ? 0 : 20 }}
-            style={{ display: i === activeOutfit ? "block" : "none" }}
-          >
-            <div
-              className="rounded-2xl overflow-hidden relative"
-              style={{ border: "1px solid var(--border)", background: "var(--surface)" }}
+        <div className="flex flex-col gap-4">
+          {outfits.map((outfit, i) => (
+            <motion.div
+              key={outfit.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className="rounded-2xl overflow-hidden"
+              style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
             >
               <div className="relative">
-                <img
-                  src={outfit.image}
-                  alt={outfit.title}
-                  className="w-full object-cover"
-                  style={{ height: 320 }}
-                />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: "linear-gradient(to top, rgba(14,13,12,0.95) 0%, rgba(14,13,12,0.3) 50%, transparent 100%)",
-                  }}
-                />
-                {/* Confidence badge */}
-                <div
-                  className="absolute top-3 left-3 px-3 py-1 rounded-full flex items-center gap-1"
-                  style={{ background: "rgba(14,13,12,0.7)", backdropFilter: "blur(8px)" }}
-                >
-                  <Sparkles size={10} style={{ color: "var(--gold)" }} />
-                  <span style={{ color: "var(--gold)", fontSize: "11px", fontWeight: 600 }}>{outfit.confidence}% match</span>
-                </div>
-                {/* Action buttons */}
-                <div className="absolute top-3 right-3 flex flex-col gap-2">
-                  <button
-                    onClick={() => toggleLike(outfit.id)}
-                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
-                    style={{ background: "rgba(14,13,12,0.7)", backdropFilter: "blur(8px)", border: "none", cursor: "pointer" }}
-                  >
-                    <Heart
-                      size={16}
-                      style={{ color: likedOutfits.includes(outfit.id) ? "#D4A5B5" : "var(--cream)" }}
-                      fill={likedOutfits.includes(outfit.id) ? "#D4A5B5" : "none"}
-                    />
-                  </button>
-                  <button
-                    onClick={() => toggleSave(outfit.id)}
-                    className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
-                    style={{ background: "rgba(14,13,12,0.7)", backdropFilter: "blur(8px)", border: "none", cursor: "pointer" }}
-                  >
-                    <Bookmark
-                      size={16}
-                      style={{ color: savedOutfits.includes(outfit.id) ? "var(--gold)" : "var(--cream)" }}
-                      fill={savedOutfits.includes(outfit.id) ? "var(--gold)" : "none"}
-                    />
-                  </button>
-                </div>
-                {/* Outfit info */}
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span
-                      className="px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(201,169,110,0.2)", color: "var(--gold)", fontSize: "10px", letterSpacing: "0.08em" }}
-                    >
-                      {outfit.occasion}
-                    </span>
+                <img src={outfit.image} alt={outfit.title} className="w-full object-cover" style={{ height: 280 }} />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(14,13,12,0.95) 0%, rgba(14,13,12,0.2) 50%, transparent 100%)" }} />
+
+                {/* Top badges */}
+                <div className="absolute top-3 left-3 flex gap-2">
+                  <div className="px-2 py-1 rounded-full" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)" }}>
+                    <span style={{ color: "var(--gold)", fontSize: "10px", fontWeight: 600 }}>{outfit.confidence}% match ✦</span>
                   </div>
-                  <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "20px", marginBottom: 8 }}>
-                    {outfit.title}
-                  </h3>
-                  <div className="flex flex-wrap gap-1.5">
-                    {outfit.items.map((item) => (
-                      <span
-                        key={item}
-                        className="px-2 py-1 rounded-lg"
-                        style={{ background: "rgba(245,240,232,0.08)", color: "var(--muted-foreground)", fontSize: "11px" }}
-                      >
-                        {item}
-                      </span>
+                </div>
+                <div className="absolute top-3 right-3 flex gap-1.5">
+                  <button onClick={() => toggleLike(outfit.id)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer" }}>
+                    <Heart size={13} style={{ color: likedOutfits.includes(outfit.id) ? "#D4A5B5" : "var(--cream)" }} fill={likedOutfits.includes(outfit.id) ? "#D4A5B5" : "none"} />
+                  </button>
+                  <button onClick={() => toggleSave(outfit.id)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer" }}>
+                    <Bookmark size={13} style={{ color: savedOutfits.includes(outfit.id) ? "var(--gold)" : "var(--cream)" }} fill={savedOutfits.includes(outfit.id) ? "var(--gold)" : "none"} />
+                  </button>
+                </div>
+
+                {/* Bottom info */}
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <div className="flex gap-1.5 mb-2">
+                    {outfit.tags.map((tag) => (
+                      <span key={tag} className="px-2 py-0.5 rounded-full" style={{ background: "rgba(201,169,110,0.2)", color: "var(--gold)", fontSize: "10px", backdropFilter: "blur(4px)" }}>{tag}</span>
                     ))}
                   </div>
+                  <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "22px", fontWeight: 400, letterSpacing: "-0.01em", lineHeight: 1.1, marginBottom: 2 }}>
+                    {outfit.title}
+                  </h3>
+                  <p style={{ color: "var(--muted-foreground)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>{outfit.occasion}</p>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
 
-        {/* Swipe hint */}
-        <div className="flex justify-center gap-4 mt-3">
-          {OUTFIT_SUGGESTIONS.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setActiveOutfit(i)}
-              className="px-4 py-1.5 rounded-full transition-all"
-              style={{
-                background: i === activeOutfit ? "rgba(201,169,110,0.15)" : "transparent",
-                border: `1px solid ${i === activeOutfit ? "var(--gold)" : "var(--border)"}`,
-                color: i === activeOutfit ? "var(--gold)" : "var(--muted-foreground)",
-                fontSize: "11px",
-                cursor: "pointer",
-              }}
-            >
-              Look {i + 1}
-            </button>
+              {/* Items list */}
+              <div className="px-4 py-3">
+                <div className="flex flex-wrap gap-1.5">
+                  {outfit.items.map((item) => (
+                    <span key={item} className="px-3 py-1.5 rounded-full" style={{ background: "var(--surface-2)", color: "var(--muted-foreground)", fontSize: "11px", border: "1px solid var(--border)" }}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
 
       {/* Color of the Day */}
       <div className="px-6 mb-6">
-        <p style={{ color: "var(--muted-foreground)", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
-          Today's Color
-        </p>
-        <div
-          className="rounded-2xl p-4 flex items-center gap-4"
-          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
-        >
-          <div
-            className="w-16 h-16 rounded-xl shrink-0"
-            style={{ background: COLOR_OF_DAY.hex, boxShadow: `0 8px 24px ${COLOR_OF_DAY.hex}40` }}
-          />
-          <div className="flex-1 min-w-0">
-            <p style={{ color: "var(--cream)", fontWeight: 500, marginBottom: 2, fontSize: "14px" }}>{COLOR_OF_DAY.name}</p>
-            <p style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.4, marginBottom: 8 }}>{COLOR_OF_DAY.desc}</p>
-            <div className="flex gap-1">
-              {COLOR_OF_DAY.pairsWith.map((c) => (
-                <span key={c} style={{ color: "var(--muted-foreground)", fontSize: "10px", background: "var(--surface-2)", padding: "2px 8px", borderRadius: 99 }}>
-                  {c}
-                </span>
-              ))}
+        <div className="rounded-2xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-full shrink-0" style={{ background: COLOR_OF_DAY.hex }} />
+            <div>
+              <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase" }}>Color of the Day</p>
+              <p style={{ color: "var(--cream)", fontSize: "14px", fontWeight: 500, fontFamily: "var(--font-display)" }}>{COLOR_OF_DAY.name}</p>
             </div>
+          </div>
+          <p style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.5, marginBottom: 10 }}>{COLOR_OF_DAY.desc}</p>
+          <div className="flex gap-2">
+            {COLOR_OF_DAY.pairsWith.map((c) => (
+              <span key={c} className="px-2 py-1 rounded-full" style={{ background: "var(--surface-2)", color: "var(--muted-foreground)", fontSize: "10px" }}>{c}</span>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Horoscope Style */}
+      {/* Style Horoscope */}
       <div className="px-6 mb-6">
-        <p style={{ color: "var(--muted-foreground)", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
-          Style Forecast ✦ Astrology
-        </p>
+        <div className="flex items-center justify-between mb-3">
+          <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 500 }}>Style Horoscope</p>
+          <Sparkles size={14} style={{ color: "var(--gold)" }} />
+        </div>
 
         {/* Sign picker */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-4" style={{ scrollbarWidth: "none" }}>
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-4" style={{ scrollbarWidth: "none" }}>
           {ZODIAC_SIGNS.map((sign) => (
             <button
               key={sign}
               onClick={() => setSelectedSign(sign)}
-              className="px-3 py-2 rounded-xl shrink-0 transition-all duration-200"
+              className="shrink-0 px-3 py-2 rounded-full flex items-center gap-1.5 transition-all"
               style={{
-                background: selectedSign === sign ? "rgba(201,169,110,0.15)" : "var(--surface)",
+                background: selectedSign === sign ? "var(--gold)" : "var(--surface)",
+                color: selectedSign === sign ? "var(--charcoal)" : "var(--muted-foreground)",
                 border: `1px solid ${selectedSign === sign ? "var(--gold)" : "var(--border)"}`,
-                color: selectedSign === sign ? "var(--gold)" : "var(--muted-foreground)",
                 fontSize: "11px",
+                fontWeight: selectedSign === sign ? 600 : 400,
                 cursor: "pointer",
               }}
             >
-              {HOROSCOPE_STYLES[sign].emoji} {sign}
+              <span>{HOROSCOPE_STYLES[sign].emoji}</span>
+              <span>{sign}</span>
             </button>
           ))}
         </div>
 
-        <div
-          className="rounded-2xl p-5"
-          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
-              style={{ background: "rgba(201,169,110,0.1)" }}
-            >
-              {horoscope.emoji}
-            </div>
+        <div className="rounded-2xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center gap-3 mb-3">
+            <span style={{ fontSize: "28px" }}>{horoscope.emoji}</span>
             <div>
-              <p style={{ color: "var(--cream)", fontWeight: 500, fontSize: "15px" }}>{horoscope.sign}</p>
-              <p style={{ color: "var(--gold)", fontSize: "12px", fontStyle: "italic" }}>{horoscope.style}</p>
+              <p style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "18px", fontWeight: 400, letterSpacing: "-0.01em" }}>{horoscope.sign}</p>
+              <p style={{ color: "var(--gold)", fontSize: "11px", fontStyle: "italic" }}>{horoscope.style}</p>
             </div>
           </div>
-
-          <p style={{ color: "var(--muted-foreground)", fontSize: "13px", lineHeight: 1.6, marginBottom: 16 }}>
-            {horoscope.advice}
-          </p>
-
-          <div>
-            <p style={{ color: "var(--muted-foreground)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>
-              Your Power Colors Today
-            </p>
-            <div className="flex gap-2">
-              {horoscope.colors.map((color, i) => (
-                <div key={i} className="flex flex-col items-center gap-1">
-                  <div className="w-8 h-8 rounded-full" style={{ background: color }} />
-                  <span style={{ fontSize: "9px", color: "var(--muted-foreground)" }}>{color}</span>
-                </div>
-              ))}
-            </div>
+          <p style={{ color: "var(--muted-foreground)", fontSize: "13px", lineHeight: 1.6, marginBottom: 12 }}>{horoscope.advice}</p>
+          <div className="flex gap-2">
+            {horoscope.colors.map((c) => (
+              <div key={c} className="w-6 h-6 rounded-full" style={{ background: c }} />
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Quick access */}
-      <div className="px-6 mb-24">
-        <p style={{ color: "var(--muted-foreground)", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
-          Quick Actions
-        </p>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: "Find My Glasses", icon: "👓", desc: "Frame matching by face shape" },
-            { label: "Color Analysis", icon: "🎨", desc: "Discover your season" },
-            { label: "Stylist Match", icon: "✨", desc: "Connect with a real stylist" },
-            { label: "Get The Look", icon: "🛍️", desc: "Shop any outfit" },
-          ].map((action) => (
-            <button
-              key={action.label}
-              className="p-4 rounded-xl text-left transition-all duration-200 active:scale-95"
-              style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}
-            >
-              <span style={{ fontSize: "22px", display: "block", marginBottom: 6 }}>{action.icon}</span>
-              <p style={{ color: "var(--cream)", fontSize: "12px", fontWeight: 500, marginBottom: 2 }}>{action.label}</p>
-              <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>{action.desc}</p>
-            </button>
-          ))}
-        </div>
-      </div>
+      <div className="h-8" />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, type CSSProperties } from "react";
 import { publicAnonKey, projectId } from "/utils/supabase/info";
 import { supabase } from "../lib/supabase";
 import { OnboardingFlow, type StyleProfile } from "./components/onboarding/OnboardingFlow";
@@ -9,6 +9,7 @@ import { DiscoverScreen } from "./components/discover/DiscoverScreen";
 import { ProfileScreen } from "./components/profile/ProfileScreen";
 import { IrisChatScreen } from "./components/chat/IrisChatScreen";
 import { AuthScreen } from "./components/auth/AuthScreen";
+import { IrysAppIcon } from "./components/ui/IrysLogo";
 
 const SERVER =`https://${projectId}.supabase.co/functions/v1/make-server-7dbc8ff8`;
 
@@ -31,28 +32,7 @@ export default function App() {
   const [profile, setProfile] = useState<StyleProfile>(DEFAULT_PROFILE);
   const [activeTab, setActiveTab] = useState<Tab>("home");
 
-  // On mount — check for existing session (also handles OAuth redirect)
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.access_token) {
-        setAccessToken(session.access_token);
-        loadProfile(session.access_token);
-      } else {
-        setAppState("auth");
-      }
-    });
-
-    // Listen for OAuth sign-in completing
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.access_token) {
-        setAccessToken(session.access_token);
-        loadProfile(session.access_token);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const loadProfile = async (token: string) => {
+  const loadProfile = useCallback(async (token: string) => {
     try {
       const res = await fetch(`${SERVER}/profile`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -62,13 +42,37 @@ export default function App() {
         setProfile(data.profile);
         setAppState("app");
       } else {
+        // New user — no profile saved yet, send to onboarding
         setAppState("onboarding");
       }
     } catch (err) {
       console.log("Failed to load profile:", err);
+      // Server unavailable — still let the user in via onboarding
       setAppState("onboarding");
     }
-  };
+  }, []);
+
+  // onAuthStateChange is the single source of truth — no getSession() race condition.
+  // INITIAL_SESSION: fires on mount (handles page refresh + post-OAuth redirect)
+  // SIGNED_IN: fires after email login or OAuth callback completes
+  // SIGNED_OUT: fires after signOut()
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        if (session?.access_token) {
+          setAccessToken(session.access_token);
+          loadProfile(session.access_token);
+        } else if (event === "INITIAL_SESSION") {
+          setAppState("auth");
+        }
+      } else if (event === "SIGNED_OUT") {
+        setAccessToken(null);
+        setProfile(DEFAULT_PROFILE);
+        setAppState("auth");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [loadProfile]);
 
   const saveProfile = async (token: string, p: StyleProfile) => {
     try {
@@ -91,37 +95,50 @@ export default function App() {
     loadProfile(token);
   };
 
+  // previewMode = true means onboarding runs but won't save to the database
+  const [previewMode, setPreviewMode] = useState(false);
+
   const handleOnboardingComplete = (newProfile: StyleProfile) => {
     setProfile(newProfile);
-    if (accessToken) saveProfile(accessToken, newProfile);
+    if (accessToken && !previewMode) saveProfile(accessToken, newProfile);
+    setPreviewMode(false);
     setAppState("app");
   };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setAccessToken(null);
-    setProfile(DEFAULT_PROFILE);
-    setAppState("auth");
+    // onAuthStateChange SIGNED_OUT handles state cleanup
   };
 
-  const handleReset = () => setAppState("onboarding");
+  // Full reset — overwrites saved profile
+  const handleReset = () => {
+    setPreviewMode(false);
+    setAppState("onboarding");
+  };
+
+  // Preview mode — runs onboarding but doesn't touch the saved profile
+  const handlePreview = () => {
+    setPreviewMode(true);
+    setAppState("onboarding");
+  };
+
+  const mobileShell: CSSProperties = {
+    width: "100%",
+    maxWidth: 430,
+    height: "100dvh",          // dvh = excludes browser chrome on iOS
+    background: "#0E0D0C",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    position: "relative",
+  };
 
   // ── Loading splash ─────────────────────────────────────────────
   if (appState === "loading") {
     return (
-      <div className="size-full flex items-center justify-center" style={{ background: "#0E0D0C" }}>
-        <div className="flex flex-col items-center gap-4">
-          <h1 style={{
-            fontFamily: "var(--font-display)",
-            color: "var(--gold)",
-            fontSize: "56px",
-            fontWeight: 400,
-            letterSpacing: "-0.04em",
-            fontStyle: "italic",
-            lineHeight: 1,
-          }}>
-            IRYS
-          </h1>
+      <div style={{ ...mobileShell, alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
+        <div className="flex flex-col items-center gap-5">
+          <IrysAppIcon size={96} />
           <div className="flex gap-1.5">
             {[0, 1, 2].map((i) => (
               <div key={i} className="w-1.5 h-1.5 rounded-full"
@@ -137,10 +154,8 @@ export default function App() {
   // ── Auth screen ────────────────────────────────────────────────
   if (appState === "auth") {
     return (
-      <div className="size-full flex items-center justify-center" style={{ background: "#0E0D0C" }}>
-        <div className="relative overflow-hidden" style={{ width: "100%", maxWidth: 430, height: "100%", maxHeight: 932, background: "#0E0D0C" }}>
-          <AuthScreen onAuth={handleAuth} />
-        </div>
+      <div style={{ ...mobileShell, overflowY: "auto", margin: "0 auto" }}>
+        <AuthScreen onAuth={handleAuth} />
       </div>
     );
   }
@@ -148,19 +163,16 @@ export default function App() {
   // ── Onboarding ─────────────────────────────────────────────────
   if (appState === "onboarding") {
     return (
-      <div className="size-full flex items-center justify-center" style={{ background: "#0E0D0C" }}>
-        <div className="relative overflow-hidden" style={{ width: "100%", maxWidth: 430, height: "100%", maxHeight: 932, background: "#0E0D0C" }}>
-          <OnboardingFlow onComplete={handleOnboardingComplete} />
-        </div>
+      <div style={{ ...mobileShell, overflowY: "auto", margin: "0 auto" }}>
+        <OnboardingFlow onComplete={handleOnboardingComplete} />
       </div>
     );
   }
 
   // ── Main app ───────────────────────────────────────────────────
   return (
-    <div className="size-full flex items-center justify-center" style={{ background: "#080807" }}>
-      <div className="relative overflow-hidden flex flex-col"
-        style={{ width: "100%", maxWidth: 430, height: "100%", maxHeight: 932, background: "#0E0D0C" }}>
+    <div style={{ width: "100%", minHeight: "100dvh", background: "#080807", display: "flex", justifyContent: "center" }}>
+      <div style={{ ...mobileShell }}>
         <div className="flex-1 overflow-hidden relative">
           {activeTab === "home" && <HomeScreen profile={profile} />}
           {activeTab === "wardrobe" && <WardrobeScreen />}
@@ -170,7 +182,9 @@ export default function App() {
             <ProfileScreen
               profile={profile}
               onReset={handleReset}
+              onPreview={handlePreview}
               onSignOut={handleSignOut}
+              isLoggedIn={!!accessToken}
             />
           )}
         </div>
