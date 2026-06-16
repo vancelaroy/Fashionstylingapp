@@ -16,13 +16,13 @@ export interface ClosetItem {
 }
 
 const CLOSET_ITEMS: ClosetItem[] = [
-  { id: 1, name: "Silk Slip Dress", brand: "Reformation", category: "dress", color: "#D4A5B5", colorName: "Dusty Rose", image: "https://images.unsplash.com/photo-1611367540736-b1b38aff784b?w=300&h=400&fit=crop&auto=format", source: "purchased" },
+  { id: 1, name: "Silk Slip Dress", brand: "Reformation", category: "dress", color: "#8F88A8", colorName: "Dusty Rose", image: "https://images.unsplash.com/photo-1611367540736-b1b38aff784b?w=300&h=400&fit=crop&auto=format", source: "purchased" },
   { id: 2, name: "Wool Blazer", brand: "Theory", category: "outerwear", color: "#2F4F4F", colorName: "Deep Teal", image: "https://images.unsplash.com/photo-1629511565591-a1d494ad6c58?w=300&h=400&fit=crop&auto=format", source: "purchased" },
   { id: 3, name: "Wide Leg Trousers", brand: "Arket", category: "bottom", color: "#8B7355", colorName: "Warm Taupe", image: "https://images.unsplash.com/photo-1533392151650-269f96231f65?w=300&h=400&fit=crop&auto=format", source: "uploaded" },
   { id: 4, name: "Cashmere Turtleneck", brand: "Everlane", category: "top", color: "#F5F0E8", colorName: "Cream", image: "https://images.unsplash.com/photo-1636153279424-cb5d1e00f5a2?w=300&h=400&fit=crop&auto=format", source: "uploaded" },
   { id: 5, name: "Leather Loafers", brand: "Toteme", category: "shoes", color: "#3B2314", colorName: "Espresso", image: "https://images.unsplash.com/photo-1549439602-43ebca2327af?w=300&h=400&fit=crop&auto=format", source: "purchased" },
-  { id: 6, name: "Gold Chain Bag", brand: "Mango", category: "bag", color: "#C9A96E", colorName: "Gold", image: "https://images.unsplash.com/photo-1589363358751-ab05797e5629?w=300&h=400&fit=crop&auto=format", source: "purchased" },
-  { id: 7, name: "Strappy Sandals", brand: "Sam Edelman", category: "shoes", color: "#C9A96E", colorName: "Gold", image: "https://images.unsplash.com/photo-1569388330292-79cc1ec67270?w=300&h=400&fit=crop&auto=format", source: "wishlisted" },
+  { id: 6, name: "Gold Chain Bag", brand: "Mango", category: "bag", color: "#C7B38B", colorName: "Gold", image: "https://images.unsplash.com/photo-1589363358751-ab05797e5629?w=300&h=400&fit=crop&auto=format", source: "purchased" },
+  { id: 7, name: "Strappy Sandals", brand: "Sam Edelman", category: "shoes", color: "#C7B38B", colorName: "Gold", image: "https://images.unsplash.com/photo-1569388330292-79cc1ec67270?w=300&h=400&fit=crop&auto=format", source: "wishlisted" },
   { id: 8, name: "Linen Midi Skirt", brand: "& Other Stories", category: "bottom", color: "#DDD5C4", colorName: "Linen", image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300&h=400&fit=crop&auto=format", source: "uploaded" },
 ];
 
@@ -112,7 +112,7 @@ export function VirtualCloset() {
           <div className="flex gap-2">
             <button
               className="px-3 py-1.5 rounded-full flex items-center gap-1.5"
-              style={{ background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", color: "var(--gold)", fontSize: "11px", cursor: "pointer" }}
+              style={{ background: "rgba(199,179,139,0.1)", border: "1px solid rgba(199,179,139,0.2)", color: "var(--gold)", fontSize: "11px", cursor: "pointer" }}
             >
               <Link size={11} /> Import Orders
               <PremiumBadge />
@@ -154,7 +154,7 @@ export function VirtualCloset() {
           <div className="px-6 mb-5">
             <div
               className="rounded-2xl p-4 relative"
-              style={{ background: "var(--surface)", border: `1px solid ${hasAnyItem ? "rgba(201,169,110,0.3)" : "var(--border)"}`, minHeight: 320 }}
+              style={{ background: "var(--surface)", border: `1px solid ${hasAnyItem ? "rgba(199,179,139,0.3)" : "var(--border)"}`, minHeight: 320 }}
             >
               {/* Header of board */}
               <div className="flex items-center justify-between mb-4">
@@ -167,7 +167,7 @@ export function VirtualCloset() {
                       <button onClick={clearAll} className="flex items-center gap-1 px-2 py-1 rounded-lg" style={{ background: "var(--surface-2)", border: "none", cursor: "pointer", color: "var(--muted-foreground)", fontSize: "11px" }}>
                         <RotateCcw size={10} /> Clear
                       </button>
-                      <button onClick={() => setShowSaveModal(true)} className="flex items-center gap-1 px-2 py-1 rounded-lg" style={{ background: "rgba(201,169,110,0.15)", border: "1px solid rgba(201,169,110,0.3)", cursor: "pointer", color: "var(--gold)", fontSize: "11px" }}>
+                      <button onClick={() => setShowSaveModal(true)} className="flex items-center gap-1 px-2 py-1 rounded-lg" style={{ background: "rgba(199,179,139,0.15)", border: "1px solid rgba(199,179,139,0.3)", cursor: "pointer", color: "var(--gold)", fontSize: "11px" }}>
                         <Heart size={10} /> Save Look
                       </button>
                     </>
@@ -188,7 +188,7 @@ export function VirtualCloset() {
                       className="rounded-xl overflow-hidden relative flex flex-col items-center justify-center transition-all"
                       style={{
                         background: item ? "transparent" : "var(--surface-2)",
-                        border: `1.5px solid ${isActive ? "var(--gold)" : item ? "rgba(201,169,110,0.2)" : "var(--border)"}`,
+                        border: `1.5px solid ${isActive ? "var(--gold)" : item ? "rgba(199,179,139,0.2)" : "var(--border)"}`,
                         height: 100,
                         cursor: "pointer",
                       }}
@@ -252,7 +252,7 @@ export function VirtualCloset() {
                         <p style={{ color: "var(--cream)", fontSize: "9px", textAlign: "center", lineHeight: 1.3 }}>{item.name}</p>
                       </div>
                       {item.source === "wishlisted" && (
-                        <div className="absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(212,165,181,0.9)" }}>
+                        <div className="absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(143,136,168,0.9)" }}>
                           <Heart size={8} fill="white" style={{ color: "white" }} />
                         </div>
                       )}
@@ -260,7 +260,7 @@ export function VirtualCloset() {
                   )) : (
                     <div className="flex flex-col items-center justify-center w-full py-6 gap-2">
                       <p style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>No {slot?.label.toLowerCase()} in your closet yet</p>
-                      <button className="px-4 py-2 rounded-xl flex items-center gap-1.5" style={{ background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", color: "var(--gold)", fontSize: "11px", cursor: "pointer" }}>
+                      <button className="px-4 py-2 rounded-xl flex items-center gap-1.5" style={{ background: "rgba(199,179,139,0.1)", border: "1px solid rgba(199,179,139,0.2)", color: "var(--gold)", fontSize: "11px", cursor: "pointer" }}>
                         <Plus size={12} /> Add piece
                       </button>
                     </div>
@@ -323,7 +323,7 @@ export function VirtualCloset() {
         <div className="flex-1 overflow-y-auto px-6 pb-4">
           {savedOutfits.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 gap-3">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(201,169,110,0.1)" }}>
+              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.1)" }}>
                 <Heart size={24} style={{ color: "var(--gold)" }} />
               </div>
               <p style={{ color: "var(--cream)", fontSize: "14px", fontWeight: 500 }}>No saved looks yet</p>

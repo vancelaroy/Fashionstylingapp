@@ -297,7 +297,7 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
         {/* ── For You ── */}
         {activeTab === "For You" && (
           <div className="px-6">
-            <div className="rounded-2xl p-4 mb-5 flex items-center gap-3" style={{ background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.2)" }}>
+            <div className="rounded-2xl p-4 mb-5 flex items-center gap-3" style={{ background: "rgba(199,179,139,0.08)", border: "1px solid rgba(199,179,139,0.2)" }}>
               <span style={{ fontSize: "18px" }}>✦</span>
               <div className="flex-1">
                 <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 500 }}>Curated from your Style DNA</p>
@@ -317,7 +317,7 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
                       <span style={{ color: "var(--gold)", fontSize: "10px", fontWeight: 600 }}>{item.match}% ✦</span>
                     </div>
                     <button onClick={() => toggleWishlist(item.id)} className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer" }}>
-                      <Heart size={12} style={{ color: wishlist.includes(item.id) ? "#D4A5B5" : "var(--cream)" }} fill={wishlist.includes(item.id) ? "#D4A5B5" : "none"} />
+                      <Heart size={12} style={{ color: wishlist.includes(item.id) ? "#8F88A8" : "var(--cream)" }} fill={wishlist.includes(item.id) ? "#8F88A8" : "none"} />
                     </button>
                   </div>
                   <div className="p-3">
@@ -406,7 +406,7 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
         {activeTab === "Glasses" && (
           <div className="px-6">
             {/* Face shape card */}
-            <div className="rounded-2xl p-4 mb-5" style={{ background: "rgba(201,169,110,0.06)", border: "1px solid rgba(201,169,110,0.3)" }}>
+            <div className="rounded-2xl p-4 mb-5" style={{ background: "rgba(199,179,139,0.06)", border: "1px solid rgba(199,179,139,0.3)" }}>
               <div className="flex items-center gap-3 mb-3">
                 <Glasses size={20} style={{ color: "var(--gold)" }} />
                 <div>
@@ -428,9 +428,9 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
             <div className="flex flex-col gap-4">
               {glassesData.frames.map((frame, i) => (
                 <motion.div key={frame.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                  className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: i === 0 ? "1px solid rgba(201,169,110,0.4)" : "1px solid var(--border)" }}>
+                  className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: i === 0 ? "1px solid rgba(199,179,139,0.4)" : "1px solid var(--border)" }}>
                   {i === 0 && (
-                    <div className="px-4 py-2 flex items-center gap-2" style={{ background: "rgba(201,169,110,0.1)", borderBottom: "1px solid rgba(201,169,110,0.2)" }}>
+                    <div className="px-4 py-2 flex items-center gap-2" style={{ background: "rgba(199,179,139,0.1)", borderBottom: "1px solid rgba(199,179,139,0.2)" }}>
                       <Star size={11} style={{ color: "var(--gold)" }} fill="var(--gold)" />
                       <span style={{ color: "var(--gold)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.05em" }}>BEST FOR YOUR FACE SHAPE</span>
                     </div>
@@ -477,13 +477,13 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
                 <motion.div key={person.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
                   className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                   {/* Type banner */}
-                  <div className="px-4 py-2 flex items-center gap-2" style={{ background: person.type === "tailor" ? "rgba(143,163,177,0.1)" : "rgba(212,165,181,0.1)", borderBottom: "1px solid var(--border)" }}>
+                  <div className="px-4 py-2 flex items-center gap-2" style={{ background: person.type === "tailor" ? "rgba(143,163,177,0.1)" : "rgba(143,136,168,0.1)", borderBottom: "1px solid var(--border)" }}>
                     {person.type === "tailor" ? <Scissors size={11} style={{ color: "var(--slate)" }} /> : <Sparkles size={11} style={{ color: "var(--rose)" }} />}
                     <span style={{ color: person.type === "tailor" ? "var(--slate)" : "var(--rose)", fontSize: "10px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>
                       {person.type === "tailor" ? "Tailor & Alterations" : "Personal Stylist"}
                     </span>
                     {person.badge && (
-                      <span className="ml-auto px-2 py-0.5 rounded-full" style={{ background: "rgba(201,169,110,0.15)", color: "var(--gold)", fontSize: "9px", fontWeight: 600 }}>
+                      <span className="ml-auto px-2 py-0.5 rounded-full" style={{ background: "rgba(199,179,139,0.15)", color: "var(--gold)", fontSize: "9px", fontWeight: 600 }}>
                         {person.badge}
                       </span>
                     )}

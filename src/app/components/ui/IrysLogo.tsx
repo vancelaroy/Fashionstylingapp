@@ -12,7 +12,7 @@ interface IrysLogoProps {
 export function IrysLogo({
   variant = "stacked",
   size = 48,
-  color = "#C9A96E",
+  color = "#C7B38B",
   background = "transparent",
   className,
 }: IrysLogoProps) {
@@ -138,15 +138,15 @@ export function IrysAppIcon({ size = 120 }: { size?: number }) {
       style={{ display: "block" }}
     >
       {/* Dark tile */}
-      <rect width="120" height="120" rx="26" fill="#0E0D0C" />
+      <rect width="120" height="120" rx="26" fill="#161616" />
 
       {/* Subtle gold border */}
-      <rect width="120" height="120" rx="26" fill="none" stroke="#C9A96E" strokeWidth="1" strokeOpacity="0.3" />
+      <rect width="120" height="120" rx="26" fill="none" stroke="#C7B38B" strokeWidth="1" strokeOpacity="0.3" />
 
       {/* Iris mark — centered, slightly above mathematical center for optical balance */}
       <g transform="translate(60 58)">
         {/* Outer ring */}
-        <circle r="39" stroke="#C9A96E" strokeWidth="1.6" />
+        <circle r="39" stroke="#C7B38B" strokeWidth="1.6" />
 
         {/* 16 fiber lines */}
         {Array.from({ length: 16 }, (_, i) => {
@@ -156,14 +156,14 @@ export function IrysAppIcon({ size = 120 }: { size?: number }) {
           const y1 = 25 * Math.sin(rad);
           const x2 = 38 * Math.cos(rad);
           const y2 = 38 * Math.sin(rad);
-          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#C9A96E" strokeWidth="0.8" strokeOpacity="0.5" />;
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#C7B38B" strokeWidth="0.8" strokeOpacity="0.5" />;
         })}
 
         {/* Inner ring */}
-        <circle r="25" stroke="#C9A96E" strokeWidth="1.1" />
+        <circle r="25" stroke="#C7B38B" strokeWidth="1.1" />
 
         {/* Pupil */}
-        <circle r="10" fill="#C9A96E" />
+        <circle r="10" fill="#C7B38B" />
 
         {/* Specular highlight */}
         <circle cx="4" cy="-4" r="2.2" fill="rgba(245,240,232,0.3)" />

@@ -2,53 +2,57 @@
 
 :root {
   --font-size: 16px;
-  --background: #0E0D0C;
-  --foreground: #F5F0E8;
-  --card: #1A1917;
-  --card-foreground: #F5F0E8;
-  --popover: #1A1917;
-  --popover-foreground: #F5F0E8;
-  --primary: #C9A96E;
-  --primary-foreground: #0E0D0C;
-  --secondary: #2A2825;
-  --secondary-foreground: #F5F0E8;
-  --muted: #2A2825;
-  --muted-foreground: #8A8478;
-  --accent: #D4A5B5;
-  --accent-foreground: #0E0D0C;
+
+  /* ── Palette 2 — Dark Editorial Lavender ───────────────────── */
+  --background: #161616;
+  --foreground: #F5F2EC;
+  --card: #242424;
+  --card-foreground: #F5F2EC;
+  --popover: #242424;
+  --popover-foreground: #F5F2EC;
+  --primary: #C7B38B;
+  --primary-foreground: #161616;
+  --secondary: #2E2E2E;
+  --secondary-foreground: #F5F2EC;
+  --muted: #2E2E2E;
+  --muted-foreground: #7A7A7A;
+  --accent: #8F88A8;
+  --accent-foreground: #F5F2EC;
   --destructive: #c0392b;
-  --destructive-foreground: #F5F0E8;
-  --border: rgba(201, 169, 110, 0.15);
+  --destructive-foreground: #F5F2EC;
+  --border: rgba(199, 179, 139, 0.15);
   --input: transparent;
-  --input-background: #2A2825;
-  --switch-background: #3A3832;
+  --input-background: #2E2E2E;
+  --switch-background: #3A3A3A;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #C9A96E;
-  --chart-1: #C9A96E;
-  --chart-2: #D4A5B5;
-  --chart-3: #8A8478;
-  --chart-4: #E8D5B7;
+  --ring: #C7B38B;
+  --chart-1: #C7B38B;
+  --chart-2: #8F88A8;
+  --chart-3: #7A7A7A;
+  --chart-4: #D6D0C7;
   --chart-5: #6B8F71;
   --radius: 1rem;
-  --sidebar: #1A1917;
-  --sidebar-foreground: #F5F0E8;
-  --sidebar-primary: #C9A96E;
-  --sidebar-primary-foreground: #0E0D0C;
-  --sidebar-accent: #2A2825;
-  --sidebar-accent-foreground: #F5F0E8;
-  --sidebar-border: rgba(201, 169, 110, 0.15);
-  --sidebar-ring: #C9A96E;
-  /* Fashion app custom tokens */
-  --gold: #C9A96E;
-  --rose: #D4A5B5;
-  --slate: #8FA3B1;          /* dusty blue-grey — gender-neutral cool accent */
-  --slate-soft: rgba(143, 163, 177, 0.12);
-  --cream: #F5F0E8;
-  --ivory: #E7E2DE;          /* soft minimalist base — future light mode */
-  --charcoal: #0E0D0C;
-  --surface: #1A1917;
-  --surface-2: #2A2825;
+  --sidebar: #242424;
+  --sidebar-foreground: #F5F2EC;
+  --sidebar-primary: #C7B38B;
+  --sidebar-primary-foreground: #161616;
+  --sidebar-accent: #2E2E2E;
+  --sidebar-accent-foreground: #F5F2EC;
+  --sidebar-border: rgba(199, 179, 139, 0.15);
+  --sidebar-ring: #C7B38B;
+
+  /* ── Custom brand tokens ────────────────────────────────────── */
+  --gold: #C7B38B;            /* champagne gold — primary accent */
+  --lavender: #8F88A8;        /* dusty lavender — secondary accent */
+  --rose: #8F88A8;            /* mapped to lavender (replaces old rose everywhere) */
+  --slate: #8F88A8;           /* same lavender family */
+  --slate-soft: rgba(143, 136, 168, 0.12);
+  --cream: #F5F2EC;           /* warm off-white — all text */
+  --ivory: #F3F0EB;           /* slightly warmer ivory for cards */
+  --charcoal: #161616;        /* deepest background */
+  --surface: #242424;         /* card / surface level 1 */
+  --surface-2: #2E2E2E;       /* input / surface level 2 */
 
   /* Editorial typography helpers */
   --label-style: 500 10px/1 var(--font-body);

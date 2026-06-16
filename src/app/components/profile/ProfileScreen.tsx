@@ -15,7 +15,7 @@ interface ProfileScreenProps {
 const COLOR_SEASON_DATA: Record<string, { palette: string[]; desc: string; avoid: string }> = {
   spring: { palette: ["#FFD4A3", "#FF8C69", "#FFC1CC", "#FFFACD", "#98FB98"], desc: "Warm, clear, and light. Your best colors have golden undertones.", avoid: "Black, cool greys, and icy pastels" },
   summer: { palette: ["#B0C4DE", "#DDA0DD", "#F0E6FF", "#C9E4DE", "#E8C5E5"], desc: "Cool, muted, and light. Dusty pinks and lavenders are your power colors.", avoid: "Warm oranges, yellows, and earthy browns" },
-  autumn: { palette: ["#CD853F", "#8B4513", "#6B8E23", "#D2691E", "#C9A96E"], desc: "Warm, rich, and earthy. You glow in muted, warm tones.", avoid: "Icy colours, fuchsia, and stark black" },
+  autumn: { palette: ["#CD853F", "#8B4513", "#6B8E23", "#D2691E", "#C7B38B"], desc: "Warm, rich, and earthy. You glow in muted, warm tones.", avoid: "Icy colours, fuchsia, and stark black" },
   winter: { palette: ["#1C1C2E", "#DC143C", "#4169E1", "#FFFFFF", "#800080"], desc: "Cool, clear, and intense. High contrast looks best on you.", avoid: "Muted, earthy tones and warm yellows" },
 };
 
@@ -83,7 +83,7 @@ export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLogged
         <div className="flex items-center gap-4 mb-6">
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center"
-            style={{ background: "rgba(201,169,110,0.15)", border: "2px solid var(--gold)" }}
+            style={{ background: "rgba(199,179,139,0.15)", border: "2px solid var(--gold)" }}
           >
             <span style={{ fontFamily: "var(--font-display)", fontSize: "24px", color: "var(--gold)" }}>
               {profile.name ? profile.name[0].toUpperCase() : "A"}
@@ -98,7 +98,7 @@ export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLogged
                 <span
                   key={tag}
                   className="px-2 py-0.5 rounded-full"
-                  style={{ background: "rgba(201,169,110,0.12)", color: "var(--gold)", fontSize: "10px" }}
+                  style={{ background: "rgba(199,179,139,0.12)", color: "var(--gold)", fontSize: "10px" }}
                 >
                   {tag}
                 </span>
@@ -159,7 +159,7 @@ export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLogged
           <div className="pt-4">
             <div
               className="rounded-xl p-3 mb-4 flex items-start gap-2"
-              style={{ background: "rgba(201,169,110,0.06)", border: "1px solid var(--border)" }}
+              style={{ background: "rgba(199,179,139,0.06)", border: "1px solid var(--border)" }}
             >
               <Glasses size={14} style={{ color: "var(--gold)", marginTop: 2 }} />
               <p style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.5 }}>
@@ -233,7 +233,7 @@ export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLogged
               <div
                 key={label}
                 className="rounded-xl p-3"
-                style={{ background: highlight ? "rgba(201,169,110,0.08)" : "var(--surface-2)", border: highlight ? "1px solid rgba(201,169,110,0.2)" : "none" }}
+                style={{ background: highlight ? "rgba(199,179,139,0.08)" : "var(--surface-2)", border: highlight ? "1px solid rgba(199,179,139,0.2)" : "none" }}
               >
                 <p style={{ color: "var(--muted-foreground)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{label}</p>
                 <p style={{ color: value === "—" ? "var(--muted-foreground)" : "var(--gold)", fontSize: "16px", fontFamily: "var(--font-display)" }}>{value}</p>
@@ -252,7 +252,7 @@ export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLogged
         <button
           onClick={() => setShowCaseStudy(true)}
           className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 mt-2 transition-all active:scale-95"
-          style={{ background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.25)", cursor: "pointer" }}
+          style={{ background: "rgba(199,179,139,0.08)", border: "1px solid rgba(199,179,139,0.25)", cursor: "pointer" }}
         >
           <BookOpen size={15} style={{ color: "var(--gold)" }} />
           <span style={{ color: "var(--gold)", fontSize: "13px" }}>Read the IRYS Case Study</span>
@@ -262,7 +262,7 @@ export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLogged
         {isLoggedIn ? (
           <div className="mt-2 flex flex-col gap-2">
             <button onClick={onPreview} className="w-full py-3.5 rounded-2xl flex items-center gap-3 px-4 transition-all active:scale-95" style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
-              <Eye size={15} style={{ color: "var(--slate, #8FA3B1)" }} />
+              <Eye size={15} style={{ color: "var(--slate, #8F88A8)" }} />
               <div className="text-left">
                 <span style={{ color: "var(--cream)", fontSize: "13px", display: "block" }}>Preview as Different Style</span>
                 <span style={{ color: "var(--muted-foreground)", fontSize: "10px" }}>Test any gender — won't change your saved profile</span>
@@ -318,7 +318,7 @@ function DetailedMeasurements() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between py-3 px-4 rounded-xl transition-all"
-        style={{ background: isOpen ? "rgba(201,169,110,0.08)" : "var(--surface-2)", border: `1px solid ${isOpen ? "rgba(201,169,110,0.25)" : "transparent"}`, cursor: "pointer" }}
+        style={{ background: isOpen ? "rgba(199,179,139,0.08)" : "var(--surface-2)", border: `1px solid ${isOpen ? "rgba(199,179,139,0.25)" : "transparent"}`, cursor: "pointer" }}
       >
         <div className="flex items-center gap-2">
           <Ruler size={13} style={{ color: "var(--gold)" }} />
@@ -390,7 +390,7 @@ function ProfileSection({
   return (
     <div
       className="rounded-2xl overflow-hidden transition-all duration-200"
-      style={{ background: "var(--surface)", border: `1px solid ${isOpen ? "rgba(201,169,110,0.3)" : "var(--border)"}` }}
+      style={{ background: "var(--surface)", border: `1px solid ${isOpen ? "rgba(199,179,139,0.3)" : "var(--border)"}` }}
     >
       <button
         onClick={onToggle}

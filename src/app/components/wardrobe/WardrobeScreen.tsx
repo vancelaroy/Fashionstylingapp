@@ -6,14 +6,14 @@ import { VirtualCloset } from "./VirtualCloset";
 const CATEGORIES = ["All", "Tops", "Bottoms", "Dresses", "Outerwear", "Shoes", "Accessories"];
 
 const WARDROBE_ITEMS = [
-  { id: 1, name: "Silk Slip Dress", brand: "Reformation", category: "Dresses", color: "#D4A5B5", season: "All", favorite: true, image: "https://images.unsplash.com/photo-1611367540736-b1b38aff784b?w=400&h=500&fit=crop&auto=format", occasions: ["Evening", "Casual"] },
+  { id: 1, name: "Silk Slip Dress", brand: "Reformation", category: "Dresses", color: "#8F88A8", season: "All", favorite: true, image: "https://images.unsplash.com/photo-1611367540736-b1b38aff784b?w=400&h=500&fit=crop&auto=format", occasions: ["Evening", "Casual"] },
   { id: 2, name: "Wool Blazer", brand: "Theory", category: "Outerwear", color: "#2F4F4F", season: "Fall/Winter", favorite: false, image: "https://images.unsplash.com/photo-1629511565591-a1d494ad6c58?w=400&h=500&fit=crop&auto=format", occasions: ["Work", "Evening"] },
   { id: 3, name: "Wide Leg Trousers", brand: "Arket", category: "Bottoms", color: "#8B7355", season: "All", favorite: true, image: "https://images.unsplash.com/photo-1533392151650-269f96231f65?w=400&h=500&fit=crop&auto=format", occasions: ["Work", "Casual"] },
   { id: 4, name: "Leather Loafers", brand: "Toteme", category: "Shoes", color: "#3B2314", season: "All", favorite: false, image: "https://images.unsplash.com/photo-1549439602-43ebca2327af?w=400&h=500&fit=crop&auto=format", occasions: ["Work", "Casual"] },
   { id: 5, name: "Cashmere Turtleneck", brand: "Everlane", category: "Tops", color: "#F5F0E8", season: "Fall/Winter", favorite: true, image: "https://images.unsplash.com/photo-1636153279424-cb5d1e00f5a2?w=400&h=500&fit=crop&auto=format", occasions: ["Casual", "Work"] },
-  { id: 6, name: "Gold Chain Bag", brand: "Mango", category: "Accessories", color: "#C9A96E", season: "All", favorite: false, image: "https://images.unsplash.com/photo-1589363358751-ab05797e5629?w=400&h=500&fit=crop&auto=format", occasions: ["Evening", "Casual"] },
+  { id: 6, name: "Gold Chain Bag", brand: "Mango", category: "Accessories", color: "#C7B38B", season: "All", favorite: false, image: "https://images.unsplash.com/photo-1589363358751-ab05797e5629?w=400&h=500&fit=crop&auto=format", occasions: ["Evening", "Casual"] },
   { id: 7, name: "Linen Midi Skirt", brand: "& Other Stories", category: "Bottoms", color: "#DDD5C4", season: "Spring/Summer", favorite: false, image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&h=500&fit=crop&auto=format", occasions: ["Casual"] },
-  { id: 8, name: "Strappy Heels", brand: "Sam Edelman", category: "Shoes", color: "#C9A96E", season: "Spring/Summer", favorite: true, image: "https://images.unsplash.com/photo-1569388330292-79cc1ec67270?w=400&h=500&fit=crop&auto=format", occasions: ["Evening"] },
+  { id: 8, name: "Strappy Heels", brand: "Sam Edelman", category: "Shoes", color: "#C7B38B", season: "Spring/Summer", favorite: true, image: "https://images.unsplash.com/photo-1569388330292-79cc1ec67270?w=400&h=500&fit=crop&auto=format", occasions: ["Evening"] },
 ];
 
 const OUTFIT_IDEAS = [
@@ -204,7 +204,7 @@ export function WardrobeScreen() {
                       style={{
                         fontSize: "9px",
                         color: "var(--gold)",
-                        background: "rgba(201,169,110,0.1)",
+                        background: "rgba(199,179,139,0.1)",
                         padding: "2px 6px",
                         borderRadius: 99,
                         letterSpacing: "0.05em",
@@ -234,7 +234,7 @@ export function WardrobeScreen() {
             >
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: "rgba(201,169,110,0.1)" }}
+                style={{ background: "rgba(199,179,139,0.1)" }}
               >
                 <Plus size={20} style={{ color: "var(--gold)" }} />
               </div>
@@ -286,7 +286,7 @@ export function WardrobeScreen() {
             >
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ background: "rgba(201,169,110,0.1)" }}
+                style={{ background: "rgba(199,179,139,0.1)" }}
               >
                 <Plus size={22} style={{ color: "var(--gold)" }} />
               </div>

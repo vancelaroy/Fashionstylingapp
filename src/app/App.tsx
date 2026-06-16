@@ -126,7 +126,7 @@ export default function App() {
     width: "100%",
     maxWidth: 430,
     height: "100dvh",          // dvh = excludes browser chrome on iOS
-    background: "#0E0D0C",
+    background: "#161616",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
@@ -171,7 +171,7 @@ export default function App() {
 
   // ── Main app ───────────────────────────────────────────────────
   return (
-    <div style={{ width: "100%", minHeight: "100dvh", background: "#080807", display: "flex", justifyContent: "center" }}>
+    <div style={{ width: "100%", minHeight: "100dvh", background: "#0E0E0E", display: "flex", justifyContent: "center" }}>
       <div style={{ ...mobileShell }}>
         <div className="flex-1 overflow-hidden relative">
           {activeTab === "home" && <HomeScreen profile={profile} />}

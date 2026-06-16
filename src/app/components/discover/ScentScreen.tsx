@@ -97,7 +97,7 @@ const SCENT_FAMILIES = [
     keywords: ["romantic", "elegant", "timeless"],
     bestFor: ["Date Night", "Spring", "Special Occasions"],
     moodBoard: "Think: rose petals, dewy garden, soft candlelight",
-    color: "#D4A5B5",
+    color: "#8F88A8",
     menFragrances: [
       { name: "Florals by Maison", brand: "Maison Margiela", price: "$165", notes: "Rose, Jasmine, Vetiver" },
       { name: "Replica Flower Market", brand: "Maison Margiela", price: "$175", notes: "Violet, Rose, Freesia" },
@@ -116,7 +116,7 @@ const SCENT_FAMILIES = [
     keywords: ["approachable", "warm", "comforting"],
     bestFor: ["Autumn/Winter", "Cosy Days", "Casual"],
     moodBoard: "Think: warm vanilla, toasted almonds, cashmere blanket",
-    color: "#C9A96E",
+    color: "#C7B38B",
     menFragrances: [
       { name: "Spicebomb Extreme", brand: "Viktor&Rolf", price: "$125", notes: "Tobacco, Vanilla, Amber" },
       { name: "A*Men Pure Havane", brand: "Thierry Mugler", price: "$115", notes: "Tobacco, Caramel, Patchouli" },
@@ -223,7 +223,7 @@ export function ScentScreen({ gender, colorSeason, stylePersonality }: ScentScre
               return (
                 <motion.div key={family.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
                   className="rounded-2xl overflow-hidden"
-                  style={{ background: "var(--surface)", border: `1px solid ${isExpanded ? "rgba(201,169,110,0.3)" : "var(--border)"}` }}
+                  style={{ background: "var(--surface)", border: `1px solid ${isExpanded ? "rgba(199,179,139,0.3)" : "var(--border)"}` }}
                 >
                   <button onClick={() => setExpandedFamily(isExpanded ? null : family.id)}
                     className="w-full flex items-center gap-4 p-4"
@@ -238,7 +238,7 @@ export function ScentScreen({ gender, colorSeason, stylePersonality }: ScentScre
                       <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>{family.desc}</p>
                       <div className="flex gap-1.5 mt-2 flex-wrap">
                         {family.bestFor.map((b) => (
-                          <span key={b} style={{ fontSize: "9px", color: "var(--gold)", background: "rgba(201,169,110,0.1)", padding: "2px 7px", borderRadius: 99 }}>{b}</span>
+                          <span key={b} style={{ fontSize: "9px", color: "var(--gold)", background: "rgba(199,179,139,0.1)", padding: "2px 7px", borderRadius: 99 }}>{b}</span>
                         ))}
                       </div>
                     </div>
@@ -265,7 +265,7 @@ export function ScentScreen({ gender, colorSeason, stylePersonality }: ScentScre
                             </div>
                             <div className="text-right">
                               <p style={{ color: "var(--gold)", fontWeight: 600, fontSize: "13px" }}>{frag.price}</p>
-                              <button className="mt-2 px-3 py-1 rounded-lg" style={{ background: "rgba(201,169,110,0.15)", color: "var(--gold)", fontSize: "10px", fontWeight: 600, border: "none", cursor: "pointer" }}>
+                              <button className="mt-2 px-3 py-1 rounded-lg" style={{ background: "rgba(199,179,139,0.15)", color: "var(--gold)", fontSize: "10px", fontWeight: 600, border: "none", cursor: "pointer" }}>
                                 Shop →
                               </button>
                             </div>

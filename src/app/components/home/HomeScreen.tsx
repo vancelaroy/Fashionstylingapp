@@ -108,7 +108,7 @@ const OUTFITS_NONBINARY = [
 
 const COLOR_OF_DAY = {
   name: "Champagne Dusk",
-  hex: "#C9A96E",
+  hex: "#C7B38B",
   desc: "A warm golden hue that flatters your Autumn color season beautifully.",
   pairsWith: ["Deep burgundy", "Ivory cream", "Forest green"],
 };
@@ -164,7 +164,7 @@ export function HomeScreen({ profile }: HomeScreenProps) {
         {/* Style tags */}
         <div className="flex gap-2 mt-3 flex-wrap">
           {(profile.stylePersonality || ["Classic", "Romantic"]).map((tag) => (
-            <span key={tag} className="px-3 py-1 rounded-full" style={{ background: "rgba(201,169,110,0.1)", color: "var(--gold)", fontSize: "11px", border: "1px solid rgba(201,169,110,0.2)" }}>
+            <span key={tag} className="px-3 py-1 rounded-full" style={{ background: "rgba(199,179,139,0.1)", color: "var(--gold)", fontSize: "11px", border: "1px solid rgba(199,179,139,0.2)" }}>
               {tag}
             </span>
           ))}
@@ -200,7 +200,7 @@ export function HomeScreen({ profile }: HomeScreenProps) {
                 </div>
                 <div className="absolute top-3 right-3 flex gap-1.5">
                   <button onClick={() => toggleLike(outfit.id)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer" }}>
-                    <Heart size={13} style={{ color: likedOutfits.includes(outfit.id) ? "#D4A5B5" : "var(--cream)" }} fill={likedOutfits.includes(outfit.id) ? "#D4A5B5" : "none"} />
+                    <Heart size={13} style={{ color: likedOutfits.includes(outfit.id) ? "#8F88A8" : "var(--cream)" }} fill={likedOutfits.includes(outfit.id) ? "#8F88A8" : "none"} />
                   </button>
                   <button onClick={() => toggleSave(outfit.id)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer" }}>
                     <Bookmark size={13} style={{ color: savedOutfits.includes(outfit.id) ? "var(--gold)" : "var(--cream)" }} fill={savedOutfits.includes(outfit.id) ? "var(--gold)" : "none"} />
@@ -211,7 +211,7 @@ export function HomeScreen({ profile }: HomeScreenProps) {
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <div className="flex gap-1.5 mb-2">
                     {outfit.tags.map((tag) => (
-                      <span key={tag} className="px-2 py-0.5 rounded-full" style={{ background: "rgba(201,169,110,0.2)", color: "var(--gold)", fontSize: "10px", backdropFilter: "blur(4px)" }}>{tag}</span>
+                      <span key={tag} className="px-2 py-0.5 rounded-full" style={{ background: "rgba(199,179,139,0.2)", color: "var(--gold)", fontSize: "10px", backdropFilter: "blur(4px)" }}>{tag}</span>
                     ))}
                   </div>
                   <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "22px", fontWeight: 400, letterSpacing: "-0.01em", lineHeight: 1.1, marginBottom: 2 }}>
