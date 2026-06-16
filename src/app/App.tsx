@@ -31,6 +31,13 @@ export default function App() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [profile, setProfile] = useState<StyleProfile>(DEFAULT_PROFILE);
   const [activeTab, setActiveTab] = useState<Tab>("home");
+  const [splashDone, setSplashDone] = useState(false);
+
+  // Guarantee the splash shows for at least 2s — gives the logo animation time to play
+  useEffect(() => {
+    const t = setTimeout(() => setSplashDone(true), 2000);
+    return () => clearTimeout(t);
+  }, []);
 
   const loadProfile = useCallback(async (token: string) => {
     try {
@@ -133,19 +140,40 @@ export default function App() {
     position: "relative",
   };
 
-  // ── Loading splash ─────────────────────────────────────────────
-  if (appState === "loading") {
+  // ── Loading splash — show until both auth resolves AND 2s timer fires ─────
+  if (appState === "loading" || !splashDone) {
     return (
       <div style={{ ...mobileShell, alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
-        <div className="flex flex-col items-center gap-5">
-          <IrysAppIcon size={96} />
-          <div className="flex gap-1.5">
+        <style>{`
+          @keyframes irys-fade-in { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+          @keyframes irys-pulse { 0%,100%{opacity:0.15} 50%{opacity:0.9} }
+          @keyframes irys-wordmark { from { opacity: 0; letter-spacing: 0.3em; } to { opacity: 1; letter-spacing: -0.04em; } }
+        `}</style>
+        <div className="flex flex-col items-center gap-6">
+          {/* Logo mark — scales in */}
+          <div style={{ animation: "irys-fade-in 0.8s cubic-bezier(0.16,1,0.3,1) forwards" }}>
+            <IrysAppIcon size={100} />
+          </div>
+          {/* Wordmark — letter-spacing collapses in */}
+          <h1 style={{
+            fontFamily: "var(--font-display)",
+            color: "var(--gold)",
+            fontSize: "44px",
+            fontWeight: 400,
+            letterSpacing: "-0.04em",
+            fontStyle: "italic",
+            lineHeight: 1,
+            animation: "irys-wordmark 1s 0.3s cubic-bezier(0.16,1,0.3,1) both",
+          }}>
+            Irys
+          </h1>
+          {/* Pulse dots */}
+          <div className="flex gap-2" style={{ opacity: 0, animation: "irys-fade-in 0.5s 1s forwards" }}>
             {[0, 1, 2].map((i) => (
               <div key={i} className="w-1.5 h-1.5 rounded-full"
                 style={{ background: "var(--gold)", animation: `irys-pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
             ))}
           </div>
-          <style>{`@keyframes irys-pulse { 0%,100%{opacity:0.15} 50%{opacity:0.9} }`}</style>
         </div>
       </div>
     );
