@@ -4,7 +4,7 @@ import { Send, Sparkles, ChevronRight, RotateCcw, Music } from "lucide-react";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 
-const SERVER = `https://${projectId}.supabase.co/functions/v1/make-server-7dbc8ff8`;
+const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 
 interface Message {
   id: string;

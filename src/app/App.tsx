@@ -11,7 +11,7 @@ import { IrisChatScreen } from "./components/chat/IrisChatScreen";
 import { AuthScreen } from "./components/auth/AuthScreen";
 import { IrysAppIcon } from "./components/ui/IrysLogo";
 
-const SERVER =`https://${projectId}.supabase.co/functions/v1/make-server-7dbc8ff8`;
+const SERVER =`https://${projectId}.supabase.co/functions/v1/irys-api`;
 
 const DEFAULT_PROFILE: StyleProfile = {
   name: "Aria",

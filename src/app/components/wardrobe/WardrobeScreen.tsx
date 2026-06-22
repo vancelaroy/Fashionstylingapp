@@ -5,7 +5,7 @@ import { VirtualCloset } from "./VirtualCloset";
 import { WardrobeUpload, type WardrobeItem } from "./WardrobeUpload";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 
-const SERVER = `https://${projectId}.supabase.co/functions/v1/make-server-7dbc8ff8`;
+const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 
 const CATEGORIES = ["All", "Tops", "Bottoms", "Dresses", "Outerwear", "Shoes", "Accessories", "Bags", "Suits"];
 

@@ -4,7 +4,7 @@ import { supabase } from "../../../lib/supabase";
 import { Eye, EyeOff, ChevronRight } from "lucide-react";
 import { IrysAppIcon } from "../ui/IrysLogo";
 
-const SERVER = `https://${projectId}.supabase.co/functions/v1/make-server-7dbc8ff8`;
+const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 const PROD_URL = "https://www.irysstyle.com";
 
 interface AuthScreenProps {

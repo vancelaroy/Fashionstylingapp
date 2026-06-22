@@ -3,7 +3,7 @@ import { Camera, Upload, X, Check, ChevronRight, Loader } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 
-const SERVER = `https://${projectId}.supabase.co/functions/v1/make-server-7dbc8ff8`;
+const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 
 export interface WardrobeItem {
   id: string;
