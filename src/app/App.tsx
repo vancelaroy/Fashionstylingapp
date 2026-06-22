@@ -203,7 +203,7 @@ export default function App() {
       <div style={{ ...mobileShell }}>
         <div className="flex-1 overflow-hidden relative">
           {activeTab === "home" && <HomeScreen profile={profile} />}
-          {activeTab === "wardrobe" && <WardrobeScreen />}
+          {activeTab === "wardrobe" && <WardrobeScreen accessToken={accessToken} />}
           {activeTab === "iris" && <IrisChatScreen profile={profile} />}
           {activeTab === "discover" && <DiscoverScreen profile={profile} />}
           {activeTab === "profile" && (

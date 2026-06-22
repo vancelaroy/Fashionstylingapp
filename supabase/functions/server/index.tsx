@@ -222,4 +222,98 @@ app.post("/make-server-7dbc8ff8/iris/chat", async (c) => {
   }
 });
 
+// ── Wardrobe — analyze garment with Claude Vision ────────────────────────────
+
+app.post("/make-server-7dbc8ff8/wardrobe/analyze", async (c) => {
+  try {
+    const { imageBase64, mediaType = "image/jpeg" } = await c.req.json();
+    if (!imageBase64) return c.json({ error: "Image required" }, 400);
+
+    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!apiKey) return c.json({ error: "Anthropic API key not configured" }, 500);
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 512,
+        messages: [{
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: mediaType, data: imageBase64 },
+            },
+            {
+              type: "text",
+              text: `You are a fashion expert analyzing a clothing item for a personal styling app. Look at this image and return ONLY a valid JSON object — no explanation, no markdown, just JSON.
+
+{
+  "name": "descriptive item name (e.g. Navy Slim Blazer)",
+  "category": "one of: tops, bottoms, outerwear, shoes, accessories, dresses, suits, bags",
+  "color": "primary color name",
+  "secondaryColor": "secondary color if applicable, or null",
+  "occasions": ["array of: casual, work, evening, formal, sport, weekend"],
+  "seasons": ["array of: spring, summer, fall, winter"],
+  "styleNote": "one sentence on how to style it best",
+  "brand": "brand name if visible, or null"
+}`,
+            },
+          ],
+        }],
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.log("Claude Vision error:", err);
+      return c.json({ error: "Analysis failed" }, 500);
+    }
+
+    const data = await response.json();
+    const raw = data.content?.[0]?.text ?? "{}";
+
+    // Extract JSON from the response (strip any accidental markdown)
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+
+    return c.json({ item: parsed });
+  } catch (err) {
+    console.log("Wardrobe analyze error:", err);
+    return c.json({ error: "Analysis failed" }, 500);
+  }
+});
+
+// ── Wardrobe — save & load items ─────────────────────────────────────────────
+
+app.get("/make-server-7dbc8ff8/wardrobe/items", async (c) => {
+  try {
+    const userId = await getUserId(c.req.header("Authorization") ?? null);
+    if (!userId) return c.json({ error: "Unauthorized" }, 401);
+    const items = await kv.get(`wardrobe:${userId}`);
+    return c.json({ items: items ?? [] });
+  } catch (err) {
+    console.log("Get wardrobe error:", err);
+    return c.json({ error: "Failed to load wardrobe" }, 500);
+  }
+});
+
+app.post("/make-server-7dbc8ff8/wardrobe/items", async (c) => {
+  try {
+    const userId = await getUserId(c.req.header("Authorization") ?? null);
+    if (!userId) return c.json({ error: "Unauthorized" }, 401);
+    const { items } = await c.req.json();
+    await kv.set(`wardrobe:${userId}`, items);
+    return c.json({ success: true });
+  } catch (err) {
+    console.log("Save wardrobe error:", err);
+    return c.json({ error: "Failed to save wardrobe" }, 500);
+  }
+});
+
 Deno.serve(app.fetch);
