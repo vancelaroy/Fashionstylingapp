@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Camera, ChevronRight, Check, Sparkles, Ruler, Palette, Upload, Info, X } from "lucide-react";
-import { PremiumBadge } from "../ui/PremiumBadge";
+import { ChevronRight, Check, Camera } from "lucide-react";
 import { IrysAppIcon } from "../ui/IrysLogo";
 
-interface OnboardingFlowProps {
-  onComplete: (profile: StyleProfile) => void;
-}
+// ── Style Profile ─────────────────────────────────────────────────────────────
 
 export interface StyleProfile {
   name: string;
@@ -16,701 +13,726 @@ export interface StyleProfile {
   colorSeason: string;
   stylePersonality: string[];
   measurements: { height: string; bust: string; waist: string; hips: string; inseam?: string };
+  // Discovery fields
+  lifestyle?: string;
+  activities?: string[];
+  dressingFrequency?: string;
+  styleConfidence?: string;
+  currentStyle?: string;
+  silhouettePreference?: string;
+  styleGoals?: string[];
 }
 
-const BODY_TYPES_WOMEN = [
-  { id: "hourglass", label: "Hourglass", desc: "Balanced bust & hips, defined waist", icon: "⧖" },
-  { id: "pear", label: "Pear", desc: "Hips wider than shoulders", icon: "🍐" },
-  { id: "apple", label: "Apple", desc: "Broader midsection, slender legs", icon: "🍎" },
-  { id: "rectangle", label: "Rectangle", desc: "Shoulders, waist & hips similar", icon: "▬" },
-  { id: "inverted-triangle", label: "Inverted Triangle", desc: "Broad shoulders, narrow hips", icon: "▽" },
-  { id: "petite", label: "Petite", desc: "Smaller frame, under 5'4\"", icon: "✦" },
+interface OnboardingFlowProps {
+  onComplete: (profile: StyleProfile) => void;
+}
+
+// ── Step types ────────────────────────────────────────────────────────────────
+
+type Step =
+  | "welcome"
+  | "ch1-intro" | "lifestyle" | "activities" | "dressing"
+  | "insight-1"
+  | "ch2-intro" | "current-style" | "confidence" | "aesthetic"
+  | "insight-2"
+  | "ch3-intro" | "name" | "gender" | "body-type" | "color-season" | "measurements"
+  | "ch4-intro" | "goals"
+  | "dna-building"
+  | "results";
+
+const STEP_ORDER: Step[] = [
+  "welcome",
+  "ch1-intro", "lifestyle", "activities", "dressing",
+  "insight-1",
+  "ch2-intro", "current-style", "confidence", "aesthetic",
+  "insight-2",
+  "ch3-intro", "name", "gender", "body-type", "color-season", "measurements",
+  "ch4-intro", "goals",
+  "dna-building",
+  "results",
 ];
 
-const BODY_TYPES_MEN = [
-  { id: "athletic", label: "Athletic", desc: "Broad shoulders, defined waist, muscular", icon: "▽" },
-  { id: "rectangle", label: "Rectangle", desc: "Consistent width shoulder to hip", icon: "▬" },
-  { id: "trapezoid", label: "Trapezoid", desc: "Broad shoulders, slight waist taper", icon: "⌂" },
-  { id: "oval", label: "Oval", desc: "Broader midsection, narrower shoulders", icon: "◯" },
-  { id: "triangle", label: "Triangle", desc: "Narrower shoulders, wider hips", icon: "△" },
-  { id: "slim", label: "Slim", desc: "Lean frame with minimal curves", icon: "∣" },
+// ── Data ──────────────────────────────────────────────────────────────────────
+
+const BODY_TYPES: Record<"woman" | "man" | "nonbinary", string[]> = {
+  woman: ["Hourglass", "Pear", "Apple", "Rectangle", "Inverted Triangle", "Petite"],
+  man: ["Athletic", "Rectangle", "Trapezoid", "Oval", "Triangle", "Slim"],
+  nonbinary: ["Straight", "Curvy", "Athletic", "Petite", "Full", "Lean"],
+};
+
+const COLOR_SEASONS = ["Spring", "Summer", "Autumn", "Winter"];
+
+const LIFESTYLE_OPTIONS = [
+  { id: "corporate", label: "Corporate / Office", emoji: "🏢" },
+  { id: "creative", label: "Creative Professional", emoji: "🎨" },
+  { id: "entrepreneur", label: "Entrepreneur", emoji: "⚡" },
+  { id: "student", label: "Student", emoji: "📚" },
+  { id: "parent", label: "Parent / Family life", emoji: "🏠" },
+  { id: "remote", label: "Remote / Freelance", emoji: "💻" },
 ];
 
-const FACE_SHAPES = [
-  { id: "oval", label: "Oval", desc: "Balanced, slightly longer than wide" },
-  { id: "round", label: "Round", desc: "Equal width and length, soft angles" },
-  { id: "square", label: "Square", desc: "Strong jaw, angular features" },
-  { id: "heart", label: "Heart", desc: "Wider forehead, pointed chin" },
-  { id: "diamond", label: "Diamond", desc: "High cheekbones, narrow chin" },
-  { id: "oblong", label: "Oblong", desc: "Long and narrow with straight sides" },
+const ACTIVITY_OPTIONS = [
+  "Client-facing work", "Office meetings", "Creative studio",
+  "Travel regularly", "Active / outdoors", "Evening social events",
+  "Casual weekends", "Special occasions",
 ];
 
-const COLOR_SEASONS = [
-  { id: "spring", label: "Spring", desc: "Warm, clear, light undertones", palette: ["#FFD4A3", "#FF8C69", "#FFC1CC", "#FFFACD"], temp: "Warm" },
-  { id: "summer", label: "Summer", desc: "Cool, muted, light undertones", palette: ["#B0C4DE", "#DDA0DD", "#F0E6FF", "#C9E4DE"], temp: "Cool" },
-  { id: "autumn", label: "Autumn", desc: "Warm, muted, deep undertones", palette: ["#CD853F", "#8B4513", "#6B8E23", "#D2691E"], temp: "Warm" },
-  { id: "winter", label: "Winter", desc: "Cool, clear, deep undertones", palette: ["#1C1C2E", "#DC143C", "#4169E1", "#FFFFFF"], temp: "Cool" },
+const DRESSING_OPTIONS = [
+  { id: "mostly-casual", label: "Mostly casual — comfort first" },
+  { id: "mix", label: "Mix of casual and put-together" },
+  { id: "mostly-dressed", label: "Mostly dressed up — presentation matters" },
+  { id: "varies", label: "It varies a lot day to day" },
 ];
 
-const STYLE_PERSONALITIES_WOMEN = [
-  "Classic", "Romantic", "Casual Chic", "Bohemian", "Minimalist",
-  "Edgy", "Preppy", "Athleisure", "Maximalist", "Cottagecore",
+const CURRENT_STYLE_OPTIONS = [
+  { id: "classic", label: "Classic & Timeless", desc: "Clean lines, quality basics, built to last" },
+  { id: "minimal", label: "Minimalist", desc: "Less is more. Understated, refined" },
+  { id: "editorial", label: "Fashion-forward", desc: "Trend-aware, bold, expressive" },
+  { id: "casual", label: "Casual & Relaxed", desc: "Easy-going, comfortable, effortless" },
+  { id: "professional", label: "Business Professional", desc: "Polished, authoritative, sharp" },
+  { id: "discovering", label: "Still discovering", desc: "I'm figuring out what feels right" },
 ];
 
-const STYLE_PERSONALITIES_MEN = [
-  "Classic", "Streetwear", "Smart Casual", "Minimalist", "Workwear",
-  "Preppy", "Rugged", "Athleisure", "Avant-Garde", "Coastal",
+const CONFIDENCE_OPTIONS = [
+  { id: "low", label: "Still figuring it out", sub: "I'd love some real guidance" },
+  { id: "medium", label: "Know what I like", sub: "But I want to do more with it" },
+  { id: "high", label: "Very confident", sub: "I want to refine and elevate" },
 ];
+
+const AESTHETIC_OPTIONS = [
+  { id: "quiet-luxury", label: "Quiet Luxury", example: "The Row, Loro Piana" },
+  { id: "parisian", label: "Parisian Chic", example: "Sézane, Isabel Marant" },
+  { id: "streetwear", label: "Contemporary Street", example: "Palace, Stüssy, Off-White" },
+  { id: "old-money", label: "Old Money", example: "Ralph Lauren, Brooks Brothers" },
+  { id: "maximalist", label: "Bold & Maximalist", example: "Versace, Dolce & Gabbana" },
+  { id: "indie", label: "Indie / Eclectic", example: "Vintage, thrifted, unexpected" },
+];
+
+const SILHOUETTE_OPTIONS_WOMEN = [
+  "Fitted throughout", "Fitted top, relaxed bottom",
+  "Relaxed top, fitted bottom", "Relaxed throughout", "Structured & tailored",
+];
+const SILHOUETTE_OPTIONS_MEN = [
+  "Slim fit throughout", "Regular/straight fit", "Relaxed throughout",
+  "Tailored & structured", "Athletic cut",
+];
+
+const GOAL_OPTIONS = [
+  { id: "confidence", label: "Build confidence", emoji: "✨" },
+  { id: "professional", label: "Professional wardrobe", emoji: "💼" },
+  { id: "dating", label: "Dating & social", emoji: "🌹" },
+  { id: "travel", label: "Travel capsule", emoji: "✈️" },
+  { id: "everyday", label: "Everyday style", emoji: "🌅" },
+  { id: "smarter", label: "Shop smarter", emoji: "🎯" },
+  { id: "personal", label: "Find my personal style", emoji: "🔍" },
+  { id: "occasions", label: "Special occasions", emoji: "🥂" },
+];
+
+const DNA_STEPS = [
+  "Understanding your lifestyle",
+  "Identifying your aesthetic",
+  "Matching color harmony",
+  "Learning your fit preferences",
+  "Building your Style DNA",
+  "Preparing your personal stylist",
+];
+
+// ── Insight generator ─────────────────────────────────────────────────────────
+
+function generateInsight1(profile: Partial<StyleProfile>): { headline: string; body: string } {
+  const { lifestyle, dressingFrequency, activities = [] } = profile;
+  if (dressingFrequency === "mostly-casual") {
+    return {
+      headline: "You prioritize comfort — and that's a strength.",
+      body: "People who dress for themselves first tend to develop the most authentic personal style. Iris will help you look intentional without sacrificing ease.",
+    };
+  }
+  if (lifestyle === "corporate" || lifestyle === "entrepreneur") {
+    return {
+      headline: "Your appearance is part of your professional identity.",
+      body: "Based on your lifestyle, building a versatile wardrobe that transitions from boardroom to social effortlessly will have the biggest impact for you.",
+    };
+  }
+  if (activities.includes("Travel regularly")) {
+    return {
+      headline: "You live a life that requires your wardrobe to keep up.",
+      body: "A well-curated travel capsule could eliminate decision fatigue entirely. We're already thinking about how to make that happen for you.",
+    };
+  }
+  return {
+    headline: "We're already seeing something interesting...",
+    body: "Based on your lifestyle, you need a wardrobe that works hard across different contexts — and that's exactly what Iris specializes in.",
+  };
+}
+
+function generateInsight2(profile: Partial<StyleProfile>): { headline: string; body: string } {
+  const { styleConfidence, currentStyle } = profile;
+  if (styleConfidence === "low") {
+    return {
+      headline: "The fact that you're here is already a step forward.",
+      body: "Most people never seek help with their style — they just keep wearing the same things and wondering why they don't feel confident. You're already different.",
+    };
+  }
+  if (currentStyle === "discovering") {
+    return {
+      headline: "Not knowing is the most honest answer.",
+      body: "Many of our users who say they're 'still figuring it out' end up having the most distinct personal style after working with Iris. Curiosity is the real starting point.",
+    };
+  }
+  if (currentStyle === "classic" || currentStyle === "minimal") {
+    return {
+      headline: "You lean toward pieces that last — not trends.",
+      body: "This tells us you likely spend more thoughtfully but want to spend even more intentionally. Iris will help you build a wardrobe where every piece earns its place.",
+    };
+  }
+  return {
+    headline: "Your style identity is more formed than you think.",
+    body: "The preferences you've shared already tell us a great deal about what will work for you. Your Style DNA is starting to take shape.",
+  };
+}
+
+function generateDNAPersona(profile: Partial<StyleProfile>): { name: string; desc: string; colors: string[] } {
+  const style = profile.currentStyle;
+  const aesthetic = profile.stylePersonality?.[0] ?? "";
+
+  if (style === "classic" || aesthetic === "quiet-luxury" || aesthetic === "old-money") {
+    return { name: "The Considered Classic", desc: "Timeless, intentional, built to last. You choose quality over quantity and wear it like a quiet statement.", colors: ["#C7B38B", "#F5F2EC", "#2E2E2E", "#8F7E6A"] };
+  }
+  if (style === "minimal") {
+    return { name: "The Refined Minimalist", desc: "Less, but better. You understand that true style is often about what you remove, not what you add.", colors: ["#161616", "#F5F2EC", "#8F88A8", "#C7B38B"] };
+  }
+  if (style === "editorial" || aesthetic === "maximalist") {
+    return { name: "The Bold Expressionist", desc: "Fashion-forward and unapologetic. You use clothing as a form of communication and wear confidence like a second skin.", colors: ["#8F88A8", "#C7B38B", "#161616", "#4A3C5C"] };
+  }
+  if (style === "professional") {
+    return { name: "The Authority Dresser", desc: "Sharp, polished, and intentional. Your wardrobe is an extension of how you show up in the world — and people notice.", colors: ["#2E2E2E", "#C7B38B", "#F5F2EC", "#5A5A6A"] };
+  }
+  return { name: "The Style Explorer", desc: "You're on a journey of discovery, and that open-minded curiosity is exactly what leads to the most authentic personal style.", colors: ["#C7B38B", "#8F88A8", "#F5F2EC", "#3A3A4A"] };
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
-  const [step, setStep] = useState(0);
-  const [profile, setProfile] = useState<Partial<StyleProfile>>({
-    gender: undefined,
-    stylePersonality: [],
-    measurements: { height: "", bust: "", waist: "", hips: "" },
-  });
+  const [stepIndex, setStepIndex] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [tooltip, setTooltip] = useState<string | null>(null);
+  const [profile, setProfile] = useState<Partial<StyleProfile>>({
+    activities: [],
+    stylePersonality: [],
+    styleGoals: [],
+    measurements: { height: "", bust: "", waist: "", hips: "", inseam: "" },
+  });
 
-  const totalSteps = 8; // welcome, name, gender, body, face, color, style, measurements, complete
-  const advance = () => { setDirection(1); setStep((s) => s + 1); };
-  const back = () => { setDirection(-1); setStep((s) => s - 1); };
+  const step = STEP_ORDER[stepIndex];
 
-  const bodyTypes = profile.gender === "man" ? BODY_TYPES_MEN : BODY_TYPES_WOMEN;
-  const stylePersonalities = profile.gender === "man" ? STYLE_PERSONALITIES_MEN : STYLE_PERSONALITIES_WOMEN;
+  const advance = () => {
+    setDirection(1);
+    setStepIndex((i) => Math.min(i + 1, STEP_ORDER.length - 1));
+  };
 
-  const togglePersonality = (p: string) => {
-    setProfile((prev) => {
-      const current = prev.stylePersonality || [];
-      return {
-        ...prev,
-        stylePersonality: current.includes(p)
-          ? current.filter((x) => x !== p)
-          : current.length < 3 ? [...current, p] : current,
-      };
+  const back = () => {
+    setDirection(-1);
+    setStepIndex((i) => Math.max(i - 1, 0));
+  };
+
+  const update = (patch: Partial<StyleProfile>) => {
+    setProfile((p) => ({ ...p, ...patch }));
+  };
+
+  const finish = () => {
+    onComplete({
+      name: profile.name || "Friend",
+      gender: profile.gender || "woman",
+      bodyType: profile.bodyType || "Rectangle",
+      faceShape: profile.faceShape || "Oval",
+      colorSeason: profile.colorSeason || "Autumn",
+      stylePersonality: profile.stylePersonality?.length ? profile.stylePersonality : [profile.currentStyle ?? "Classic"],
+      measurements: profile.measurements || { height: "", bust: "", waist: "", hips: "" },
+      lifestyle: profile.lifestyle,
+      activities: profile.activities,
+      dressingFrequency: profile.dressingFrequency,
+      styleConfidence: profile.styleConfidence,
+      currentStyle: profile.currentStyle,
+      silhouettePreference: profile.silhouettePreference,
+      styleGoals: profile.styleGoals,
     });
   };
 
-  const variants = {
-    enter: (d: number) => ({ x: d > 0 ? "100%" : "-100%", opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (d: number) => ({ x: d > 0 ? "-100%" : "100%", opacity: 0 }),
-  };
+  const insight1 = generateInsight1(profile);
+  const insight2 = generateInsight2(profile);
+  const persona = generateDNAPersona(profile);
 
-  const stepProgress = Math.max(0, step - 1);
+  // Progress (exclude intros/insights/special screens from count)
+  const questionSteps = STEP_ORDER.filter(s => !s.includes("intro") && !s.includes("insight") && s !== "welcome" && s !== "dna-building" && s !== "results");
+  const currentQuestionIndex = questionSteps.indexOf(step);
+  const progress = currentQuestionIndex >= 0 ? (currentQuestionIndex + 1) / questionSteps.length : null;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
-      {/* Progress */}
-      {step > 0 && step < totalSteps && (
-        <div className="px-6 pt-12 pb-4 flex gap-1.5">
-          {Array.from({ length: totalSteps - 2 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-0.5 flex-1 rounded-full transition-all duration-500"
-              style={{ background: i < stepProgress ? "var(--gold)" : "var(--surface-2)" }}
-            />
-          ))}
+    <div className="flex flex-col h-full" style={{ background: "#161616", fontFamily: "var(--font-body)", overflow: "hidden" }}>
+
+      {/* Progress bar */}
+      {progress !== null && (
+        <div className="h-0.5 w-full" style={{ background: "rgba(199,179,139,0.15)" }}>
+          <motion.div
+            className="h-full"
+            style={{ background: "var(--gold)" }}
+            animate={{ width: `${progress * 100}%` }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          />
         </div>
       )}
 
-      {/* Tooltip overlay */}
-      <AnimatePresence>
-        {tooltip && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 flex items-center justify-center px-8"
-            style={{ background: "rgba(0,0,0,0.7)" }}
-            onClick={() => setTooltip(null)}
-          >
-            <div className="rounded-2xl p-6 w-full" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-              <div className="flex items-start justify-between mb-3">
-                <p style={{ color: "var(--gold)", fontSize: "12px", letterSpacing: "0.1em", textTransform: "uppercase" }}>What's this?</p>
-                <X size={16} style={{ color: "var(--muted-foreground)" }} />
-              </div>
-              <p style={{ color: "var(--cream)", fontSize: "14px", lineHeight: 1.6 }}>{tooltip}</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="flex-1 overflow-hidden relative">
-        <AnimatePresence custom={direction} mode="wait">
-          <motion.div
-            key={step}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ type: "tween", duration: 0.3, ease: "easeInOut" }}
-            className="absolute inset-0 overflow-y-auto"
-          >
-            {step === 0 && <WelcomeStep onNext={advance} />}
-            {step === 1 && (
-              <NameStep
-                value={profile.name || ""}
-                onChange={(name) => setProfile((p) => ({ ...p, name }))}
-                onNext={advance} onBack={back}
-              />
-            )}
-            {step === 2 && (
-              <GenderStep
-                selected={profile.gender}
-                onSelect={(gender) => {
-                  setProfile((p) => ({ ...p, gender, bodyType: undefined, stylePersonality: [] }));
-                }}
-                onNext={advance} onBack={back}
-                name={profile.name}
-              />
-            )}
-            {step === 3 && (
-              <BodyTypeStep
-                bodyTypes={bodyTypes}
-                selected={profile.bodyType}
-                gender={profile.gender || "woman"}
-                onSelect={(bodyType) => setProfile((p) => ({ ...p, bodyType }))}
-                onNext={advance} onBack={back}
-                onTooltip={setTooltip}
-              />
-            )}
-            {step === 4 && (
-              <FaceShapeStep
-                selected={profile.faceShape}
-                onSelect={(faceShape) => setProfile((p) => ({ ...p, faceShape }))}
-                onNext={advance} onBack={back}
-                onTooltip={setTooltip}
-              />
-            )}
-            {step === 5 && (
-              <ColorSeasonStep
-                selected={profile.colorSeason}
-                onSelect={(colorSeason) => setProfile((p) => ({ ...p, colorSeason }))}
-                onNext={advance} onBack={back}
-                onTooltip={setTooltip}
-              />
-            )}
-            {step === 6 && (
-              <StylePersonalityStep
-                personalities={stylePersonalities}
-                selected={profile.stylePersonality || []}
-                onToggle={togglePersonality}
-                onNext={advance} onBack={back}
-              />
-            )}
-            {step === 7 && (
-              <MeasurementsStep
-                gender={profile.gender || "woman"}
-                measurements={profile.measurements || { height: "", bust: "", waist: "", hips: "" }}
-                onChange={(measurements) => setProfile((p) => ({ ...p, measurements }))}
-                onNext={advance} onBack={back}
-              />
-            )}
-            {step === 8 && (
-              <CompleteStep profile={profile} onFinish={() => onComplete(profile as StyleProfile)} />
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Step: Welcome ─────────────────────────────────────────── */
-function WelcomeStep({ onNext }: { onNext: () => void }) {
-  return (
-    <div className="flex flex-col h-full px-6 pt-16 pb-10">
-      <div className="flex-1 flex flex-col justify-between">
-        <div>
-          <div className="mb-8">
-            <img
-              src="https://images.unsplash.com/photo-1636153279424-cb5d1e00f5a2?w=600&h=800&fit=crop&auto=format"
-              alt="Fashion editorial"
-              className="w-full rounded-2xl object-cover"
-              style={{ height: 300 }}
-            />
-          </div>
-          <p style={{ color: "var(--gold)", fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 12 }}>
-            Your personal stylist
-          </p>
-          <h1 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "42px", lineHeight: 1.05, fontWeight: 400, letterSpacing: "-0.03em", marginBottom: 12 }}>
-            Style is <em style={{ color: "var(--gold)" }}>who</em> you are.
-          </h1>
-          <p style={{ color: "var(--muted-foreground)", lineHeight: 1.6, fontSize: "14px", marginBottom: 32 }}>
-            3-minute setup. AI-powered analysis. Whether you're new to fashion or a seasoned dresser — we've got you.
-          </p>
-          <div className="flex gap-4 mb-8">
-            {["Color Analysis", "Body Type", "Scent Match"].map((f) => (
-              <div key={f} className="flex flex-col items-center gap-1 flex-1">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(201,169,110,0.15)" }}>
-                  <Sparkles size={13} style={{ color: "var(--gold)" }} />
-                </div>
-                <span style={{ fontSize: "10px", color: "var(--muted-foreground)", textAlign: "center" }}>{f}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <button
-          onClick={onNext}
-          className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-98"
-          style={{ background: "var(--gold)", color: "var(--charcoal)", fontWeight: 600, border: "none", cursor: "pointer" }}
+      <AnimatePresence mode="wait" custom={direction}>
+        <motion.div
+          key={step}
+          custom={direction}
+          initial={{ opacity: 0, x: direction * 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: direction * -30 }}
+          transition={{ duration: 0.28, ease: "easeInOut" }}
+          className="flex-1 overflow-y-auto"
         >
-          Begin Your Style Journey <ChevronRight size={18} />
-        </button>
-      </div>
-    </div>
-  );
-}
+          {step === "welcome" && <WelcomeScreen onNext={advance} />}
 
-/* ─── Step: Name ─────────────────────────────────────────────── */
-function NameStep({ value, onChange, onNext, onBack }: { value: string; onChange: (v: string) => void; onNext: () => void; onBack: () => void }) {
-  return (
-    <div className="flex flex-col px-6 pt-8 pb-10 h-full">
-      <BackButton onBack={onBack} />
-      <div className="flex-1">
-        <StepLabel step="1 of 7" />
-        <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", lineHeight: 1.1, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 8 }}>
-          What should we call you?
-        </h2>
-        <p style={{ color: "var(--muted-foreground)", marginBottom: 40, fontSize: "14px" }}>Your stylist needs a name to personalize your experience.</p>
-        <input
-          type="text" value={value} onChange={(e) => onChange(e.target.value)}
-          placeholder="Your first name" autoFocus
-          className="w-full px-4 py-4 rounded-xl outline-none"
-          style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "18px", fontFamily: "var(--font-body)" }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = "var(--gold)"; }}
-          onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
-        />
-      </div>
-      <ContinueButton onNext={onNext} disabled={!value.trim()} />
-    </div>
-  );
-}
+          {step === "ch1-intro" && (
+            <ChapterIntro chapter={1} title="Your Lifestyle" tagline="Style begins with how you live." onNext={advance} />
+          )}
+          {step === "lifestyle" && (
+            <ChoiceScreen
+              question="What best describes your daily life?"
+              options={LIFESTYLE_OPTIONS.map(o => ({ id: o.id, label: o.label, prefix: o.emoji }))}
+              selected={profile.lifestyle ? [profile.lifestyle] : []}
+              multi={false}
+              onSelect={(v) => { update({ lifestyle: v[0] }); advance(); }}
+              onBack={back}
+            />
+          )}
+          {step === "activities" && (
+            <MultiChoiceScreen
+              question="Which activities are regular parts of your life?"
+              sub="Select all that apply."
+              options={ACTIVITY_OPTIONS}
+              selected={profile.activities ?? []}
+              onSelect={(v) => update({ activities: v })}
+              onNext={() => { if ((profile.activities?.length ?? 0) > 0) advance(); }}
+              onBack={back}
+            />
+          )}
+          {step === "dressing" && (
+            <ChoiceScreen
+              question="How often do you dress with intention?"
+              options={DRESSING_OPTIONS.map(o => ({ id: o.id, label: o.label }))}
+              selected={profile.dressingFrequency ? [profile.dressingFrequency] : []}
+              multi={false}
+              onSelect={(v) => { update({ dressingFrequency: v[0] }); advance(); }}
+              onBack={back}
+            />
+          )}
 
-/* ─── Step: Gender ───────────────────────────────────────────── */
-function GenderStep({ selected, onSelect, onNext, onBack, name }: {
-  selected?: string; onSelect: (g: "woman" | "man" | "nonbinary") => void;
-  onNext: () => void; onBack: () => void; name?: string;
-}) {
-  const options: { id: "woman" | "man" | "nonbinary"; label: string; emoji: string; desc: string }[] = [
-    { id: "woman", label: "Woman", emoji: "✦", desc: "Style recommendations for women's fashion" },
-    { id: "man", label: "Man", emoji: "◈", desc: "Style recommendations for men's fashion" },
-    { id: "nonbinary", label: "Non-binary / Other", emoji: "◇", desc: "Gender-inclusive styling for everyone" },
-  ];
+          {step === "insight-1" && (
+            <InsightScreen insight={insight1} ctaLabel="Continue" onNext={advance} />
+          )}
 
-  return (
-    <div className="flex flex-col px-6 pt-8 pb-10">
-      <BackButton onBack={onBack} />
-      <StepLabel step="2 of 7" />
-      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", lineHeight: 1.1, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 6 }}>
-        {name ? `${name}, how do` : "How do"} you<br />identify your style?
-      </h2>
-      <p style={{ color: "var(--muted-foreground)", marginBottom: 32, fontSize: "14px", lineHeight: 1.5 }}>
-        This shapes your body type options, vocabulary, and recommendations. You can update this anytime.
-      </p>
+          {step === "ch2-intro" && (
+            <ChapterIntro chapter={2} title="Your Style Identity" tagline="Let's discover what naturally resonates with you." onNext={advance} />
+          )}
+          {step === "current-style" && (
+            <ChoiceScreen
+              question="How would you describe your style right now?"
+              options={CURRENT_STYLE_OPTIONS.map(o => ({ id: o.id, label: o.label, sub: o.desc }))}
+              selected={profile.currentStyle ? [profile.currentStyle] : []}
+              multi={false}
+              onSelect={(v) => { update({ currentStyle: v[0] }); advance(); }}
+              onBack={back}
+            />
+          )}
+          {step === "confidence" && (
+            <ChoiceScreen
+              question="How would you rate your style confidence?"
+              options={CONFIDENCE_OPTIONS.map(o => ({ id: o.id, label: o.label, sub: o.sub }))}
+              selected={profile.styleConfidence ? [profile.styleConfidence] : []}
+              multi={false}
+              onSelect={(v) => { update({ styleConfidence: v[0] }); advance(); }}
+              onBack={back}
+            />
+          )}
+          {step === "aesthetic" && (
+            <ChoiceScreen
+              question="Which aesthetic draws you in most?"
+              options={AESTHETIC_OPTIONS.map(o => ({ id: o.id, label: o.label, sub: o.example }))}
+              selected={profile.stylePersonality ?? []}
+              multi={false}
+              onSelect={(v) => { update({ stylePersonality: v }); advance(); }}
+              onBack={back}
+            />
+          )}
 
-      <div className="flex flex-col gap-3 mb-8">
-        {options.map((opt) => {
-          const isSelected = selected === opt.id;
-          return (
-            <button
-              key={opt.id}
-              onClick={() => onSelect(opt.id)}
-              className="flex items-center gap-4 p-5 rounded-2xl text-left transition-all duration-200"
-              style={{
-                background: isSelected ? "rgba(201,169,110,0.1)" : "var(--surface)",
-                border: `1.5px solid ${isSelected ? "var(--gold)" : "var(--border)"}`,
-                cursor: "pointer",
-              }}
-            >
-              <span style={{ fontSize: "24px", color: "var(--gold)" }}>{opt.emoji}</span>
-              <div className="flex-1">
-                <p style={{ color: isSelected ? "var(--gold)" : "var(--cream)", fontWeight: 600, fontSize: "16px", marginBottom: 2 }}>
-                  {opt.label}
-                </p>
-                <p style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>{opt.desc}</p>
-              </div>
-              {isSelected && (
-                <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "var(--gold)" }}>
-                  <Check size={11} style={{ color: "var(--charcoal)" }} />
-                </div>
-              )}
-            </button>
-          );
-        })}
-      </div>
+          {step === "insight-2" && (
+            <InsightScreen insight={insight2} ctaLabel="Continue" onNext={advance} />
+          )}
 
-      <ContinueButton onNext={onNext} disabled={!selected} />
-    </div>
-  );
-}
+          {step === "ch3-intro" && (
+            <ChapterIntro chapter={3} title="Your Fit" tagline="Great style starts with understanding your proportions." onNext={advance} />
+          )}
+          {step === "name" && (
+            <NameScreen value={profile.name ?? ""} onChange={(v) => update({ name: v })} onNext={advance} onBack={back} />
+          )}
+          {step === "gender" && (
+            <GenderScreen selected={profile.gender} onSelect={(v) => { update({ gender: v }); advance(); }} onBack={back} />
+          )}
+          {step === "body-type" && (
+            <ChoiceScreen
+              question="Which best describes your body shape?"
+              options={(BODY_TYPES[profile.gender ?? "woman"]).map(v => ({ id: v.toLowerCase(), label: v }))}
+              selected={profile.bodyType ? [profile.bodyType.toLowerCase()] : []}
+              multi={false}
+              onSelect={(v) => { update({ bodyType: v[0] }); advance(); }}
+              onBack={back}
+            />
+          )}
+          {step === "color-season" && (
+            <ColorSeasonScreen selected={profile.colorSeason} onSelect={(v) => { update({ colorSeason: v }); advance(); }} onBack={back} />
+          )}
+          {step === "measurements" && (
+            <MeasurementsScreen gender={profile.gender ?? "woman"} measurements={profile.measurements!} onChange={(m) => update({ measurements: m })} onNext={advance} onBack={back} />
+          )}
 
-/* ─── Step: Body Type ────────────────────────────────────────── */
-function BodyTypeStep({ bodyTypes, selected, gender, onSelect, onNext, onBack, onTooltip }: {
-  bodyTypes: typeof BODY_TYPES_WOMEN;
-  selected?: string; gender: string;
-  onSelect: (id: string) => void; onNext: () => void; onBack: () => void;
-  onTooltip: (msg: string) => void;
-}) {
-  const [scanMode, setScanMode] = useState<null | "camera" | "upload">(null);
+          {step === "ch4-intro" && (
+            <ChapterIntro chapter={4} title="Your Goals" tagline="Where do you want your style to take you?" onNext={advance} />
+          )}
+          {step === "goals" && (
+            <MultiChoiceScreen
+              question="What do you want Iris to help you with?"
+              sub="Choose everything that matters to you."
+              options={GOAL_OPTIONS.map(o => `${o.emoji} ${o.label}`)}
+              selected={(profile.styleGoals ?? []).map(g => {
+                const opt = GOAL_OPTIONS.find(o => o.id === g);
+                return opt ? `${opt.emoji} ${opt.label}` : g;
+              })}
+              onSelect={(v) => update({ styleGoals: v.map(label => GOAL_OPTIONS.find(o => `${o.emoji} ${o.label}` === label)?.id ?? label) })}
+              onNext={() => { if ((profile.styleGoals?.length ?? 0) > 0) advance(); }}
+              onBack={back}
+            />
+          )}
 
-  const tooltipText = gender === "man"
-    ? "Body type helps us recommend fits and silhouettes that flatter your natural shape. For example, Athletic types look great in slim-fit trousers that taper at the ankle. Rectangle types can add definition with structured blazers."
-    : "Body type helps us recommend cuts and silhouettes that celebrate your shape. For example, Pear shapes look stunning in A-line skirts and wide-leg trousers. Hourglass figures can wear almost any silhouette!";
+          {step === "dna-building" && (
+            <DNABuildingScreen onComplete={advance} />
+          )}
 
-  return (
-    <div className="flex flex-col px-6 pt-8 pb-10">
-      <BackButton onBack={onBack} />
-      <div className="flex items-center gap-2 mb-1">
-        <StepLabel step="3 of 7" />
-        <button onClick={() => onTooltip(tooltipText)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-          <Info size={13} style={{ color: "var(--muted-foreground)" }} />
-        </button>
-      </div>
-      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", lineHeight: 1.1, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 6 }}>
-        Your body type
-      </h2>
-      <p style={{ color: "var(--muted-foreground)", marginBottom: 20, fontSize: "13px" }}>
-        Not sure? Use our AI scan — or browse the options below.
-      </p>
-
-      {/* AI scan / upload options */}
-      <div className="flex gap-2 mb-6">
-        {[
-          { mode: "camera" as const, icon: <Camera size={14} />, label: "AI Body Scan" },
-          { mode: "upload" as const, icon: <Upload size={14} />, label: "Upload Photo" },
-        ].map(({ mode, icon, label }) => (
-          <button
-            key={mode}
-            onClick={() => setScanMode(scanMode === mode ? null : mode)}
-            className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all"
-            style={{
-              background: scanMode === mode ? "rgba(201,169,110,0.12)" : "var(--surface)",
-              border: `1px solid ${scanMode === mode ? "var(--gold)" : "var(--border)"}`,
-              color: scanMode === mode ? "var(--gold)" : "var(--muted-foreground)",
-              cursor: "pointer",
-              fontSize: "12px",
-              fontWeight: 500,
-            }}
-          >
-            {icon}
-            <span className="flex-1 text-left">{label}</span>
-            <PremiumBadge />
-          </button>
-        ))}
-      </div>
-
-      {/* Scan/Upload panel */}
-      <AnimatePresence>
-        {scanMode && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden mb-5"
-          >
-            <div
-              className="rounded-2xl flex flex-col items-center justify-center gap-3 py-10"
-              style={{ background: "var(--surface)", border: "2px dashed rgba(201,169,110,0.3)" }}
-            >
-              {scanMode === "camera" ? (
-                <>
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(201,169,110,0.12)" }}>
-                    <Camera size={28} style={{ color: "var(--gold)" }} />
-                  </div>
-                  <p style={{ color: "var(--cream)", fontSize: "14px", fontWeight: 500 }}>Take a full-body photo</p>
-                  <p style={{ color: "var(--muted-foreground)", fontSize: "12px", textAlign: "center", maxWidth: 220 }}>
-                    Stand 6 feet from camera in fitted clothing. AI will detect your body type instantly.
-                  </p>
-                  <button className="px-5 py-2.5 rounded-xl" style={{ background: "var(--gold)", color: "var(--charcoal)", fontWeight: 600, fontSize: "13px", border: "none", cursor: "pointer" }}>
-                    Open Camera
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(201,169,110,0.12)" }}>
-                    <Upload size={28} style={{ color: "var(--gold)" }} />
-                  </div>
-                  <p style={{ color: "var(--cream)", fontSize: "14px", fontWeight: 500 }}>Upload a full-body photo</p>
-                  <p style={{ color: "var(--muted-foreground)", fontSize: "12px", textAlign: "center", maxWidth: 220 }}>
-                    A clear photo in fitted clothing works best. Analysed privately on your device.
-                  </p>
-                  <button className="px-5 py-2.5 rounded-xl" style={{ background: "var(--gold)", color: "var(--charcoal)", fontWeight: 600, fontSize: "13px", border: "none", cursor: "pointer" }}>
-                    Choose Photo
-                  </button>
-                </>
-              )}
-            </div>
-          </motion.div>
-        )}
+          {step === "results" && (
+            <ResultsScreen persona={persona} profile={profile} onFinish={finish} />
+          )}
+        </motion.div>
       </AnimatePresence>
+    </div>
+  );
+}
 
-      <p style={{ color: "var(--muted-foreground)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
-        Or select manually
-      </p>
+// ── Shared UI components ──────────────────────────────────────────────────────
 
-      <div className="grid grid-cols-2 gap-3 mb-8">
-        {bodyTypes.map((item) => {
-          const isSelected = selected === item.id;
+function BackButton({ onBack }: { onBack: () => void }) {
+  return (
+    <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", fontSize: "13px", padding: "0 0 20px 0", display: "flex", alignItems: "center", gap: 4 }}>
+      ← Back
+    </button>
+  );
+}
+
+function Btn({ label, onClick, disabled }: { label: string; onClick: () => void; disabled?: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95"
+      style={{ background: disabled ? "var(--surface-2)" : "var(--gold)", color: disabled ? "var(--muted-foreground)" : "#161616", fontWeight: 600, fontSize: "14px", border: "none", cursor: disabled ? "not-allowed" : "pointer", letterSpacing: "0.04em" }}
+    >
+      {label} {!disabled && <ChevronRight size={16} />}
+    </button>
+  );
+}
+
+// ── Screen components ─────────────────────────────────────────────────────────
+
+function WelcomeScreen({ onNext }: { onNext: () => void }) {
+  return (
+    <div className="flex flex-col h-full px-6 pt-16 pb-10 justify-between">
+      <div className="flex flex-col items-center text-center gap-6 mt-8">
+        <IrysAppIcon size={80} />
+        <div>
+          <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase", marginBottom: 12 }}>
+            Welcome to
+          </p>
+          <h1 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "52px", fontWeight: 400, letterSpacing: "-0.04em", lineHeight: 1, fontStyle: "italic", marginBottom: 16 }}>
+            Irys
+          </h1>
+          <p style={{ color: "var(--muted-foreground)", fontSize: "15px", lineHeight: 1.7, maxWidth: 300, margin: "0 auto" }}>
+            Your personal style platform. Before making recommendations, Iris takes the time to truly understand who you are.
+          </p>
+        </div>
+
+        <div className="w-full rounded-2xl p-5 mt-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <p style={{ color: "var(--muted-foreground)", fontSize: "12px", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>
+            What to expect
+          </p>
+          {[
+            { label: "4 short chapters", sub: "About your life, style, fit & goals" },
+            { label: "Micro-insights", sub: "Real discoveries along the way" },
+            { label: "Your Style DNA", sub: "A personalized profile built around you" },
+          ].map(({ label, sub }) => (
+            <div key={label} className="flex items-start gap-3 mb-3 last:mb-0">
+              <div className="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style={{ background: "var(--gold)" }} />
+              <div>
+                <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 500 }}>{label}</p>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>{sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <button
+        onClick={onNext}
+        className="w-full py-5 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 mt-8"
+        style={{ background: "var(--gold)", color: "#161616", fontWeight: 600, fontSize: "16px", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
+      >
+        Begin Your Style Discovery <ChevronRight size={18} />
+      </button>
+    </div>
+  );
+}
+
+function ChapterIntro({ chapter, title, tagline, onNext }: { chapter: number; title: string; tagline: string; onNext: () => void }) {
+  return (
+    <div className="flex flex-col h-full px-6 justify-center pb-16">
+      <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase", marginBottom: 16 }}>
+          Chapter {chapter}
+        </p>
+        <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "44px", fontWeight: 400, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 12 }}>
+          {title}
+        </h2>
+        <p style={{ color: "var(--muted-foreground)", fontSize: "16px", fontStyle: "italic", lineHeight: 1.6, maxWidth: 280 }}>
+          "{tagline}"
+        </p>
+      </motion.div>
+
+      <motion.button
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+        onClick={onNext}
+        className="mt-12 w-full py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95"
+        style={{ background: "transparent", border: "1px solid var(--border)", color: "var(--cream)", fontWeight: 500, fontSize: "14px", cursor: "pointer" }}
+      >
+        Let's go <ChevronRight size={16} />
+      </motion.button>
+    </div>
+  );
+}
+
+function InsightScreen({ insight, ctaLabel, onNext }: { insight: { headline: string; body: string }; ctaLabel: string; onNext: () => void }) {
+  return (
+    <div className="flex flex-col h-full px-6 justify-center pb-16">
+      <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
+        <div className="rounded-2xl p-6 mb-6" style={{ background: "linear-gradient(135deg, rgba(199,179,139,0.1) 0%, rgba(143,136,168,0.08) 100%)", border: "1px solid rgba(199,179,139,0.25)" }}>
+          <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 16 }}>
+            ✦ Early Insight
+          </p>
+          <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "26px", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 14 }}>
+            {insight.headline}
+          </h3>
+          <p style={{ color: "var(--muted-foreground)", fontSize: "14px", lineHeight: 1.7 }}>
+            {insight.body}
+          </p>
+        </div>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+        <Btn label={ctaLabel} onClick={onNext} />
+      </motion.div>
+    </div>
+  );
+}
+
+interface ChoiceOption { id: string; label: string; sub?: string; prefix?: string }
+
+function ChoiceScreen({ question, options, selected, multi, onSelect, onBack }: {
+  question: string; options: ChoiceOption[]; selected: string[]; multi: boolean;
+  onSelect: (v: string[]) => void; onBack: () => void;
+}) {
+  const toggle = (id: string) => {
+    if (multi) {
+      onSelect(selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id]);
+    } else {
+      onSelect([id]);
+    }
+  };
+
+  return (
+    <div className="flex flex-col px-6 pt-8 pb-10">
+      <BackButton onBack={onBack} />
+      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "30px", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 24 }}>
+        {question}
+      </h2>
+      <div className="flex flex-col gap-2.5">
+        {options.map(({ id, label, sub, prefix }) => {
+          const isSelected = selected.includes(id);
           return (
             <button
-              key={item.id}
-              onClick={() => onSelect(item.id)}
-              className="text-left p-4 rounded-xl transition-all duration-200"
+              key={id}
+              onClick={() => toggle(id)}
+              className="flex items-center gap-3 px-4 py-4 rounded-xl text-left transition-all active:scale-98"
               style={{
-                background: isSelected ? "rgba(201,169,110,0.12)" : "var(--surface)",
+                background: isSelected ? "rgba(199,179,139,0.12)" : "var(--surface)",
                 border: `1px solid ${isSelected ? "var(--gold)" : "var(--border)"}`,
                 cursor: "pointer",
               }}
             >
-              <span style={{ fontSize: "20px", display: "block", marginBottom: 8 }}>{item.icon}</span>
-              <p style={{ color: isSelected ? "var(--gold)" : "var(--cream)", fontWeight: 500, marginBottom: 2, fontSize: "13px" }}>{item.label}</p>
-              <p style={{ color: "var(--muted-foreground)", fontSize: "11px", lineHeight: 1.4 }}>{item.desc}</p>
-            </button>
-          );
-        })}
-      </div>
-
-      <ContinueButton onNext={onNext} disabled={!selected} />
-    </div>
-  );
-}
-
-/* ─── Step: Face Shape ───────────────────────────────────────── */
-function FaceShapeStep({ selected, onSelect, onNext, onBack, onTooltip }: {
-  selected?: string; onSelect: (id: string) => void;
-  onNext: () => void; onBack: () => void; onTooltip: (msg: string) => void;
-}) {
-  const [scanMode, setScanMode] = useState<null | "camera" | "upload">(null);
-
-  return (
-    <div className="flex flex-col px-6 pt-8 pb-10">
-      <BackButton onBack={onBack} />
-      <div className="flex items-center gap-2 mb-1">
-        <StepLabel step="4 of 7" />
-        <button onClick={() => onTooltip("Face shape determines which glasses frames, hairstyles, and jewelry shapes complement your features best. Oval faces are balanced — almost any style works. Square faces benefit from softer, rounded shapes to contrast the jawline.")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-          <Info size={13} style={{ color: "var(--muted-foreground)" }} />
-        </button>
-      </div>
-      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", lineHeight: 1.1, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 6 }}>
-        Your face shape
-      </h2>
-      <p style={{ color: "var(--muted-foreground)", marginBottom: 20, fontSize: "13px" }}>
-        Helps match glasses frames, accessories & more.
-      </p>
-
-      <div className="flex gap-2 mb-5">
-        <button
-          onClick={() => setScanMode(scanMode === "camera" ? null : "camera")}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all"
-          style={{
-            background: scanMode === "camera" ? "rgba(212,165,181,0.12)" : "var(--surface)",
-            border: `1px solid ${scanMode === "camera" ? "var(--rose)" : "var(--border)"}`,
-            color: scanMode === "camera" ? "var(--rose)" : "var(--muted-foreground)",
-            cursor: "pointer", fontSize: "12px", fontWeight: 500,
-          }}
-        >
-          <Camera size={15} /> AI Face Scan <PremiumBadge />
-        </button>
-        <button
-          onClick={() => setScanMode(scanMode === "upload" ? null : "upload")}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all"
-          style={{
-            background: scanMode === "upload" ? "rgba(212,165,181,0.12)" : "var(--surface)",
-            border: `1px solid ${scanMode === "upload" ? "var(--rose)" : "var(--border)"}`,
-            color: scanMode === "upload" ? "var(--rose)" : "var(--muted-foreground)",
-            cursor: "pointer", fontSize: "12px", fontWeight: 500,
-          }}
-        >
-          <Upload size={15} /> Upload Photo <PremiumBadge />
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {scanMode && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mb-5">
-            <div className="rounded-2xl flex flex-col items-center justify-center gap-3 py-8" style={{ background: "var(--surface)", border: "2px dashed rgba(212,165,181,0.3)" }}>
-              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "rgba(212,165,181,0.12)" }}>
-                {scanMode === "camera" ? <Camera size={24} style={{ color: "var(--rose)" }} /> : <Upload size={24} style={{ color: "var(--rose)" }} />}
-              </div>
-              <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 500 }}>
-                {scanMode === "camera" ? "Take a selfie, face forward" : "Upload a front-facing portrait"}
-              </p>
-              <p style={{ color: "var(--muted-foreground)", fontSize: "11px", textAlign: "center", maxWidth: 200 }}>
-                Good lighting, neutral expression. We'll detect your face shape in seconds.
-              </p>
-              <button className="px-5 py-2 rounded-xl" style={{ background: "var(--rose)", color: "var(--charcoal)", fontWeight: 600, fontSize: "12px", border: "none", cursor: "pointer" }}>
-                {scanMode === "camera" ? "Open Camera" : "Choose Photo"}
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <p style={{ color: "var(--muted-foreground)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Or select manually</p>
-
-      <div className="grid grid-cols-2 gap-3 mb-8">
-        {FACE_SHAPES.map((shape) => {
-          const isSelected = selected === shape.id;
-          return (
-            <button key={shape.id} onClick={() => onSelect(shape.id)} className="text-left p-4 rounded-xl transition-all duration-200"
-              style={{ background: isSelected ? "rgba(212,165,181,0.1)" : "var(--surface)", border: `1px solid ${isSelected ? "var(--rose)" : "var(--border)"}`, cursor: "pointer" }}>
-              <p style={{ color: isSelected ? "var(--rose)" : "var(--cream)", fontWeight: 500, marginBottom: 2, fontSize: "13px" }}>{shape.label}</p>
-              <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>{shape.desc}</p>
-            </button>
-          );
-        })}
-      </div>
-
-      <ContinueButton onNext={onNext} disabled={!selected} />
-    </div>
-  );
-}
-
-/* ─── Step: Color Season ─────────────────────────────────────── */
-function ColorSeasonStep({ selected, onSelect, onNext, onBack, onTooltip }: {
-  selected?: string; onSelect: (id: string) => void;
-  onNext: () => void; onBack: () => void; onTooltip: (msg: string) => void;
-}) {
-  const [scanMode, setScanMode] = useState<null | "camera" | "upload">(null);
-
-  return (
-    <div className="flex flex-col px-6 pt-8 pb-10">
-      <BackButton onBack={onBack} />
-      <div className="flex items-center gap-2 mb-1">
-        <StepLabel step="5 of 7" />
-        <button onClick={() => onTooltip("Color season analysis (also called Personal Color Analysis) identifies which colour palette makes your natural colouring — skin, eyes, hair — look its most vibrant. It originated from Johannes Itten's colour theory and was popularised in the 1980s. Your 'season' tells you whether warm or cool, light or deep tones suit you best.")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-          <Info size={13} style={{ color: "var(--muted-foreground)" }} />
-        </button>
-      </div>
-      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", lineHeight: 1.1, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 6 }}>
-        Your color season
-      </h2>
-      <p style={{ color: "var(--muted-foreground)", marginBottom: 20, fontSize: "13px" }}>
-        Your skin, hair & eye tones determine which colours make you glow.
-      </p>
-
-      {/* AR / Upload */}
-      <div className="flex gap-2 mb-5">
-        <button
-          onClick={() => setScanMode(scanMode === "camera" ? null : "camera")}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all"
-          style={{
-            background: scanMode === "camera" ? "rgba(201,169,110,0.12)" : "var(--surface)",
-            border: `1px solid ${scanMode === "camera" ? "var(--gold)" : "var(--border)"}`,
-            color: scanMode === "camera" ? "var(--gold)" : "var(--muted-foreground)",
-            cursor: "pointer", fontSize: "12px", fontWeight: 500,
-          }}
-        >
-          <Camera size={15} /> AR Analysis <PremiumBadge />
-        </button>
-        <button
-          onClick={() => setScanMode(scanMode === "upload" ? null : "upload")}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all"
-          style={{
-            background: scanMode === "upload" ? "rgba(201,169,110,0.12)" : "var(--surface)",
-            border: `1px solid ${scanMode === "upload" ? "var(--gold)" : "var(--border)"}`,
-            color: scanMode === "upload" ? "var(--gold)" : "var(--muted-foreground)",
-            cursor: "pointer", fontSize: "12px", fontWeight: 500,
-          }}
-        >
-          <Upload size={15} /> Upload Selfie <PremiumBadge />
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {scanMode && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mb-5">
-            <div className="rounded-2xl flex flex-col items-center justify-center gap-3 py-8" style={{ background: "var(--surface)", border: "2px dashed rgba(201,169,110,0.3)" }}>
-              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "rgba(201,169,110,0.12)" }}>
-                <Palette size={24} style={{ color: "var(--gold)" }} />
-              </div>
-              <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 500 }}>
-                {scanMode === "camera" ? "Live AR colour analysis" : "Upload a natural-light selfie"}
-              </p>
-              <p style={{ color: "var(--muted-foreground)", fontSize: "11px", textAlign: "center", maxWidth: 220, lineHeight: 1.5 }}>
-                Natural lighting, no filters, no makeup if possible. We analyse skin undertone, eye contrast & hair depth.
-              </p>
-              <button className="px-5 py-2 rounded-xl" style={{ background: "var(--gold)", color: "var(--charcoal)", fontWeight: 600, fontSize: "12px", border: "none", cursor: "pointer" }}>
-                {scanMode === "camera" ? "Start AR Scan" : "Choose Photo"}
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <p style={{ color: "var(--muted-foreground)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Or identify your season</p>
-
-      <div className="flex flex-col gap-3 mb-8">
-        {COLOR_SEASONS.map((season) => {
-          const isSelected = selected === season.id;
-          return (
-            <button key={season.id} onClick={() => onSelect(season.id)}
-              className="text-left p-4 rounded-xl flex items-center gap-4"
-              style={{ background: isSelected ? "rgba(201,169,110,0.08)" : "var(--surface)", border: `1px solid ${isSelected ? "var(--gold)" : "var(--border)"}`, cursor: "pointer" }}>
-              <div className="flex gap-1.5 shrink-0">
-                {season.palette.map((color, i) => <div key={i} className="w-5 h-5 rounded-full" style={{ background: color }} />)}
-              </div>
+              {prefix && <span style={{ fontSize: "18px", flexShrink: 0 }}>{prefix}</span>}
               <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <p style={{ color: isSelected ? "var(--gold)" : "var(--cream)", fontWeight: 500, fontSize: "14px" }}>{season.label}</p>
-                  <span className="px-2 py-0.5 rounded-full" style={{ background: season.temp === "Warm" ? "rgba(201,169,110,0.15)" : "rgba(100,149,237,0.15)", color: season.temp === "Warm" ? "var(--gold)" : "#6495ED", fontSize: "10px" }}>{season.temp}</span>
-                </div>
-                <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>{season.desc}</p>
+                <p style={{ color: isSelected ? "var(--gold)" : "var(--cream)", fontSize: "14px", fontWeight: isSelected ? 500 : 400 }}>{label}</p>
+                {sub && <p style={{ color: "var(--muted-foreground)", fontSize: "12px", marginTop: 2 }}>{sub}</p>}
               </div>
-              {isSelected && <Check size={16} style={{ color: "var(--gold)" }} />}
+              {isSelected && <Check size={14} style={{ color: "var(--gold)", flexShrink: 0 }} />}
             </button>
           );
         })}
       </div>
-
-      <ContinueButton onNext={onNext} disabled={!selected} />
     </div>
   );
 }
 
-/* ─── Step: Style Personality ────────────────────────────────── */
-function StylePersonalityStep({ personalities, selected, onToggle, onNext, onBack }: {
-  personalities: string[]; selected: string[];
-  onToggle: (p: string) => void; onNext: () => void; onBack: () => void;
+function MultiChoiceScreen({ question, sub, options, selected, onSelect, onNext, onBack }: {
+  question: string; sub?: string; options: string[]; selected: string[];
+  onSelect: (v: string[]) => void; onNext: () => void; onBack: () => void;
 }) {
+  const toggle = (opt: string) => {
+    onSelect(selected.includes(opt) ? selected.filter(x => x !== opt) : [...selected, opt]);
+  };
+
   return (
     <div className="flex flex-col px-6 pt-8 pb-10">
       <BackButton onBack={onBack} />
-      <StepLabel step="6 of 7" />
-      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", lineHeight: 1.1, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 6 }}>
-        Your style personality
+      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "30px", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.15, marginBottom: 6 }}>
+        {question}
       </h2>
-      <p style={{ color: "var(--muted-foreground)", marginBottom: 28, fontSize: "13px" }}>
-        Pick up to 3 — these shape your daily outfit suggestions.
-        <span style={{ color: "var(--gold)", marginLeft: 6 }}>{selected.length}/3</span>
-      </p>
+      {sub && <p style={{ color: "var(--muted-foreground)", fontSize: "13px", marginBottom: 20 }}>{sub}</p>}
       <div className="flex flex-wrap gap-2 mb-8">
-        {personalities.map((p) => {
-          const isSelected = selected.includes(p);
-          const isDisabled = selected.length >= 3 && !isSelected;
+        {options.map((opt) => {
+          const isSelected = selected.includes(opt);
           return (
-            <button key={p} onClick={() => !isDisabled && onToggle(p)} className="px-4 py-2 rounded-full transition-all"
-              style={{
-                background: isSelected ? "var(--gold)" : "var(--surface)",
-                color: isSelected ? "var(--charcoal)" : isDisabled ? "var(--surface-2)" : "var(--cream)",
-                border: `1px solid ${isSelected ? "var(--gold)" : isDisabled ? "var(--surface-2)" : "var(--border)"}`,
-                cursor: isDisabled ? "not-allowed" : "pointer",
-                fontWeight: isSelected ? 600 : 400, fontSize: "13px",
-              }}
-            >{p}</button>
+            <button key={opt} onClick={() => toggle(opt)}
+              className="px-4 py-2.5 rounded-full transition-all active:scale-95"
+              style={{ background: isSelected ? "rgba(199,179,139,0.15)" : "var(--surface)", border: `1px solid ${isSelected ? "var(--gold)" : "var(--border)"}`, color: isSelected ? "var(--gold)" : "var(--muted-foreground)", fontSize: "13px", fontWeight: isSelected ? 500 : 400, cursor: "pointer" }}>
+              {opt}
+            </button>
           );
         })}
       </div>
-      <ContinueButton onNext={onNext} disabled={selected.length === 0} />
+      <Btn label={`Continue (${selected.length} selected)`} onClick={onNext} disabled={selected.length === 0} />
     </div>
   );
 }
 
-/* ─── Step: Measurements ─────────────────────────────────────── */
-function MeasurementsStep({ gender, measurements, onChange, onNext, onBack }: {
+function NameScreen({ value, onChange, onNext, onBack }: { value: string; onChange: (v: string) => void; onNext: () => void; onBack: () => void }) {
+  return (
+    <div className="flex flex-col px-6 pt-8 pb-10">
+      <BackButton onBack={onBack} />
+      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 8 }}>
+        What should we call you?
+      </h2>
+      <p style={{ color: "var(--muted-foreground)", fontSize: "14px", marginBottom: 32 }}>
+        Iris likes to make things personal.
+      </p>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Your first name"
+        autoFocus
+        className="w-full px-4 py-4 rounded-xl outline-none mb-8"
+        style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "18px", fontFamily: "var(--font-body)" }}
+        onFocus={(e) => { e.currentTarget.style.borderColor = "var(--gold)"; }}
+        onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+        onKeyDown={(e) => { if (e.key === "Enter" && value.trim()) onNext(); }}
+      />
+      <Btn label="Continue" onClick={onNext} disabled={!value.trim()} />
+    </div>
+  );
+}
+
+function GenderScreen({ selected, onSelect, onBack }: { selected?: string; onSelect: (v: "woman" | "man" | "nonbinary") => void; onBack: () => void }) {
+  const options: { id: "woman" | "man" | "nonbinary"; label: string; sub: string }[] = [
+    { id: "woman", label: "Woman", sub: "Style recommendations for women's fashion" },
+    { id: "man", label: "Man", sub: "Style recommendations for men's fashion" },
+    { id: "nonbinary", label: "Non-binary / Other", sub: "Gender-inclusive styling for everyone" },
+  ];
+  return (
+    <div className="flex flex-col px-6 pt-8 pb-10">
+      <BackButton onBack={onBack} />
+      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 8 }}>
+        How do you identify your style?
+      </h2>
+      <p style={{ color: "var(--muted-foreground)", fontSize: "14px", marginBottom: 24 }}>
+        This shapes your body type options, vocabulary, and recommendations.
+      </p>
+      <div className="flex flex-col gap-3">
+        {options.map(({ id, label, sub }) => {
+          const isSelected = selected === id;
+          return (
+            <button key={id} onClick={() => onSelect(id)}
+              className="flex items-center gap-3 px-4 py-4 rounded-xl text-left transition-all"
+              style={{ background: isSelected ? "rgba(199,179,139,0.12)" : "var(--surface)", border: `1px solid ${isSelected ? "var(--gold)" : "var(--border)"}`, cursor: "pointer" }}>
+              <div className="flex-1">
+                <p style={{ color: isSelected ? "var(--gold)" : "var(--cream)", fontSize: "15px", fontWeight: isSelected ? 500 : 400 }}>{label}</p>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "12px", marginTop: 2 }}>{sub}</p>
+              </div>
+              {isSelected && <Check size={14} style={{ color: "var(--gold)" }} />}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ColorSeasonScreen({ selected, onSelect, onBack }: { selected?: string; onSelect: (v: string) => void; onBack: () => void }) {
+  const descriptions: Record<string, string> = {
+    Spring: "Warm, clear, light — golden undertones",
+    Summer: "Cool, muted, light — dusty and soft",
+    Autumn: "Warm, rich, earthy — deep and muted",
+    Winter: "Cool, clear, intense — high contrast",
+  };
+  return (
+    <div className="flex flex-col px-6 pt-8 pb-10">
+      <BackButton onBack={onBack} />
+      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 8 }}>
+        Which season matches your natural coloring?
+      </h2>
+      <p style={{ color: "var(--muted-foreground)", fontSize: "13px", marginBottom: 24, lineHeight: 1.5 }}>
+        Think about your skin undertone, hair, and eye color together.
+      </p>
+      <div className="flex flex-col gap-3">
+        {COLOR_SEASONS.map((season) => {
+          const isSelected = selected?.toLowerCase() === season.toLowerCase();
+          return (
+            <button key={season} onClick={() => onSelect(season.toLowerCase())}
+              className="flex items-center gap-3 px-4 py-4 rounded-xl text-left transition-all"
+              style={{ background: isSelected ? "rgba(199,179,139,0.12)" : "var(--surface)", border: `1px solid ${isSelected ? "var(--gold)" : "var(--border)"}`, cursor: "pointer" }}>
+              <div className="flex-1">
+                <p style={{ color: isSelected ? "var(--gold)" : "var(--cream)", fontSize: "15px", fontWeight: isSelected ? 500 : 400 }}>{season}</p>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "12px", marginTop: 2 }}>{descriptions[season]}</p>
+              </div>
+              {isSelected && <Check size={14} style={{ color: "var(--gold)" }} />}
+            </button>
+          );
+        })}
+      </div>
+      <p style={{ color: "var(--muted-foreground)", fontSize: "11px", marginTop: 16, textAlign: "center" }}>
+        Not sure? Iris will refine this over time.
+      </p>
+    </div>
+  );
+}
+
+function MeasurementsScreen({ gender, measurements, onChange, onNext, onBack }: {
   gender: string;
   measurements: { height: string; bust: string; waist: string; hips: string; inseam?: string };
   onChange: (m: { height: string; bust: string; waist: string; hips: string; inseam?: string }) => void;
@@ -718,169 +740,175 @@ function MeasurementsStep({ gender, measurements, onChange, onNext, onBack }: {
 }) {
   const fields = gender === "man"
     ? [
-        { key: "height" as const, label: "Height", placeholder: "e.g. 6'1\" or 185cm", tip: "Stand straight, measure from floor to top of head" },
-        { key: "bust" as const, label: "Chest", placeholder: "e.g. 40\" or 101cm", tip: "Measure around the fullest part of your chest, arms relaxed" },
-        { key: "waist" as const, label: "Waist", placeholder: "e.g. 32\" or 81cm", tip: "Measure around your natural waist — usually 1\" above your navel" },
-        { key: "inseam" as const, label: "Inseam", placeholder: "e.g. 32\" or 81cm", tip: "Inside leg from crotch seam to ankle — or check your best-fitting trousers" },
+        { key: "height" as const, label: "Height", placeholder: "e.g. 6'1\" or 185cm" },
+        { key: "bust" as const, label: "Chest", placeholder: "e.g. 40\" or 101cm" },
+        { key: "waist" as const, label: "Waist", placeholder: "e.g. 32\" or 81cm" },
+        { key: "inseam" as const, label: "Inseam", placeholder: "e.g. 32\" or 81cm" },
       ]
     : gender === "nonbinary"
     ? [
-        { key: "height" as const, label: "Height", placeholder: "e.g. 5'9\" or 175cm", tip: "Stand straight, measure from floor to top of head" },
-        { key: "bust" as const, label: "Chest / Bust", placeholder: "e.g. 36\" or 91cm", tip: "Measure around the fullest part of your chest" },
-        { key: "waist" as const, label: "Waist", placeholder: "e.g. 30\" or 76cm", tip: "Measure around your natural waist, usually the narrowest point" },
-        { key: "inseam" as const, label: "Inseam", placeholder: "e.g. 30\" or 76cm", tip: "Inside leg from crotch seam to ankle — key for unisex and androgynous bottoms" },
+        { key: "height" as const, label: "Height", placeholder: "e.g. 5'9\" or 175cm" },
+        { key: "bust" as const, label: "Chest / Bust", placeholder: "e.g. 36\" or 91cm" },
+        { key: "waist" as const, label: "Waist", placeholder: "e.g. 30\" or 76cm" },
+        { key: "inseam" as const, label: "Inseam", placeholder: "e.g. 30\" or 76cm" },
       ]
     : [
-        { key: "height" as const, label: "Height", placeholder: "e.g. 5'6\" or 168cm", tip: "Stand straight, measure from floor to top of head" },
-        { key: "bust" as const, label: "Bust", placeholder: "e.g. 36\" or 91cm", tip: "Measure around the fullest part of your chest" },
-        { key: "waist" as const, label: "Waist", placeholder: "e.g. 28\" or 71cm", tip: "Measure around your natural waist, usually the narrowest point" },
-        { key: "hips" as const, label: "Hips", placeholder: "e.g. 38\" or 96cm", tip: "Measure around the fullest part of your hips and seat" },
+        { key: "height" as const, label: "Height", placeholder: "e.g. 5'6\" or 168cm" },
+        { key: "bust" as const, label: "Bust", placeholder: "e.g. 36\" or 91cm" },
+        { key: "waist" as const, label: "Waist", placeholder: "e.g. 28\" or 71cm" },
+        { key: "hips" as const, label: "Hips", placeholder: "e.g. 38\" or 96cm" },
       ];
 
   return (
     <div className="flex flex-col px-6 pt-8 pb-10">
       <BackButton onBack={onBack} />
-      <div className="flex items-center gap-2 mb-1">
-        <StepLabel step="7 of 7" />
-        <PremiumBadge label="AI Scan Available" />
-      </div>
-      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", lineHeight: 1.1, fontWeight: 400, letterSpacing: "-0.02em", marginBottom: 6 }}>
+      <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "34px", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 8 }}>
         Your measurements
       </h2>
-      <p style={{ color: "var(--muted-foreground)", marginBottom: 8, fontSize: "13px" }}>
-        Optional but powerful — sizing gets exact. Always private.
+      <p style={{ color: "var(--muted-foreground)", fontSize: "14px", marginBottom: 8 }}>
+        Optional — but the more Iris knows, the more precise she gets.
       </p>
-
-      <div className="rounded-xl p-3 mb-8 flex items-center gap-3" style={{ background: "rgba(201,169,110,0.06)", border: "1px solid var(--border)" }}>
-        <Camera size={15} style={{ color: "var(--gold)" }} />
-        <p style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>Skip the tape — use AI body scan for instant measurements</p>
-        <button className="ml-auto px-3 py-1.5 rounded-lg shrink-0" style={{ background: "var(--surface-2)", color: "var(--gold)", fontSize: "11px", fontWeight: 600, border: "1px solid var(--border)", cursor: "pointer" }}>
-          Scan
-        </button>
+      <div className="rounded-xl px-4 py-3 mb-6 flex items-center gap-3" style={{ background: "rgba(199,179,139,0.06)", border: "1px solid var(--border)" }}>
+        <Camera size={14} style={{ color: "var(--gold)", flexShrink: 0 }} />
+        <p style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>AI body scan coming soon — skip for now and fill in later</p>
       </div>
-
       <div className="flex flex-col gap-4 mb-8">
-        {fields.map(({ key, label, placeholder, tip }) => (
+        {fields.map(({ key, label, placeholder }) => (
           <div key={key}>
-            <div className="flex items-center justify-between mb-1.5">
-              <label style={{ color: "var(--muted-foreground)", fontSize: "11px", letterSpacing: "0.05em", textTransform: "uppercase" }}>{label}</label>
-              {key === "inseam" && (gender === "man" || gender === "nonbinary") && (
-                <span style={{ color: "var(--gold)", fontSize: "9px", letterSpacing: "0.06em", textTransform: "uppercase" }}>
-                  Key for bottoms fit ✦
-                </span>
-              )}
-            </div>
+            <label style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>{label}</label>
             <input
               type="text"
               value={(measurements as Record<string, string>)[key] ?? ""}
               onChange={(e) => onChange({ ...measurements, [key]: e.target.value })}
               placeholder={placeholder}
               className="w-full px-4 py-3 rounded-xl outline-none"
-              style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "14px", fontFamily: "var(--font-body)" }}
+              style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "14px" }}
               onFocus={(e) => { e.currentTarget.style.borderColor = "var(--gold)"; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
             />
-            <p style={{ color: "var(--muted-foreground)", fontSize: "11px", marginTop: 4, lineHeight: 1.4 }}>{tip}</p>
           </div>
         ))}
       </div>
-
-      {/* Progressive disclosure hint */}
-      {(gender === "man" || gender === "nonbinary") && (
-        <div className="rounded-xl px-4 py-3 mb-6 flex items-start gap-2"
-          style={{ background: "rgba(201,169,110,0.05)", border: "1px solid var(--border)" }}>
-          <span style={{ color: "var(--gold)", fontSize: "13px", marginTop: 1 }}>✦</span>
-          <p style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.5 }}>
-            {gender === "man"
-              ? <>These 4 cover everyday retail sizing. Once you're set up, you can unlock <span style={{ color: "var(--gold)" }}>detailed tailoring measurements</span> (neck, shoulders, sleeve, seat) in your profile — for when you want truly bespoke recommendations.</>
-              : <>These cover everyday retail and unisex sizing. Unlock <span style={{ color: "var(--gold)" }}>full tailoring measurements</span> in your profile whenever you're ready — no pressure.</>
-            }
-          </p>
-        </div>
-      )}
-
-      <button onClick={onNext} className="w-full py-4 rounded-2xl" style={{ background: "var(--gold)", color: "var(--charcoal)", fontWeight: 600, border: "none", cursor: "pointer" }}>
-        Build My Style DNA ✦
+      <Btn label="Build My Style DNA" onClick={onNext} />
+      <button onClick={onNext} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", fontSize: "13px", textAlign: "center", marginTop: 12 }}>
+        Skip for now
       </button>
     </div>
   );
 }
 
-/* ─── Step: Complete ─────────────────────────────────────────── */
-function CompleteStep({ profile, onFinish }: { profile: Partial<StyleProfile>; onFinish: () => void }) {
+function DNABuildingScreen({ onComplete }: { onComplete: () => void }) {
+  const [completed, setCompleted] = useState<number[]>([]);
+
+  useState(() => {
+    DNA_STEPS.forEach((_, i) => {
+      setTimeout(() => {
+        setCompleted(prev => [...prev, i]);
+        if (i === DNA_STEPS.length - 1) {
+          setTimeout(onComplete, 800);
+        }
+      }, 700 + i * 900);
+    });
+  });
+
   return (
-    <div className="flex flex-col px-6 pt-16 pb-10 items-center text-center h-full justify-between">
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          className="mb-8"
-        >
-          <IrysAppIcon size={96} />
-        </motion.div>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-          <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "30px", lineHeight: 1.2, marginBottom: 12 }}>
-            {profile.name ? `${profile.name}'s` : "Your"} style<br />
-            <em style={{ color: "var(--gold)" }}>DNA is ready.</em>
-          </h2>
-          <p style={{ color: "var(--muted-foreground)", lineHeight: 1.6, fontSize: "14px", maxWidth: 280 }}>
-            Your personalised style profile is built. Daily outfit suggestions, colour guidance & scent matches — all curated for you.
-          </p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-          className="mt-8 w-full rounded-2xl p-5"
-          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
-        >
-          <div className="grid grid-cols-2 gap-4 text-left">
-            {[
-              { label: "Style", value: profile.gender === "man" ? "Men's Fashion" : "Women's Fashion" },
-              { label: "Body Type", value: profile.bodyType || "—" },
-              { label: "Color Season", value: profile.colorSeason || "—" },
-              { label: "Aesthetic", value: (profile.stylePersonality || []).slice(0, 1).join(", ") || "—" },
-            ].map(({ label, value }) => (
-              <div key={label}>
-                <p style={{ color: "var(--muted-foreground)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>{label}</p>
-                <p style={{ color: "var(--gold)", fontSize: "13px", fontWeight: 500, textTransform: "capitalize" }}>{value}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+    <div className="flex flex-col h-full items-center justify-center px-8 pb-16">
+      <div className="mb-10 text-center">
+        <IrysAppIcon size={72} />
+        <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "28px", fontWeight: 400, letterSpacing: "-0.02em", marginTop: 16, marginBottom: 6 }}>
+          Building Your Style DNA
+        </h2>
+        <p style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
+          This only takes a moment.
+        </p>
       </div>
-      <motion.button
-        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
-        onClick={onFinish}
-        className="w-full py-4 rounded-2xl mt-8"
-        style={{ background: "var(--gold)", color: "var(--charcoal)", fontWeight: 600, border: "none", cursor: "pointer", fontSize: "16px" }}
-      >
-        Enter My Closet ✦
-      </motion.button>
+
+      <div className="w-full flex flex-col gap-4">
+        {DNA_STEPS.map((step, i) => {
+          const isDone = completed.includes(i);
+          const isActive = !isDone && completed.length === i;
+          return (
+            <motion.div
+              key={step}
+              initial={{ opacity: 0.3 }}
+              animate={{ opacity: isDone || isActive ? 1 : 0.3 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center gap-4"
+            >
+              <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: isDone ? "var(--gold)" : isActive ? "rgba(199,179,139,0.2)" : "var(--surface-2)", border: isDone ? "none" : "1px solid var(--border)", transition: "all 0.3s" }}>
+                {isDone ? <Check size={12} style={{ color: "#161616" }} /> : (
+                  isActive ? <div className="w-2 h-2 rounded-full" style={{ background: "var(--gold)", animation: "pulse 1s ease-in-out infinite" }} /> : null
+                )}
+              </div>
+              <p style={{ color: isDone ? "var(--cream)" : isActive ? "var(--cream)" : "var(--muted-foreground)", fontSize: "14px", fontWeight: isDone ? 500 : 400, transition: "all 0.3s" }}>
+                {step}
+                {i === DNA_STEPS.length - 1 && isDone && <span style={{ color: "var(--gold)" }}> ✦</span>}
+              </p>
+            </motion.div>
+          );
+        })}
+      </div>
+      <style>{`@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }`}</style>
     </div>
   );
 }
 
-/* ─── Shared sub-components ──────────────────────────────────── */
-function BackButton({ onBack }: { onBack: () => void }) {
+function ResultsScreen({ persona, profile, onFinish }: { persona: { name: string; desc: string; colors: string[] }; profile: Partial<StyleProfile>; onFinish: () => void }) {
   return (
-    <button onClick={onBack} style={{ color: "var(--muted-foreground)", background: "none", border: "none", cursor: "pointer", alignSelf: "flex-start", marginBottom: 24, fontSize: "14px" }}>
-      ← Back
-    </button>
-  );
-}
+    <div className="flex flex-col px-6 pt-10 pb-10">
+      <div className="text-center mb-8">
+        <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase", marginBottom: 12 }}>
+          Your Style DNA
+        </p>
+        <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "36px", fontWeight: 400, letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 10 }}>
+          {persona.name}
+        </h2>
+        <p style={{ color: "var(--muted-foreground)", fontSize: "14px", lineHeight: 1.7, maxWidth: 300, margin: "0 auto" }}>
+          {persona.desc}
+        </p>
+      </div>
 
-function StepLabel({ step }: { step: string }) {
-  return (
-    <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 10, fontFamily: "var(--font-body)", fontWeight: 500 }}>
-      {step}
-    </p>
-  );
-}
+      {/* Color direction */}
+      <div className="rounded-2xl p-5 mb-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+        <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 12 }}>Color Direction</p>
+        <div className="flex gap-3">
+          {persona.colors.map((c, i) => (
+            <div key={i} className="flex flex-col items-center gap-1">
+              <div className="w-10 h-10 rounded-xl" style={{ background: c }} />
+            </div>
+          ))}
+        </div>
+      </div>
 
-function ContinueButton({ onNext, disabled }: { onNext: () => void; disabled: boolean }) {
-  return (
-    <button onClick={onNext} disabled={disabled} className="w-full py-4 rounded-2xl transition-all"
-      style={{ background: disabled ? "var(--surface-2)" : "var(--gold)", color: disabled ? "var(--muted-foreground)" : "var(--charcoal)", fontWeight: 600, border: "none", cursor: disabled ? "not-allowed" : "pointer" }}>
-      Continue
-    </button>
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-3 mb-8">
+        {[
+          { label: "Primary Aesthetic", value: profile.stylePersonality?.[0]?.replace(/-/g, " ") ?? "Classic" },
+          { label: "Style Confidence", value: profile.styleConfidence === "high" ? "High" : profile.styleConfidence === "medium" ? "Growing" : "Building" },
+          { label: "Color Season", value: profile.colorSeason ? profile.colorSeason.charAt(0).toUpperCase() + profile.colorSeason.slice(1) : "Autumn" },
+          { label: "Goals Set", value: `${profile.styleGoals?.length ?? 0} selected` },
+        ].map(({ label, value }) => (
+          <div key={label} className="rounded-xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+            <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>{label}</p>
+            <p style={{ color: "var(--gold)", fontSize: "14px", fontWeight: 500, textTransform: "capitalize" }}>{value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-2xl p-4 mb-6" style={{ background: "rgba(199,179,139,0.06)", border: "1px solid rgba(199,179,139,0.2)" }}>
+        <p style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.6 }}>
+          <span style={{ color: "var(--cream)" }}>Iris is ready for you.</span> Your full style analysis, personalized outfit recommendations, and wardrobe guidance are waiting inside.
+        </p>
+      </div>
+
+      <button
+        onClick={onFinish}
+        className="w-full py-5 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95"
+        style={{ background: "var(--gold)", color: "#161616", fontWeight: 600, fontSize: "16px", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
+      >
+        Meet Iris <ChevronRight size={18} />
+      </button>
+    </div>
   );
 }
