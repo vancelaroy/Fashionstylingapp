@@ -1,0 +1,19 @@
+{
+  "name": "IRYS Style",
+  "short_name": "IRYS",
+  "description": "Your AI personal stylist for outfits, wardrobe, and style confidence.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#161616",
+  "theme_color": "#161616",
+  "icons": [
+    {
+      "src": "/irys-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -23,6 +23,7 @@ interface PlaylistItem {
 
 interface IrisChatScreenProps {
   profile: StyleProfile;
+  accessToken?: string | null;
 }
 
 // ─── Playlist generator ───────────────────────────────────────────────────────
@@ -287,7 +288,7 @@ function PlaylistCard({ tracks }: { tracks: PlaylistItem[] }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export function IrisChatScreen({ profile }: IrisChatScreenProps) {
+export function IrisChatScreen({ profile, accessToken }: IrisChatScreenProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -297,6 +298,42 @@ export function IrisChatScreen({ profile }: IrisChatScreenProps) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    if (!accessToken) return;
+
+    fetch(`${SERVER}/iris/history`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (!Array.isArray(data.messages) || data.messages.length === 0) return;
+
+        setMessages(data.messages.map((m: { role: "user" | "assistant"; content: string; timestamp?: string }, index: number) => ({
+          id: `history-${index}-${m.timestamp ?? Date.now()}`,
+          role: m.role === "assistant" ? "iris" : "user",
+          content: m.content,
+          timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
+        })));
+        setStarted(true);
+      })
+      .catch(() => {});
+  }, [accessToken]);
+
+  const clearConversation = async () => {
+    setMessages([]);
+    setStarted(false);
+    if (!accessToken) return;
+
+    try {
+      await fetch(`${SERVER}/iris/history`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+    } catch {
+      // Local reset is still useful even if the network request fails.
+    }
+  };
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || isTyping) return;
@@ -323,7 +360,7 @@ export function IrisChatScreen({ profile }: IrisChatScreenProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${publicAnonKey}`,
+          Authorization: `Bearer ${accessToken ?? publicAnonKey}`,
         },
         body: JSON.stringify({ messages: history, profile }),
       });
@@ -390,7 +427,7 @@ export function IrisChatScreen({ profile }: IrisChatScreenProps) {
         </div>
         <div className="flex items-center gap-2">
           {started && (
-            <button onClick={() => { setMessages([]); setStarted(false); }}
+            <button onClick={clearConversation}
               className="w-8 h-8 rounded-full flex items-center justify-center"
               style={{ background: "var(--surface)", border: "none", cursor: "pointer" }}>
               <RotateCcw size={14} style={{ color: "var(--muted-foreground)" }} />
