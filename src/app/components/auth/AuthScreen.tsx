@@ -26,7 +26,7 @@ export function AuthScreen({ onAuth }: AuthScreenProps) {
   const handleGoogle = async () => {
     setError(null);
     setLoading(true);
-    const redirectTo = window.location.origin;
+    const redirectTo = `${window.location.origin}/`;
 
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -79,7 +79,7 @@ export function AuthScreen({ onAuth }: AuthScreenProps) {
 
       if (signInError) {
         setError(mode === "signin"
-          ? "We couldn't sign you in. Check your password, or tap Create Account if this email is new."
+          ? "This is the Sign In tab. If this email is new, tap Create Account above first. If you already have an account, check your password."
           : signInError.message);
         return;
       }
