@@ -5,7 +5,6 @@ import { Eye, EyeOff, ChevronRight } from "lucide-react";
 import { IrysAppIcon } from "../ui/IrysLogo";
 
 const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
-const PROD_URL = "https://www.irysstyle.com";
 
 interface AuthScreenProps {
   onAuth: (accessToken: string) => void;
@@ -22,48 +21,71 @@ export function AuthScreen({ onAuth }: AuthScreenProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Google OAuth — always redirect back to irysstyle.com
+  // Google OAuth — return to the exact origin that started the flow.
+  // This keeps the PKCE handshake on the same domain on mobile Safari.
   const handleGoogle = async () => {
-    const redirectTo = window.location.hostname === "localhost"
-      ? `http://localhost:${window.location.port || 5173}`
-      : PROD_URL;
+    setError(null);
+    setLoading(true);
+    const redirectTo = window.location.origin;
 
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
     });
 
-    if (oauthError) setError(oauthError.message);
+    if (oauthError) {
+      setError(oauthError.message);
+      setLoading(false);
+    }
   };
 
   // Email sign-in / sign-up
   const handleSubmit = async () => {
     setError(null);
     setLoading(true);
+    const cleanEmail = email.trim().toLowerCase();
     try {
       if (mode === "signup") {
+        if (password.length < 6) {
+          setError("Choose a password with at least 6 characters.");
+          return;
+        }
+
         const res = await fetch(`${SERVER}/signup`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${publicAnonKey}`,
           },
-          body: JSON.stringify({ email, password, name }),
+          body: JSON.stringify({ email: cleanEmail, password, name: name.trim() }),
         });
         const data = await res.json();
         if (!res.ok) {
-          setError(data.error ?? "Sign up failed. Please try again.");
+          const message = data.error ?? "Sign up failed. Please try again.";
+          if (message.toLowerCase().includes("already")) {
+            setMode("signin");
+            setError("That email already has an account. I switched you to Sign In.");
+          } else {
+            setError(message);
+          }
           return;
         }
       }
 
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+        email: cleanEmail,
         password,
       });
 
       if (signInError) {
-        setError(signInError.message);
+        setError(mode === "signin"
+          ? "We couldn't sign you in. Check your password, or tap Create Account if this email is new."
+          : signInError.message);
+        return;
+      }
+
+      if (!data.session?.access_token) {
+        setError("Account created, but the session did not start. Try signing in now.");
         return;
       }
 
