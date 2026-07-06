@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Star, Camera, X, Trash2, Save, ImagePlus, Sparkles } from "lucide-react";
+import { Plus, Search, Camera, X, Trash2, Save, ImagePlus, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { VirtualCloset } from "./VirtualCloset";
 import { WardrobeUpload, type WardrobeItem } from "./WardrobeUpload";
@@ -218,7 +218,7 @@ export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) 
       <div className="flex-1 overflow-y-auto pb-24">
 
         {/* ── Virtual Closet ── */}
-        {view === "closet" && <VirtualCloset />}
+        {view === "closet" && <VirtualCloset items={myItems} initialView="builder" onAddPiece={() => setShowUpload(true)} />}
 
         {/* ── My Pieces ── */}
         {view === "items" && (
@@ -307,28 +307,7 @@ export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) 
         )}
 
         {/* ── Outfits ── */}
-        {view === "outfits" && (
-          <div className="px-6 flex flex-col items-center justify-center py-16 gap-5 text-center">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.1)", border: "1px solid var(--border)" }}>
-              <Star size={28} style={{ color: "var(--gold)" }} />
-            </div>
-            <div>
-              <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "22px", fontWeight: 400, letterSpacing: "-0.01em" }}>
-                Outfit builder
-              </h3>
-              <p style={{ color: "var(--muted-foreground)", fontSize: "13px", marginTop: 6, lineHeight: 1.6 }}>
-                Add pieces to your closet and Iris will start suggesting complete outfits from what you own.
-              </p>
-            </div>
-            {myItems.length === 0 && (
-              <button onClick={() => { setView("items"); setShowUpload(true); }}
-                className="px-6 py-3.5 rounded-2xl flex items-center gap-2 transition-all active:scale-95"
-                style={{ background: "var(--gold)", color: "#161616", fontWeight: 600, fontSize: "14px", border: "none", cursor: "pointer" }}>
-                <Camera size={16} /> Start adding pieces
-              </button>
-            )}
-          </div>
-        )}
+        {view === "outfits" && <VirtualCloset items={myItems} initialView="saved" onAddPiece={() => setShowUpload(true)} />}
       </div>
     </div>
   );
