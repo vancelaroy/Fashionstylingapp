@@ -1,215 +1,347 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Plus, Sparkles, RotateCcw, Share2, Heart, ShoppingBag, Link } from "lucide-react";
-import { PremiumBadge } from "../ui/PremiumBadge";
+import { Plus, Sparkles, RotateCcw, Share2, Heart, Camera, X, Trash2 } from "lucide-react";
+import type { WardrobeItem } from "./WardrobeUpload";
 
-export interface ClosetItem {
-  id: number;
+type OutfitSlotKey = "top" | "bottom" | "outer" | "shoes" | "bag" | "accessory";
+
+type OutfitSlots = Record<OutfitSlotKey, WardrobeItem | null>;
+
+interface SavedOutfit {
+  id: string;
   name: string;
-  brand: string;
-  category: "top" | "bottom" | "dress" | "outerwear" | "shoes" | "bag" | "accessory";
-  color: string;
-  colorName: string;
-  image: string;
-  source?: "purchased" | "uploaded" | "wishlisted";
-  purchaseUrl?: string;
+  slotItemIds: Partial<Record<OutfitSlotKey, string>>;
+  createdAt: string;
 }
 
-const CLOSET_ITEMS: ClosetItem[] = [
-  { id: 1, name: "Silk Slip Dress", brand: "Reformation", category: "dress", color: "#8F88A8", colorName: "Dusty Rose", image: "https://images.unsplash.com/photo-1611367540736-b1b38aff784b?w=300&h=400&fit=crop&auto=format", source: "purchased" },
-  { id: 2, name: "Wool Blazer", brand: "Theory", category: "outerwear", color: "#2F4F4F", colorName: "Deep Teal", image: "https://images.unsplash.com/photo-1629511565591-a1d494ad6c58?w=300&h=400&fit=crop&auto=format", source: "purchased" },
-  { id: 3, name: "Wide Leg Trousers", brand: "Arket", category: "bottom", color: "#8B7355", colorName: "Warm Taupe", image: "https://images.unsplash.com/photo-1533392151650-269f96231f65?w=300&h=400&fit=crop&auto=format", source: "uploaded" },
-  { id: 4, name: "Cashmere Turtleneck", brand: "Everlane", category: "top", color: "#F5F0E8", colorName: "Cream", image: "https://images.unsplash.com/photo-1636153279424-cb5d1e00f5a2?w=300&h=400&fit=crop&auto=format", source: "uploaded" },
-  { id: 5, name: "Leather Loafers", brand: "Toteme", category: "shoes", color: "#3B2314", colorName: "Espresso", image: "https://images.unsplash.com/photo-1549439602-43ebca2327af?w=300&h=400&fit=crop&auto=format", source: "purchased" },
-  { id: 6, name: "Gold Chain Bag", brand: "Mango", category: "bag", color: "#C7B38B", colorName: "Gold", image: "https://images.unsplash.com/photo-1589363358751-ab05797e5629?w=300&h=400&fit=crop&auto=format", source: "purchased" },
-  { id: 7, name: "Strappy Sandals", brand: "Sam Edelman", category: "shoes", color: "#C7B38B", colorName: "Gold", image: "https://images.unsplash.com/photo-1569388330292-79cc1ec67270?w=300&h=400&fit=crop&auto=format", source: "wishlisted" },
-  { id: 8, name: "Linen Midi Skirt", brand: "& Other Stories", category: "bottom", color: "#DDD5C4", colorName: "Linen", image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300&h=400&fit=crop&auto=format", source: "uploaded" },
-];
+interface OutfitSuggestion {
+  name: string;
+  note: string;
+  slots: OutfitSlots;
+}
 
-const OUTFIT_SLOTS: { key: keyof OutfitSlots; label: string; accepts: ClosetItem["category"][] }[] = [
-  { key: "top", label: "Top / Dress", accepts: ["top", "dress"] },
-  { key: "bottom", label: "Bottom", accepts: ["bottom", "dress"] },
-  { key: "outer", label: "Outerwear", accepts: ["outerwear"] },
+interface VirtualClosetProps {
+  items: WardrobeItem[];
+  initialView?: "builder" | "saved";
+  onAddPiece?: () => void;
+}
+
+const EMPTY_SLOTS: OutfitSlots = {
+  top: null,
+  bottom: null,
+  outer: null,
+  shoes: null,
+  bag: null,
+  accessory: null,
+};
+
+const OUTFIT_SLOTS: { key: OutfitSlotKey; label: string; accepts: string[] }[] = [
+  { key: "top", label: "Top / Dress", accepts: ["tops", "dresses"] },
+  { key: "bottom", label: "Bottom", accepts: ["bottoms"] },
+  { key: "outer", label: "Outerwear", accepts: ["outerwear", "suits"] },
   { key: "shoes", label: "Shoes", accepts: ["shoes"] },
-  { key: "bag", label: "Bag", accepts: ["bag"] },
-  { key: "accessory", label: "Accessory", accepts: ["accessory"] },
+  { key: "bag", label: "Bag", accepts: ["bags"] },
+  { key: "accessory", label: "Accessory", accepts: ["accessories"] },
 ];
 
-interface OutfitSlots {
-  top: ClosetItem | null;
-  bottom: ClosetItem | null;
-  outer: ClosetItem | null;
-  shoes: ClosetItem | null;
-  bag: ClosetItem | null;
-  accessory: ClosetItem | null;
+const CATEGORY_EMOJI: Record<string, string> = {
+  tops: "👕", bottoms: "👖", outerwear: "🧥", shoes: "👟",
+  accessories: "💍", dresses: "👗", suits: "🤵", bags: "👜",
+};
+
+function isPersistentImage(src: string | undefined): src is string {
+  return !!src && !src.startsWith("blob:");
 }
 
-const AI_OUTFIT_SUGGESTIONS = [
-  { name: "The Power Edit", slots: { top: 4, bottom: 3, outer: 2, shoes: 5, bag: 6, accessory: null } },
-  { name: "Weekend Soft", slots: { top: 4, bottom: 8, outer: null, shoes: 7, bag: 6, accessory: null } },
-  { name: "Evening Silk", slots: { top: 1, bottom: null, outer: null, shoes: 7, bag: 6, accessory: null } },
-];
+function getSlotForCategory(category: string): OutfitSlotKey | null {
+  if (category === "tops" || category === "dresses") return "top";
+  if (category === "bottoms") return "bottom";
+  if (category === "outerwear" || category === "suits") return "outer";
+  if (category === "shoes") return "shoes";
+  if (category === "bags") return "bag";
+  if (category === "accessories") return "accessory";
+  return null;
+}
 
-export function VirtualCloset() {
-  const [outfit, setOutfit] = useState<OutfitSlots>({ top: null, bottom: null, outer: null, shoes: null, bag: null, accessory: null });
-  const [activeSlot, setActiveSlot] = useState<keyof OutfitSlots | null>(null);
-  const [savedOutfits, setSavedOutfits] = useState<{ name: string; slots: OutfitSlots }[]>([]);
+function findFirst(items: WardrobeItem[], categories: string[], rejectIds: string[] = []) {
+  return items.find((item) => categories.includes(item.category) && !rejectIds.includes(item.id)) ?? null;
+}
+
+function scoreItemForOccasion(item: WardrobeItem, occasion: string) {
+  const text = `${item.name} ${item.brand ?? ""} ${item.category} ${item.color} ${item.fit ?? ""} ${item.occasions.join(" ")} ${item.styleNote}`.toLowerCase();
+  let score = 0;
+  if (text.includes(occasion)) score += 5;
+  if (occasion === "work" && /blazer|suit|tailored|structured|trouser|dress shirt|polo/.test(text)) score += 3;
+  if (occasion === "weekend" && /casual|relaxed|denim|tee|t-shirt|sneaker|bucket|canvas/.test(text)) score += 3;
+  if (occasion === "evening" && /evening|formal|dress|silk|black|heel|blazer|leather/.test(text)) score += 3;
+  return score;
+}
+
+function pickForOccasion(items: WardrobeItem[], categories: string[], occasion: string, rejectIds: string[] = []) {
+  const candidates = items
+    .filter((item) => categories.includes(item.category) && !rejectIds.includes(item.id))
+    .map((item) => ({ item, score: scoreItemForOccasion(item, occasion) }))
+    .sort((a, b) => b.score - a.score);
+
+  return candidates[0]?.item ?? null;
+}
+
+function buildSuggestion(items: WardrobeItem[], name: string, occasion: string, note: string): OutfitSuggestion {
+  const top = pickForOccasion(items, ["tops", "dresses"], occasion);
+  const used = top ? [top.id] : [];
+  const isDress = top?.category === "dresses";
+  const bottom = isDress ? null : pickForOccasion(items, ["bottoms"], occasion, used);
+  if (bottom) used.push(bottom.id);
+  const outer = pickForOccasion(items, ["outerwear", "suits"], occasion, used);
+  if (outer) used.push(outer.id);
+  const shoes = pickForOccasion(items, ["shoes"], occasion, used);
+  if (shoes) used.push(shoes.id);
+  const bag = pickForOccasion(items, ["bags"], occasion, used);
+  if (bag) used.push(bag.id);
+  const accessory = pickForOccasion(items, ["accessories"], occasion, used);
+
+  return { name, note, slots: { top, bottom, outer, shoes, bag, accessory } };
+}
+
+function getSavedOutfitSlots(saved: SavedOutfit, items: WardrobeItem[]): OutfitSlots {
+  return {
+    top: items.find((item) => item.id === saved.slotItemIds.top) ?? null,
+    bottom: items.find((item) => item.id === saved.slotItemIds.bottom) ?? null,
+    outer: items.find((item) => item.id === saved.slotItemIds.outer) ?? null,
+    shoes: items.find((item) => item.id === saved.slotItemIds.shoes) ?? null,
+    bag: items.find((item) => item.id === saved.slotItemIds.bag) ?? null,
+    accessory: items.find((item) => item.id === saved.slotItemIds.accessory) ?? null,
+  };
+}
+
+function getOutfitItemCount(slots: OutfitSlots) {
+  return Object.values(slots).filter(Boolean).length;
+}
+
+export function VirtualCloset({ items, initialView = "builder", onAddPiece }: VirtualClosetProps) {
+  const [outfit, setOutfit] = useState<OutfitSlots>(EMPTY_SLOTS);
+  const [activeSlot, setActiveSlot] = useState<OutfitSlotKey | null>(null);
+  const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>([]);
   const [outfitName, setOutfitName] = useState("");
   const [showSaveModal, setShowSaveModal] = useState(false);
-  const [view, setView] = useState<"builder" | "saved">("builder");
+  const [view, setView] = useState<"builder" | "saved">(initialView);
 
-  const slot = activeSlot ? OUTFIT_SLOTS.find((s) => s.key === activeSlot) : null;
-  const availableItems = slot
-    ? CLOSET_ITEMS.filter((item) => slot.accepts.includes(item.category))
+  useEffect(() => {
+    setView(initialView);
+  }, [initialView]);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("irys.savedOutfits.v1");
+      if (saved) setSavedOutfits(JSON.parse(saved));
+    } catch {
+      setSavedOutfits([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("irys.savedOutfits.v1", JSON.stringify(savedOutfits));
+  }, [savedOutfits]);
+
+  const suggestions = useMemo(() => {
+    if (items.length === 0) return [];
+    return [
+      buildSuggestion(items, "The Power Edit", "work", "Sharp, pulled together, and easy to wear."),
+      buildSuggestion(items, "Weekend Soft", "weekend", "Relaxed pieces with enough polish to leave the house confidently."),
+      buildSuggestion(items, "Evening Clean", "evening", "A simple after-dark formula using what is already in your closet."),
+    ].filter((suggestion) => getOutfitItemCount(suggestion.slots) > 0);
+  }, [items]);
+
+  const activeSlotConfig = activeSlot ? OUTFIT_SLOTS.find((slot) => slot.key === activeSlot) : null;
+  const availableItems = activeSlotConfig
+    ? items.filter((item) => activeSlotConfig.accepts.includes(item.category))
     : [];
+  const hasAnyItem = getOutfitItemCount(outfit) > 0;
 
-  const selectItem = (item: ClosetItem) => {
+  const selectItem = (item: WardrobeItem) => {
     if (!activeSlot) return;
-    // If it's a dress, auto-clear bottom
-    if (item.category === "dress") {
-      setOutfit((o) => ({ ...o, top: item, bottom: null }));
+    if (item.category === "dresses") {
+      setOutfit((current) => ({ ...current, top: item, bottom: null }));
     } else {
-      setOutfit((o) => ({ ...o, [activeSlot]: item }));
+      setOutfit((current) => ({ ...current, [activeSlot]: item }));
     }
     setActiveSlot(null);
   };
 
-  const clearSlot = (key: keyof OutfitSlots) => setOutfit((o) => ({ ...o, [key]: null }));
+  const addItemDirectly = (item: WardrobeItem) => {
+    const slot = getSlotForCategory(item.category);
+    if (!slot) return;
+    if (item.category === "dresses") {
+      setOutfit((current) => ({ ...current, top: item, bottom: null }));
+    } else {
+      setOutfit((current) => ({ ...current, [slot]: item }));
+    }
+    setView("builder");
+  };
 
-  const clearAll = () => setOutfit({ top: null, bottom: null, outer: null, shoes: null, bag: null, accessory: null });
+  const clearSlot = (key: OutfitSlotKey) => {
+    setOutfit((current) => ({ ...current, [key]: null }));
+  };
 
-  const applyAISuggestion = (suggestion: typeof AI_OUTFIT_SUGGESTIONS[0]) => {
-    const resolved: OutfitSlots = {
-      top: CLOSET_ITEMS.find((i) => i.id === suggestion.slots.top) || null,
-      bottom: CLOSET_ITEMS.find((i) => i.id === suggestion.slots.bottom) || null,
-      outer: CLOSET_ITEMS.find((i) => i.id === suggestion.slots.outer) || null,
-      shoes: CLOSET_ITEMS.find((i) => i.id === suggestion.slots.shoes) || null,
-      bag: CLOSET_ITEMS.find((i) => i.id === suggestion.slots.bag) || null,
-      accessory: null,
-    };
-    setOutfit(resolved);
+  const clearAll = () => {
+    setOutfit(EMPTY_SLOTS);
+    setActiveSlot(null);
+  };
+
+  const applySuggestion = (suggestion: OutfitSuggestion) => {
+    setOutfit(suggestion.slots);
+    setActiveSlot(null);
+    setView("builder");
   };
 
   const saveOutfit = () => {
-    if (outfitName.trim()) {
-      setSavedOutfits((prev) => [...prev, { name: outfitName, slots: { ...outfit } }]);
-      setOutfitName("");
-      setShowSaveModal(false);
-    }
+    if (!outfitName.trim() || !hasAnyItem) return;
+
+    const slotItemIds = Object.fromEntries(
+      Object.entries(outfit)
+        .filter(([, item]) => !!item)
+        .map(([key, item]) => [key, item!.id])
+    ) as SavedOutfit["slotItemIds"];
+
+    setSavedOutfits((current) => [
+      { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, name: outfitName.trim(), slotItemIds, createdAt: new Date().toISOString() },
+      ...current,
+    ]);
+    setOutfitName("");
+    setShowSaveModal(false);
+    setView("saved");
   };
 
-  const hasAnyItem = Object.values(outfit).some(Boolean);
+  const deleteSavedOutfit = (id: string) => {
+    setSavedOutfits((current) => current.filter((outfit) => outfit.id !== id));
+  };
+
+  const loadSavedOutfit = (saved: SavedOutfit) => {
+    setOutfit(getSavedOutfitSlots(saved, items));
+    setView("builder");
+  };
+
+  if (items.length === 0) {
+    return (
+      <div className="px-6 py-14 flex flex-col items-center justify-center gap-5 text-center">
+        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.1)", border: "1px solid var(--border)" }}>
+          <Camera size={28} style={{ color: "var(--gold)" }} />
+        </div>
+        <div>
+          <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "24px", fontWeight: 400, letterSpacing: "-0.01em" }}>
+            Build your first look
+          </h3>
+          <p style={{ color: "var(--muted-foreground)", fontSize: "13px", marginTop: 8, lineHeight: 1.6 }}>
+            Add a few closet pieces first, then Iris can help you mix them into real outfits.
+          </p>
+        </div>
+        <button onClick={onAddPiece} className="px-6 py-3.5 rounded-2xl flex items-center gap-2 transition-all active:scale-95"
+          style={{ background: "var(--gold)", color: "#161616", fontWeight: 700, fontSize: "14px", border: "none", cursor: "pointer" }}>
+          <Camera size={16} /> Add closet pieces
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
-      {/* Header */}
       <div className="px-6 pt-5 pb-4">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "22px" }}>Virtual Closet</h2>
-            <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>Inspired by Clueless ✦</p>
+            <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "22px", fontWeight: 400 }}>Virtual Closet</h2>
+            <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>Build looks from your real pieces</p>
           </div>
-          <div className="flex gap-2">
-            <button
-              className="px-3 py-1.5 rounded-full flex items-center gap-1.5"
-              style={{ background: "rgba(199,179,139,0.1)", border: "1px solid rgba(199,179,139,0.2)", color: "var(--gold)", fontSize: "11px", cursor: "pointer" }}
-            >
-              <Link size={11} /> Import Orders
-              <PremiumBadge />
-            </button>
-          </div>
+          <button onClick={onAddPiece} className="px-3 py-2 rounded-full flex items-center gap-1.5"
+            style={{ background: "rgba(199,179,139,0.1)", border: "1px solid rgba(199,179,139,0.22)", color: "var(--gold)", fontSize: "11px", cursor: "pointer" }}>
+            <Plus size={12} /> Add Piece
+          </button>
         </div>
 
-        {/* View toggle */}
         <div className="flex gap-1 p-1 rounded-xl" style={{ background: "var(--surface)" }}>
-          {(["builder", "saved"] as const).map((v) => (
-            <button key={v} onClick={() => setView(v)} className="flex-1 py-2 rounded-lg capitalize transition-all"
-              style={{ background: view === v ? "var(--gold)" : "transparent", color: view === v ? "var(--charcoal)" : "var(--muted-foreground)", border: "none", cursor: "pointer", fontSize: "12px", fontWeight: view === v ? 600 : 400 }}>
-              {v === "builder" ? "Outfit Builder" : `Saved (${savedOutfits.length})`}
+          {(["builder", "saved"] as const).map((mode) => (
+            <button key={mode} onClick={() => setView(mode)} className="flex-1 py-2 rounded-lg transition-all"
+              style={{ background: view === mode ? "var(--gold)" : "transparent", color: view === mode ? "var(--charcoal)" : "var(--muted-foreground)", border: "none", cursor: "pointer", fontSize: "12px", fontWeight: view === mode ? 700 : 400 }}>
+              {mode === "builder" ? "Outfit Builder" : `Saved (${savedOutfits.length})`}
             </button>
           ))}
         </div>
       </div>
 
       {view === "builder" ? (
-        <div className="flex-1 overflow-y-auto pb-4">
-          {/* AI suggestions */}
+        <div className="flex-1 overflow-y-auto pb-6">
           <div className="px-6 mb-5">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles size={13} style={{ color: "var(--gold)" }} />
-              <p style={{ color: "var(--gold)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>AI Outfit Suggestions</p>
+              <p style={{ color: "var(--gold)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>Iris outfit starters</p>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-              {AI_OUTFIT_SUGGESTIONS.map((s) => (
-                <button key={s.name} onClick={() => applyAISuggestion(s)}
+              {suggestions.map((suggestion) => (
+                <button key={suggestion.name} onClick={() => applySuggestion(suggestion)}
                   className="shrink-0 px-4 py-2 rounded-full transition-all active:scale-95"
                   style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--cream)", fontSize: "12px", cursor: "pointer" }}>
-                  ✦ {s.name}
+                  ✦ {suggestion.name}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Outfit canvas — the Clueless board */}
           <div className="px-6 mb-5">
-            <div
-              className="rounded-2xl p-4 relative"
-              style={{ background: "var(--surface)", border: `1px solid ${hasAnyItem ? "rgba(199,179,139,0.3)" : "var(--border)"}`, minHeight: 320 }}
-            >
-              {/* Header of board */}
+            <div className="rounded-2xl p-4 relative"
+              style={{ background: "var(--surface)", border: `1px solid ${hasAnyItem ? "rgba(199,179,139,0.3)" : "var(--border)"}`, minHeight: 330 }}>
               <div className="flex items-center justify-between mb-4">
-                <p style={{ color: "var(--muted-foreground)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                  Today's Look
-                </p>
-                <div className="flex gap-2">
+                <div>
+                  <p style={{ color: "var(--muted-foreground)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                    Today's Look
+                  </p>
                   {hasAnyItem && (
-                    <>
-                      <button onClick={clearAll} className="flex items-center gap-1 px-2 py-1 rounded-lg" style={{ background: "var(--surface-2)", border: "none", cursor: "pointer", color: "var(--muted-foreground)", fontSize: "11px" }}>
-                        <RotateCcw size={10} /> Clear
-                      </button>
-                      <button onClick={() => setShowSaveModal(true)} className="flex items-center gap-1 px-2 py-1 rounded-lg" style={{ background: "rgba(199,179,139,0.15)", border: "1px solid rgba(199,179,139,0.3)", cursor: "pointer", color: "var(--gold)", fontSize: "11px" }}>
-                        <Heart size={10} /> Save Look
-                      </button>
-                    </>
+                    <p style={{ color: "var(--lavender)", fontSize: "11px", marginTop: 3 }}>
+                      {getOutfitItemCount(outfit)} pieces selected
+                    </p>
                   )}
                 </div>
+                {hasAnyItem && (
+                  <div className="flex gap-2">
+                    <button onClick={clearAll} className="flex items-center gap-1 px-2 py-1 rounded-lg"
+                      style={{ background: "var(--surface-2)", border: "none", cursor: "pointer", color: "var(--muted-foreground)", fontSize: "11px" }}>
+                      <RotateCcw size={10} /> Clear
+                    </button>
+                    <button onClick={() => setShowSaveModal(true)} className="flex items-center gap-1 px-2 py-1 rounded-lg"
+                      style={{ background: "rgba(199,179,139,0.15)", border: "1px solid rgba(199,179,139,0.3)", cursor: "pointer", color: "var(--gold)", fontSize: "11px" }}>
+                      <Heart size={10} /> Save
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {/* Grid of outfit slots */}
               <div className="grid grid-cols-3 gap-2">
-                {OUTFIT_SLOTS.map((s) => {
-                  const item = outfit[s.key];
-                  const isActive = activeSlot === s.key;
+                {OUTFIT_SLOTS.map((slot) => {
+                  const item = outfit[slot.key];
+                  const isActive = activeSlot === slot.key;
                   return (
-                    <motion.button
-                      key={s.key}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => setActiveSlot(isActive ? null : s.key)}
+                    <motion.button key={slot.key} whileTap={{ scale: 0.96 }} onClick={() => setActiveSlot(isActive ? null : slot.key)}
                       className="rounded-xl overflow-hidden relative flex flex-col items-center justify-center transition-all"
-                      style={{
-                        background: item ? "transparent" : "var(--surface-2)",
-                        border: `1.5px solid ${isActive ? "var(--gold)" : item ? "rgba(199,179,139,0.2)" : "var(--border)"}`,
-                        height: 100,
-                        cursor: "pointer",
-                      }}
-                    >
+                      style={{ background: item ? "transparent" : "var(--surface-2)", border: `1.5px solid ${isActive ? "var(--gold)" : item ? "rgba(199,179,139,0.25)" : "var(--border)"}`, height: 112, cursor: "pointer" }}>
                       {item ? (
                         <>
-                          <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" />
-                          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(14,13,12,0.7) 0%, transparent 50%)" }} />
-                          <button
-                            onClick={(e) => { e.stopPropagation(); clearSlot(s.key); }}
+                          {isPersistentImage(item.image) ? (
+                            <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" />
+                          ) : (
+                            <span style={{ fontSize: "30px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
+                          )}
+                          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(14,13,12,0.78) 0%, transparent 58%)" }} />
+                          <button onClick={(event) => { event.stopPropagation(); clearSlot(slot.key); }}
                             className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center"
-                            style={{ background: "rgba(14,13,12,0.8)", border: "none", cursor: "pointer", fontSize: "10px", color: "var(--cream)" }}
-                          >✕</button>
+                            style={{ background: "rgba(14,13,12,0.82)", border: "none", cursor: "pointer", color: "var(--cream)" }}>
+                            <X size={10} />
+                          </button>
                           <div className="absolute bottom-1 left-1 right-1">
-                            <p style={{ color: "var(--cream)", fontSize: "9px", textAlign: "center", textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>{item.name}</p>
+                            <p style={{ color: "var(--cream)", fontSize: "9px", textAlign: "center", lineHeight: 1.25, textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>{item.name}</p>
                           </div>
                         </>
                       ) : (
                         <>
-                          <Plus size={16} style={{ color: isActive ? "var(--gold)" : "var(--muted-foreground)", marginBottom: 4 }} />
-                          <p style={{ color: isActive ? "var(--gold)" : "var(--muted-foreground)", fontSize: "9px", textAlign: "center", lineHeight: 1.3 }}>{s.label}</p>
+                          <Plus size={17} style={{ color: isActive ? "var(--gold)" : "var(--muted-foreground)", marginBottom: 4 }} />
+                          <p style={{ color: isActive ? "var(--gold)" : "var(--muted-foreground)", fontSize: "9px", textAlign: "center", lineHeight: 1.3 }}>{slot.label}</p>
                         </>
                       )}
                     </motion.button>
@@ -219,48 +351,40 @@ export function VirtualCloset() {
 
               {!hasAnyItem && (
                 <p style={{ color: "var(--muted-foreground)", fontSize: "12px", textAlign: "center", marginTop: 16 }}>
-                  Tap a slot to add pieces, or try an AI suggestion ↑
+                  Tap a slot, choose a piece below, or start with Iris.
                 </p>
               )}
             </div>
           </div>
 
-          {/* Item picker panel */}
           <AnimatePresence>
             {activeSlot && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                className="px-6"
-              >
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }} className="px-6 mb-5">
                 <p style={{ color: "var(--gold)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
-                  Choose {slot?.label}
+                  Choose {activeSlotConfig?.label}
                 </p>
                 <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
                   {availableItems.length > 0 ? availableItems.map((item) => (
-                    <motion.button
-                      key={item.id}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => selectItem(item)}
+                    <motion.button key={item.id} whileTap={{ scale: 0.95 }} onClick={() => selectItem(item)}
                       className="shrink-0 rounded-xl overflow-hidden relative"
-                      style={{ width: 90, height: 120, border: "1px solid var(--border)", cursor: "pointer" }}
-                    >
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(14,13,12,0.8) 0%, transparent 50%)" }} />
-                      <div className="absolute bottom-1 left-1 right-1">
-                        <p style={{ color: "var(--cream)", fontSize: "9px", textAlign: "center", lineHeight: 1.3 }}>{item.name}</p>
-                      </div>
-                      {item.source === "wishlisted" && (
-                        <div className="absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "rgba(143,136,168,0.9)" }}>
-                          <Heart size={8} fill="white" style={{ color: "white" }} />
+                      style={{ width: 96, height: 124, border: "1px solid var(--border)", cursor: "pointer", background: "var(--surface)" }}>
+                      {isPersistentImage(item.image) ? (
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span style={{ fontSize: "28px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
                         </div>
                       )}
+                      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(14,13,12,0.82) 0%, transparent 55%)" }} />
+                      <div className="absolute bottom-1 left-1 right-1">
+                        <p style={{ color: "var(--cream)", fontSize: "9px", textAlign: "center", lineHeight: 1.25 }}>{item.name}</p>
+                      </div>
                     </motion.button>
                   )) : (
-                    <div className="flex flex-col items-center justify-center w-full py-6 gap-2">
-                      <p style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>No {slot?.label.toLowerCase()} in your closet yet</p>
-                      <button className="px-4 py-2 rounded-xl flex items-center gap-1.5" style={{ background: "rgba(199,179,139,0.1)", border: "1px solid rgba(199,179,139,0.2)", color: "var(--gold)", fontSize: "11px", cursor: "pointer" }}>
+                    <div className="flex flex-col items-center justify-center w-full py-6 gap-3">
+                      <p style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>No {activeSlotConfig?.label.toLowerCase()} pieces yet</p>
+                      <button onClick={onAddPiece} className="px-4 py-2 rounded-xl flex items-center gap-1.5"
+                        style={{ background: "rgba(199,179,139,0.1)", border: "1px solid rgba(199,179,139,0.2)", color: "var(--gold)", fontSize: "11px", cursor: "pointer" }}>
                         <Plus size={12} /> Add piece
                       </button>
                     </div>
@@ -270,130 +394,107 @@ export function VirtualCloset() {
             )}
           </AnimatePresence>
 
-          {/* Color harmony check */}
-          {hasAnyItem && (
-            <div className="px-6 mt-5">
-              <div className="rounded-xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-                <div className="flex items-center justify-between mb-3">
-                  <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 500 }}>Color Harmony</p>
-                  <span style={{ color: "#6B8F71", fontSize: "12px", fontWeight: 600 }}>✓ Cohesive</span>
-                </div>
-                <div className="flex gap-1.5 mb-2">
-                  {Object.values(outfit).filter(Boolean).map((item, i) => (
-                    <div key={i} className="w-7 h-7 rounded-full" style={{ background: item!.color, border: "1px solid rgba(255,255,255,0.1)" }} />
-                  ))}
-                </div>
-                <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>
-                  Your palette is warm-toned and cohesive — perfect for your Autumn colour season.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Order import section */}
-          <div className="px-6 mt-5">
-            <div className="rounded-2xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <ShoppingBag size={14} style={{ color: "var(--gold)" }} />
-                    <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 500 }}>Auto-Import Orders</p>
-                    <PremiumBadge />
+          <div className="px-6">
+            <p style={{ color: "var(--muted-foreground)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
+              Quick add from closet
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {items.slice(0, 8).map((item) => (
+                <button key={item.id} onClick={() => addItemDirectly(item)}
+                  className="rounded-xl p-2 flex items-center gap-2 text-left"
+                  style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
+                  <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 flex items-center justify-center" style={{ background: "var(--surface-2)" }}>
+                    {isPersistentImage(item.image) ? (
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
+                    )}
                   </div>
-                  <p style={{ color: "var(--muted-foreground)", fontSize: "11px", lineHeight: 1.5 }}>
-                    Connect your email or shopping accounts and we'll automatically add new purchases to your closet.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                {["ASOS", "Net-a-Porter", "Zara", "Amazon Fashion", "Selfridges"].map((store) => (
-                  <span key={store} className="px-3 py-1 rounded-full" style={{ background: "var(--surface-2)", color: "var(--muted-foreground)", fontSize: "10px" }}>
-                    {store}
-                  </span>
-                ))}
-              </div>
-              <button className="mt-3 w-full py-2.5 rounded-xl" style={{ background: "var(--gold)", color: "var(--charcoal)", fontWeight: 600, fontSize: "12px", border: "none", cursor: "pointer" }}>
-                Connect Shopping Accounts ✦
-              </button>
+                  <div className="min-w-0">
+                    <p style={{ color: "var(--cream)", fontSize: "11px", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</p>
+                    <p style={{ color: "var(--muted-foreground)", fontSize: "9px", textTransform: "capitalize" }}>{item.category}</p>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
       ) : (
-        /* Saved outfits view */
-        <div className="flex-1 overflow-y-auto px-6 pb-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
           {savedOutfits.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-48 gap-3">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.1)" }}>
-                <Heart size={24} style={{ color: "var(--gold)" }} />
+            <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.1)", border: "1px solid var(--border)" }}>
+                <Heart size={26} style={{ color: "var(--gold)" }} />
               </div>
-              <p style={{ color: "var(--cream)", fontSize: "14px", fontWeight: 500 }}>No saved looks yet</p>
-              <p style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>Build an outfit and save it as a look</p>
-              <button onClick={() => setView("builder")} style={{ color: "var(--gold)", fontSize: "12px", background: "none", border: "none", cursor: "pointer" }}>
-                Open builder →
+              <div>
+                <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "24px", fontWeight: 400 }}>No saved looks yet</h3>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "13px", marginTop: 6 }}>Build a look, save it, and it will appear here.</p>
+              </div>
+              <button onClick={() => setView("builder")} className="px-5 py-3 rounded-2xl"
+                style={{ background: "var(--gold)", color: "var(--charcoal)", border: "none", cursor: "pointer", fontSize: "13px", fontWeight: 700 }}>
+                Open outfit builder
               </button>
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {savedOutfits.map((saved, i) => (
-                <div key={i} className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-                  <div className="flex">
-                    {Object.values(saved.slots).filter(Boolean).slice(0, 4).map((item, j) => (
-                      <div key={j} className="flex-1 relative" style={{ height: 120 }}>
-                        <img src={item!.image} alt={item!.name} className="w-full h-full object-cover" />
-                        {j < Object.values(saved.slots).filter(Boolean).slice(0, 4).length - 1 && (
-                          <div className="absolute right-0 top-0 bottom-0 w-px" style={{ background: "var(--charcoal)" }} />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-3 flex items-center justify-between">
-                    <div>
-                      <p style={{ color: "var(--cream)", fontWeight: 500, fontSize: "14px" }}>{saved.name}</p>
-                      <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>{Object.values(saved.slots).filter(Boolean).length} pieces</p>
-                    </div>
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style={{ background: "var(--surface-2)", border: "none", cursor: "pointer", color: "var(--muted-foreground)", fontSize: "11px" }}>
-                      <Share2 size={11} /> Share
+              {savedOutfits.map((saved) => {
+                const slots = getSavedOutfitSlots(saved, items);
+                const savedItems = Object.values(slots).filter(Boolean) as WardrobeItem[];
+                return (
+                  <div key={saved.id} className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+                    <button onClick={() => loadSavedOutfit(saved)} className="grid w-full" style={{ gridTemplateColumns: `repeat(${Math.max(savedItems.slice(0, 4).length, 1)}, 1fr)`, border: "none", padding: 0, cursor: "pointer", background: "transparent" }}>
+                      {savedItems.slice(0, 4).map((item) => (
+                        <div key={item.id} className="relative flex items-center justify-center" style={{ height: 120, background: "var(--surface-2)" }}>
+                          {isPersistentImage(item.image) ? (
+                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span style={{ fontSize: "28px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
+                          )}
+                        </div>
+                      ))}
                     </button>
+                    <div className="p-3 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p style={{ color: "var(--cream)", fontWeight: 600, fontSize: "14px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{saved.name}</p>
+                        <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>{savedItems.length} pieces</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => loadSavedOutfit(saved)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+                          style={{ background: "var(--surface-2)", border: "none", cursor: "pointer", color: "var(--muted-foreground)", fontSize: "11px" }}>
+                          <Share2 size={11} /> Wear
+                        </button>
+                        <button onClick={() => deleteSavedOutfit(saved.id)} className="w-8 h-8 rounded-lg flex items-center justify-center"
+                          style={{ background: "var(--surface-2)", border: "none", cursor: "pointer" }}>
+                          <Trash2 size={12} style={{ color: "#e07070" }} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
       )}
 
-      {/* Save outfit modal */}
       <AnimatePresence>
         {showSaveModal && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end"
-            style={{ background: "rgba(0,0,0,0.7)" }}
-            onClick={() => setShowSaveModal(false)}
-          >
-            <motion.div
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end" style={{ background: "rgba(0,0,0,0.7)" }} onClick={() => setShowSaveModal(false)}>
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="w-full rounded-t-3xl p-6 pb-10"
-              style={{ background: "var(--surface)" }}
-              onClick={(e) => e.stopPropagation()}
-            >
+              className="w-full rounded-t-3xl p-6 pb-10" style={{ background: "var(--surface)" }} onClick={(event) => event.stopPropagation()}>
               <div className="w-10 h-1 rounded-full mx-auto mb-6" style={{ background: "var(--border)" }} />
-              <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "20px", marginBottom: 16 }}>Name this look</h3>
-              <input
-                type="text" value={outfitName} onChange={(e) => setOutfitName(e.target.value)}
+              <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "22px", fontWeight: 400, marginBottom: 16 }}>Name this look</h3>
+              <input type="text" value={outfitName} onChange={(event) => setOutfitName(event.target.value)}
                 placeholder="e.g. Monday Power Look" autoFocus
                 className="w-full px-4 py-3 rounded-xl outline-none mb-4"
                 style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "15px", fontFamily: "var(--font-body)" }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--gold)"; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
               />
-              <button
-                onClick={saveOutfit} disabled={!outfitName.trim()}
+              <button onClick={saveOutfit} disabled={!outfitName.trim()}
                 className="w-full py-3.5 rounded-xl"
-                style={{ background: outfitName.trim() ? "var(--gold)" : "var(--surface-2)", color: outfitName.trim() ? "var(--charcoal)" : "var(--muted-foreground)", fontWeight: 600, fontSize: "14px", border: "none", cursor: outfitName.trim() ? "pointer" : "not-allowed" }}
-              >
-                Save Look ✦
+                style={{ background: outfitName.trim() ? "var(--gold)" : "var(--surface-2)", color: outfitName.trim() ? "var(--charcoal)" : "var(--muted-foreground)", fontWeight: 700, fontSize: "14px", border: "none", cursor: outfitName.trim() ? "pointer" : "not-allowed" }}>
+                Save Look
               </button>
             </motion.div>
           </motion.div>
