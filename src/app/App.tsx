@@ -247,7 +247,14 @@ export default function App() {
     <div style={{ width: "100%", minHeight: "100dvh", background: "#0E0E0E", display: "flex", justifyContent: "center" }}>
       <div style={{ ...mobileShell }}>
         <div className="flex-1 overflow-hidden relative">
-          {activeTab === "home" && <HomeScreen profile={profile} />}
+          {activeTab === "home" && (
+            <HomeScreen
+              profile={profile}
+              accessToken={accessToken}
+              onAskIris={handleAskIrisAboutItem}
+              onOpenWardrobe={() => setActiveTab("wardrobe")}
+            />
+          )}
           {activeTab === "wardrobe" && <WardrobeScreen accessToken={accessToken} onAskIris={handleAskIrisAboutItem} />}
           {activeTab === "iris" && (
             <IrisChatScreen
