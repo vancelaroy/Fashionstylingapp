@@ -32,6 +32,7 @@ export default function App() {
   const [profile, setProfile] = useState<StyleProfile>(DEFAULT_PROFILE);
   const [activeTab, setActiveTab] = useState<Tab>("home");
   const [splashDone, setSplashDone] = useState(false);
+  const [irisItemPrompt, setIrisItemPrompt] = useState<string | null>(null);
   const isAuthCallback = typeof window !== "undefined" && window.location.pathname === "/auth/callback";
 
   // Guarantee the splash shows for at least 2s — gives the logo animation time to play
@@ -168,6 +169,11 @@ export default function App() {
     setAppState("onboarding");
   };
 
+  const handleAskIrisAboutItem = (prompt: string) => {
+    setIrisItemPrompt(prompt);
+    setActiveTab("iris");
+  };
+
   const mobileShell: CSSProperties = {
     width: "100%",
     maxWidth: 430,
@@ -242,8 +248,15 @@ export default function App() {
       <div style={{ ...mobileShell }}>
         <div className="flex-1 overflow-hidden relative">
           {activeTab === "home" && <HomeScreen profile={profile} />}
-          {activeTab === "wardrobe" && <WardrobeScreen accessToken={accessToken} />}
-          {activeTab === "iris" && <IrisChatScreen profile={profile} accessToken={accessToken} />}
+          {activeTab === "wardrobe" && <WardrobeScreen accessToken={accessToken} onAskIris={handleAskIrisAboutItem} />}
+          {activeTab === "iris" && (
+            <IrisChatScreen
+              profile={profile}
+              accessToken={accessToken}
+              pendingPrompt={irisItemPrompt}
+              onPendingPromptConsumed={() => setIrisItemPrompt(null)}
+            />
+          )}
           {activeTab === "discover" && <DiscoverScreen profile={profile} />}
           {activeTab === "profile" && (
             <ProfileScreen
