@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Star, Camera } from "lucide-react";
+import { Plus, Search, Star, Camera, X, Trash2, Save, ImagePlus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { VirtualCloset } from "./VirtualCloset";
 import { WardrobeUpload, type WardrobeItem } from "./WardrobeUpload";
@@ -8,6 +8,8 @@ import { projectId, publicAnonKey } from "/utils/supabase/info";
 const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 
 const CATEGORIES = ["All", "Tops", "Bottoms", "Dresses", "Outerwear", "Shoes", "Accessories", "Bags", "Suits"];
+const CATEGORY_VALUES = ["tops", "bottoms", "dresses", "outerwear", "shoes", "accessories", "bags", "suits"];
+const FIT_VALUES = ["Slim", "Tailored", "Regular", "Relaxed", "Oversized", "Cropped", "Structured", "Flowy", "Not specified"];
 
 const CATEGORY_EMOJI: Record<string, string> = {
   tops: "👕", bottoms: "👖", outerwear: "🧥", shoes: "👟",
@@ -16,6 +18,26 @@ const CATEGORY_EMOJI: Record<string, string> = {
 
 function isPersistentImage(src: string | undefined): src is string {
   return !!src && !src.startsWith("blob:");
+}
+
+async function compressDetailPhoto(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 900;
+      const scale = img.width > MAX ? MAX / img.width : 1;
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+      URL.revokeObjectURL(url);
+      resolve(dataUrl);
+    };
+    img.src = url;
+  });
 }
 
 interface WardrobeScreenProps {
@@ -28,6 +50,7 @@ export function WardrobeScreen({ accessToken }: WardrobeScreenProps) {
   const [view, setView] = useState<"closet" | "items" | "outfits">("closet");
   const [showUpload, setShowUpload] = useState(false);
   const [myItems, setMyItems] = useState<WardrobeItem[]>([]);
+  const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Load wardrobe from server on mount
@@ -65,6 +88,20 @@ export function WardrobeScreen({ accessToken }: WardrobeScreenProps) {
     setTimeout(() => setShowUpload(false), 1800);
   };
 
+  const handleItemUpdated = (updatedItem: WardrobeItem) => {
+    const updated = myItems.map((item) => item.id === updatedItem.id ? updatedItem : item);
+    setMyItems(updated);
+    setSelectedItem(updatedItem);
+    saveToServer(updated);
+  };
+
+  const handleItemDeleted = (itemId: string) => {
+    const updated = myItems.filter((item) => item.id !== itemId);
+    setMyItems(updated);
+    setSelectedItem(null);
+    saveToServer(updated);
+  };
+
   const filteredItems = myItems.filter((item) => {
     const cat = activeCategory.toLowerCase();
     const matchesCategory = activeCategory === "All" || item.category === cat;
@@ -77,6 +114,15 @@ export function WardrobeScreen({ accessToken }: WardrobeScreenProps) {
 
       {/* Upload flow — full screen overlay */}
       <AnimatePresence>
+        {selectedItem && (
+          <WardrobeItemDetail
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
+            onSave={handleItemUpdated}
+            onDelete={handleItemDeleted}
+          />
+        )}
+
         {showUpload && (
           <motion.div
             key="upload"
@@ -205,8 +251,10 @@ export function WardrobeScreen({ accessToken }: WardrobeScreenProps) {
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {filteredItems.map((item, i) => (
-                  <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                    className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+                  <motion.button key={item.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                    onClick={() => setSelectedItem(item)}
+                    className="rounded-2xl overflow-hidden text-left"
+                    style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer", padding: 0 }}>
                     <div className="relative">
                       {isPersistentImage(item.image) ? (
                         <img src={item.image} alt={item.name} className="w-full object-cover" style={{ height: 180 }} />
@@ -228,13 +276,18 @@ export function WardrobeScreen({ accessToken }: WardrobeScreenProps) {
                           ))}
                         </div>
                       </div>
+                      {item.fit && (
+                        <div className="absolute top-2 right-2 px-2 py-1 rounded-full" style={{ background: "rgba(22,22,22,0.8)", backdropFilter: "blur(6px)" }}>
+                          <span style={{ color: "var(--cream)", fontSize: "9px", textTransform: "capitalize" }}>{item.fit}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="p-3">
                       <p style={{ color: "var(--cream)", fontSize: "12px", fontWeight: 500, marginBottom: 1 }}>{item.name}</p>
                       {item.brand && <p style={{ color: "var(--muted-foreground)", fontSize: "10px", marginBottom: 4 }}>{item.brand}</p>}
                       <p style={{ color: "var(--lavender)", fontSize: "10px", fontStyle: "italic", lineHeight: 1.4 }}>{item.styleNote}</p>
                     </div>
-                  </motion.div>
+                  </motion.button>
                 ))}
 
                 {/* Add more card */}
@@ -276,5 +329,224 @@ export function WardrobeScreen({ accessToken }: WardrobeScreenProps) {
         )}
       </div>
     </div>
+  );
+}
+
+function WardrobeItemDetail({ item, onClose, onSave, onDelete }: {
+  item: WardrobeItem;
+  onClose: () => void;
+  onSave: (item: WardrobeItem) => void;
+  onDelete: (itemId: string) => void;
+}) {
+  const [draft, setDraft] = useState<WardrobeItem>({
+    ...item,
+    photos: item.photos && item.photos.length > 0 ? item.photos : [item.image].filter(Boolean),
+  });
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const photos = (draft.photos && draft.photos.length > 0 ? draft.photos : [draft.image]).filter(Boolean);
+
+  const updateDraft = (patch: Partial<WardrobeItem>) => {
+    setDraft((current) => ({ ...current, ...patch }));
+  };
+
+  const addPhoto = async (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    const dataUrl = await compressDetailPhoto(file);
+    const nextPhotos = [...photos, dataUrl].slice(0, 6);
+    updateDraft({ photos: nextPhotos, image: draft.image || dataUrl });
+  };
+
+  const removePhoto = (photo: string) => {
+    const nextPhotos = photos.filter((p) => p !== photo);
+    updateDraft({ photos: nextPhotos, image: draft.image === photo ? (nextPhotos[0] ?? "") : draft.image });
+  };
+
+  const saveDraft = () => {
+    const nextPhotos = photos.length > 0 ? photos : [draft.image].filter(Boolean);
+    onSave({
+      ...draft,
+      photos: nextPhotos,
+      image: draft.image || nextPhotos[0] || "",
+      name: draft.name.trim() || "Unnamed item",
+      brand: draft.brand?.trim() || null,
+      fit: draft.fit?.trim() || undefined,
+      color: draft.color.trim() || "Unknown",
+      styleNote: draft.styleNote.trim(),
+    });
+    onClose();
+  };
+
+  return (
+    <motion.div
+      key="item-detail"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex flex-col"
+      style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}
+    >
+      <div className="flex items-center justify-between px-6 pt-14 pb-4" style={{ borderBottom: "1px solid var(--border)" }}>
+        <div>
+          <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase" }}>Wardrobe Detail</p>
+          <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "28px", fontWeight: 400, letterSpacing: "-0.02em" }}>
+            Edit piece
+          </h2>
+        </div>
+        <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "var(--surface)", border: "none", cursor: "pointer" }}>
+          <X size={16} style={{ color: "var(--muted-foreground)" }} />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-6 py-5 pb-28">
+        <div className="rounded-2xl overflow-hidden mb-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          {isPersistentImage(draft.image) ? (
+            <img src={draft.image} alt={draft.name} className="w-full object-cover" style={{ maxHeight: 300 }} />
+          ) : (
+            <div className="w-full flex items-center justify-center" style={{ height: 220, background: "rgba(199,179,139,0.08)" }}>
+              <span style={{ fontSize: "42px" }}>{CATEGORY_EMOJI[draft.category] ?? "👔"}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 overflow-x-auto mb-5 pb-1" style={{ scrollbarWidth: "none" }}>
+          {photos.map((photo, index) => (
+            <button key={`${photo}-${index}`} onClick={() => updateDraft({ image: photo })}
+              className="relative shrink-0 rounded-xl overflow-hidden"
+              style={{ width: 72, height: 72, border: draft.image === photo ? "2px solid var(--gold)" : "1px solid var(--border)", background: "var(--surface)", cursor: "pointer" }}>
+              {isPersistentImage(photo) ? (
+                <img src={photo} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span style={{ fontSize: "24px" }}>{CATEGORY_EMOJI[draft.category] ?? "👔"}</span>
+              )}
+              {photos.length > 1 && (
+                <span onClick={(e) => { e.stopPropagation(); removePhoto(photo); }}
+                  className="absolute top-1 right-1 rounded-full flex items-center justify-center"
+                  style={{ width: 18, height: 18, background: "rgba(22,22,22,0.75)", color: "var(--cream)", fontSize: 10 }}>×</span>
+              )}
+            </button>
+          ))}
+          <label className="shrink-0 rounded-xl flex flex-col items-center justify-center gap-1"
+            style={{ width: 72, height: 72, border: "1px dashed var(--border)", background: "transparent", cursor: "pointer" }}>
+            <ImagePlus size={18} style={{ color: "var(--gold)" }} />
+            <span style={{ color: "var(--muted-foreground)", fontSize: 9 }}>Photo</span>
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) addPhoto(e.target.files[0]); }} />
+          </label>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <EditField label="Item Name" value={draft.name} onChange={(value) => updateDraft({ name: value })} />
+          <EditField label="Brand" value={draft.brand ?? ""} onChange={(value) => updateDraft({ brand: value })} placeholder="Add or correct brand" />
+
+          <div className="grid grid-cols-2 gap-3">
+            <EditSelect label="Category" value={draft.category} options={CATEGORY_VALUES} onChange={(value) => updateDraft({ category: value })} />
+            <EditSelect label="Fit" value={draft.fit || "Not specified"} options={FIT_VALUES} onChange={(value) => updateDraft({ fit: value === "Not specified" ? "" : value })} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <EditField label="Color" value={draft.color} onChange={(value) => updateDraft({ color: value })} />
+            <EditField label="Second Color" value={draft.secondaryColor ?? ""} onChange={(value) => updateDraft({ secondaryColor: value || null })} placeholder="Optional" />
+          </div>
+
+          <EditTagField label="Occasions" values={draft.occasions} onChange={(values) => updateDraft({ occasions: values })} placeholder="casual, work, evening" />
+          <EditTagField label="Seasons" values={draft.seasons} onChange={(values) => updateDraft({ seasons: values })} placeholder="spring, summer, fall" />
+
+          <div>
+            <label style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+              Iris Styling Note
+            </label>
+            <textarea
+              value={draft.styleNote}
+              onChange={(e) => updateDraft({ styleNote: e.target.value })}
+              rows={4}
+              className="w-full px-4 py-3 rounded-xl outline-none resize-none"
+              style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "14px", lineHeight: 1.5 }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="fixed bottom-0 left-0 right-0 px-6 py-4 flex gap-3" style={{ background: "rgba(22,22,22,0.95)", borderTop: "1px solid var(--border)", backdropFilter: "blur(10px)" }}>
+        {confirmDelete ? (
+          <>
+            <button onClick={() => setConfirmDelete(false)} className="flex-1 py-3.5 rounded-2xl" style={{ background: "var(--surface)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: 13 }}>
+              Cancel
+            </button>
+            <button onClick={() => onDelete(item.id)} className="flex-1 py-3.5 rounded-2xl" style={{ background: "rgba(192,57,43,0.18)", color: "#e07070", border: "1px solid rgba(192,57,43,0.35)", fontSize: 13, fontWeight: 600 }}>
+              Delete
+            </button>
+          </>
+        ) : (
+          <>
+            <button onClick={() => setConfirmDelete(true)} className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+              <Trash2 size={18} style={{ color: "#e07070" }} />
+            </button>
+            <button onClick={saveDraft} className="flex-1 py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "var(--gold)", color: "#161616", border: "none", fontWeight: 700, fontSize: 14 }}>
+              <Save size={17} /> Save Changes
+            </button>
+          </>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function EditField({ label, value, onChange, placeholder }: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+        {label}
+      </label>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full px-4 py-3 rounded-xl outline-none"
+        style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "14px" }}
+      />
+    </div>
+  );
+}
+
+function EditSelect({ label, value, options, onChange }: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div>
+      <label style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+        {label}
+      </label>
+      <select value={value} onChange={(e) => onChange(e.target.value)}
+        className="w-full px-3 py-3 rounded-xl outline-none"
+        style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "13px", textTransform: "capitalize" }}>
+        {options.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function EditTagField({ label, values, onChange, placeholder }: {
+  label: string;
+  values: string[];
+  onChange: (values: string[]) => void;
+  placeholder: string;
+}) {
+  return (
+    <EditField
+      label={label}
+      value={values.join(", ")}
+      placeholder={placeholder}
+      onChange={(value) => onChange(value.split(",").map((v) => v.trim().toLowerCase()).filter(Boolean))}
+    />
   );
 }

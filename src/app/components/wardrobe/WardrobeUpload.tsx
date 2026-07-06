@@ -8,10 +8,12 @@ const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 export interface WardrobeItem {
   id: string;
   image: string;           // compressed base64 thumbnail
+  photos?: string[];
   name: string;
   category: string;
   color: string;
   secondaryColor?: string | null;
+  fit?: string;
   occasions: string[];
   seasons: string[];
   styleNote: string;
@@ -115,10 +117,12 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
     const newItem: WardrobeItem = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       image: savedImage,
+      photos: [savedImage],
       name: editName || analysisResult.name || "Unnamed item",
       category: analysisResult.category || "tops",
       color: analysisResult.color || "Unknown",
       secondaryColor: analysisResult.secondaryColor,
+      fit: analysisResult.fit,
       occasions: analysisResult.occasions || [],
       seasons: analysisResult.seasons || [],
       styleNote: analysisResult.styleNote || "",
