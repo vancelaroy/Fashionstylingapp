@@ -63,10 +63,6 @@ function getSlotForCategory(category: string): OutfitSlotKey | null {
   return null;
 }
 
-function findFirst(items: WardrobeItem[], categories: string[], rejectIds: string[] = []) {
-  return items.find((item) => categories.includes(item.category) && !rejectIds.includes(item.id)) ?? null;
-}
-
 function scoreItemForOccasion(item: WardrobeItem, occasion: string) {
   const text = `${item.name} ${item.brand ?? ""} ${item.category} ${item.color} ${item.fit ?? ""} ${item.occasions.join(" ")} ${item.styleNote}`.toLowerCase();
   let score = 0;
@@ -268,8 +264,8 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece }: Vi
       </div>
 
       {view === "builder" ? (
-        <div className="flex-1 overflow-y-auto pb-6">
-          <div className="px-6 mb-5">
+        <div className="flex-1 overflow-y-auto pb-28">
+          <div className="px-6 mb-4">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles size={13} style={{ color: "var(--gold)" }} />
               <p style={{ color: "var(--gold)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>Iris outfit starters</p>
@@ -285,10 +281,10 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece }: Vi
             </div>
           </div>
 
-          <div className="px-6 mb-5">
+          <div className="px-6 mb-4">
             <div className="rounded-2xl p-4 relative"
-              style={{ background: "var(--surface)", border: `1px solid ${hasAnyItem ? "rgba(199,179,139,0.3)" : "var(--border)"}`, minHeight: 330 }}>
-              <div className="flex items-center justify-between mb-4">
+              style={{ background: "var(--surface)", border: `1px solid ${hasAnyItem ? "rgba(199,179,139,0.3)" : "var(--border)"}` }}>
+              <div className="flex items-center justify-between mb-3">
                 <div>
                   <p style={{ color: "var(--muted-foreground)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                     Today's Look
@@ -320,7 +316,7 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece }: Vi
                   return (
                     <motion.button key={slot.key} whileTap={{ scale: 0.96 }} onClick={() => setActiveSlot(isActive ? null : slot.key)}
                       className="rounded-xl overflow-hidden relative flex flex-col items-center justify-center transition-all"
-                      style={{ background: item ? "transparent" : "var(--surface-2)", border: `1.5px solid ${isActive ? "var(--gold)" : item ? "rgba(199,179,139,0.25)" : "var(--border)"}`, height: 112, cursor: "pointer" }}>
+                      style={{ background: item ? "transparent" : "var(--surface-2)", border: `1.5px solid ${isActive ? "var(--gold)" : item ? "rgba(199,179,139,0.25)" : "var(--border)"}`, height: 94, cursor: "pointer" }}>
                       {item ? (
                         <>
                           {isPersistentImage(item.image) ? (
@@ -335,7 +331,7 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece }: Vi
                             <X size={10} />
                           </button>
                           <div className="absolute bottom-1 left-1 right-1">
-                            <p style={{ color: "var(--cream)", fontSize: "9px", textAlign: "center", lineHeight: 1.25, textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>{item.name}</p>
+                            <p style={{ color: "var(--cream)", fontSize: "8.5px", textAlign: "center", lineHeight: 1.2, textShadow: "0 1px 4px rgba(0,0,0,0.8)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.name}</p>
                           </div>
                         </>
                       ) : (
@@ -350,7 +346,7 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece }: Vi
               </div>
 
               {!hasAnyItem && (
-                <p style={{ color: "var(--muted-foreground)", fontSize: "12px", textAlign: "center", marginTop: 16 }}>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "12px", textAlign: "center", marginTop: 12 }}>
                   Tap a slot, choose a piece below, or start with Iris.
                 </p>
               )}
@@ -359,7 +355,7 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece }: Vi
 
           <AnimatePresence>
             {activeSlot && (
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }} className="px-6 mb-5">
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }} className="px-6 mb-4">
                 <p style={{ color: "var(--gold)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
                   Choose {activeSlotConfig?.label}
                 </p>
@@ -420,7 +416,7 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece }: Vi
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto px-6 pb-6">
+        <div className="flex-1 overflow-y-auto px-6 pb-28">
           {savedOutfits.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
               <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.1)", border: "1px solid var(--border)" }}>
@@ -480,15 +476,20 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece }: Vi
       <AnimatePresence>
         {showSaveModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end" style={{ background: "rgba(0,0,0,0.7)" }} onClick={() => setShowSaveModal(false)}>
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="w-full rounded-t-3xl p-6 pb-10" style={{ background: "var(--surface)" }} onClick={(event) => event.stopPropagation()}>
-              <div className="w-10 h-1 rounded-full mx-auto mb-6" style={{ background: "var(--border)" }} />
-              <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "22px", fontWeight: 400, marginBottom: 16 }}>Name this look</h3>
+            className="fixed inset-0 z-50 flex items-start justify-center px-5" style={{ background: "rgba(0,0,0,0.72)", paddingTop: "max(64px, env(safe-area-inset-top))" }} onClick={() => setShowSaveModal(false)}>
+            <motion.div initial={{ opacity: 0, y: -16, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -12, scale: 0.98 }}
+              transition={{ type: "spring", damping: 26, stiffness: 320 }}
+              className="w-full rounded-3xl p-5" style={{ background: "var(--surface)", border: "1px solid var(--border)", maxWidth: 390 }} onClick={(event) => event.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "22px", fontWeight: 400 }}>Name this look</h3>
+                <button onClick={() => setShowSaveModal(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--surface-2)", border: "none", cursor: "pointer" }}>
+                  <X size={14} style={{ color: "var(--muted-foreground)" }} />
+                </button>
+              </div>
               <input type="text" value={outfitName} onChange={(event) => setOutfitName(event.target.value)}
-                placeholder="e.g. Monday Power Look" autoFocus
-                className="w-full px-4 py-3 rounded-xl outline-none mb-4"
+                placeholder="e.g. Monday Power Look" autoFocus enterKeyHint="done"
+                onKeyDown={(event) => { if (event.key === "Enter") saveOutfit(); }}
+                className="w-full px-4 py-3 rounded-xl outline-none mb-3"
                 style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "15px", fontFamily: "var(--font-body)" }}
               />
               <button onClick={saveOutfit} disabled={!outfitName.trim()}

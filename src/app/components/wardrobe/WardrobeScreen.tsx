@@ -215,7 +215,7 @@ export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) 
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto pb-24">
+      <div className={view === "items" ? "flex-1 overflow-y-auto pb-24" : "flex-1 overflow-hidden"}>
 
         {/* ── Virtual Closet ── */}
         {view === "closet" && <VirtualCloset items={myItems} initialView="builder" onAddPiece={() => setShowUpload(true)} />}
