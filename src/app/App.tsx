@@ -32,6 +32,7 @@ export default function App() {
   const [profile, setProfile] = useState<StyleProfile>(DEFAULT_PROFILE);
   const [activeTab, setActiveTab] = useState<Tab>("home");
   const [splashDone, setSplashDone] = useState(false);
+  const isAuthCallback = typeof window !== "undefined" && window.location.pathname === "/auth/callback";
 
   // Guarantee the splash shows for at least 2s — gives the logo animation time to play
   useEffect(() => {
@@ -59,12 +60,50 @@ export default function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!isAuthCallback) return;
+
+    const finishOAuth = async () => {
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get("code");
+      const errorDescription = url.searchParams.get("error_description") ?? url.searchParams.get("error");
+
+      if (errorDescription) {
+        console.log("OAuth callback error:", errorDescription);
+        window.history.replaceState({}, document.title, "/");
+        setAppState("auth");
+        return;
+      }
+
+      if (!code) {
+        window.history.replaceState({}, document.title, "/");
+        setAppState("auth");
+        return;
+      }
+
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+      window.history.replaceState({}, document.title, "/");
+
+      if (error || !data.session?.access_token) {
+        console.log("OAuth session exchange failed:", error?.message);
+        setAppState("auth");
+        return;
+      }
+
+      setAccessToken(data.session.access_token);
+      loadProfile(data.session.access_token);
+    };
+
+    finishOAuth();
+  }, [isAuthCallback, loadProfile]);
+
   // onAuthStateChange is the single source of truth — no getSession() race condition.
   // INITIAL_SESSION: fires on mount (handles page refresh + post-OAuth redirect)
   // SIGNED_IN: fires after email login or OAuth callback completes
   // SIGNED_OUT: fires after signOut()
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (isAuthCallback) return;
       if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
         if (session?.access_token) {
           setAccessToken(session.access_token);
