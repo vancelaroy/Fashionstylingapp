@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Star, Camera, X, Trash2, Save, ImagePlus } from "lucide-react";
+import { Plus, Search, Star, Camera, X, Trash2, Save, ImagePlus, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { VirtualCloset } from "./VirtualCloset";
 import { WardrobeUpload, type WardrobeItem } from "./WardrobeUpload";
@@ -42,9 +42,10 @@ async function compressDetailPhoto(file: File): Promise<string> {
 
 interface WardrobeScreenProps {
   accessToken?: string | null;
+  onAskIris?: (prompt: string) => void;
 }
 
-export function WardrobeScreen({ accessToken }: WardrobeScreenProps) {
+export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState<"closet" | "items" | "outfits">("closet");
@@ -120,6 +121,7 @@ export function WardrobeScreen({ accessToken }: WardrobeScreenProps) {
             onClose={() => setSelectedItem(null)}
             onSave={handleItemUpdated}
             onDelete={handleItemDeleted}
+            onAskIris={onAskIris}
           />
         )}
 
@@ -332,11 +334,27 @@ export function WardrobeScreen({ accessToken }: WardrobeScreenProps) {
   );
 }
 
-function WardrobeItemDetail({ item, onClose, onSave, onDelete }: {
+function buildIrisItemPrompt(item: WardrobeItem): string {
+  const details = [
+    `Name: ${item.name}`,
+    item.brand ? `Brand: ${item.brand}` : null,
+    `Category: ${item.category}`,
+    `Color: ${item.secondaryColor ? `${item.color} and ${item.secondaryColor}` : item.color}`,
+    item.fit ? `Fit: ${item.fit}` : null,
+    item.occasions.length > 0 ? `Occasions: ${item.occasions.join(", ")}` : null,
+    item.seasons.length > 0 ? `Seasons: ${item.seasons.join(", ")}` : null,
+    item.styleNote ? `Current styling note: ${item.styleNote}` : null,
+  ].filter(Boolean).join("\n");
+
+  return `I want styling ideas for this wardrobe item:\n\n${details}\n\nPlease suggest 3 complete outfits using my Style DNA and anything else you know about my wardrobe. Include when I should wear each outfit, what shoes/accessories would work, and one confidence note.`;
+}
+
+function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
   item: WardrobeItem;
   onClose: () => void;
   onSave: (item: WardrobeItem) => void;
   onDelete: (itemId: string) => void;
+  onAskIris?: (prompt: string) => void;
 }) {
   const [draft, setDraft] = useState<WardrobeItem>({
     ...item,
@@ -362,9 +380,9 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete }: {
     updateDraft({ photos: nextPhotos, image: draft.image === photo ? (nextPhotos[0] ?? "") : draft.image });
   };
 
-  const saveDraft = () => {
+  const getNormalizedDraft = () => {
     const nextPhotos = photos.length > 0 ? photos : [draft.image].filter(Boolean);
-    onSave({
+    return {
       ...draft,
       photos: nextPhotos,
       image: draft.image || nextPhotos[0] || "",
@@ -373,7 +391,18 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete }: {
       fit: draft.fit?.trim() || undefined,
       color: draft.color.trim() || "Unknown",
       styleNote: draft.styleNote.trim(),
-    });
+    };
+  };
+
+  const saveDraft = () => {
+    onSave(getNormalizedDraft());
+    onClose();
+  };
+
+  const askIrisAboutDraft = () => {
+    const normalizedDraft = getNormalizedDraft();
+    onSave(normalizedDraft);
+    onAskIris?.(buildIrisItemPrompt(normalizedDraft));
     onClose();
   };
 
@@ -398,7 +427,7 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete }: {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-5 pb-28">
+      <div className="flex-1 overflow-y-auto px-6 py-5 pb-40">
         <div className="rounded-2xl overflow-hidden mb-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
           {isPersistentImage(draft.image) ? (
             <img src={draft.image} alt={draft.name} className="w-full object-cover" style={{ maxHeight: 300 }} />
@@ -466,24 +495,31 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete }: {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 px-6 py-4 flex gap-3" style={{ background: "rgba(22,22,22,0.95)", borderTop: "1px solid var(--border)", backdropFilter: "blur(10px)" }}>
+      <div className="fixed bottom-0 left-0 right-0 px-6 py-4 flex flex-col gap-3" style={{ background: "rgba(22,22,22,0.95)", borderTop: "1px solid var(--border)", backdropFilter: "blur(10px)" }}>
         {confirmDelete ? (
-          <>
+          <div className="flex gap-3">
             <button onClick={() => setConfirmDelete(false)} className="flex-1 py-3.5 rounded-2xl" style={{ background: "var(--surface)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: 13 }}>
               Cancel
             </button>
             <button onClick={() => onDelete(item.id)} className="flex-1 py-3.5 rounded-2xl" style={{ background: "rgba(192,57,43,0.18)", color: "#e07070", border: "1px solid rgba(192,57,43,0.35)", fontSize: 13, fontWeight: 600 }}>
               Delete
             </button>
-          </>
+          </div>
         ) : (
           <>
-            <button onClick={() => setConfirmDelete(true)} className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-              <Trash2 size={18} style={{ color: "#e07070" }} />
-            </button>
-            <button onClick={saveDraft} className="flex-1 py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "var(--gold)", color: "#161616", border: "none", fontWeight: 700, fontSize: 14 }}>
-              <Save size={17} /> Save Changes
-            </button>
+            {onAskIris && (
+              <button onClick={askIrisAboutDraft} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "rgba(201,169,110,0.12)", color: "var(--gold)", border: "1px solid rgba(201,169,110,0.32)", fontWeight: 700, fontSize: 14 }}>
+                <Sparkles size={16} /> Ask Iris about this item
+              </button>
+            )}
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDelete(true)} className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+                <Trash2 size={18} style={{ color: "#e07070" }} />
+              </button>
+              <button onClick={saveDraft} className="flex-1 py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "var(--gold)", color: "#161616", border: "none", fontWeight: 700, fontSize: 14 }}>
+                <Save size={17} /> Save Changes
+              </button>
+            </div>
           </>
         )}
       </div>
