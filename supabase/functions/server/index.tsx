@@ -19,7 +19,7 @@ app.use(
 );
 
 // Health check
-app.get("/make-server-7dbc8ff8/health", (c) => c.json({ status: "ok" }));
+app.get("/health", (c) => c.json({ status: "ok" }));
 
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 
@@ -44,7 +44,7 @@ async function getUserId(authHeader: string | null): Promise<string | null> {
 
 // ── Sign up ──────────────────────────────────────────────────────────────────
 
-app.post("/make-server-7dbc8ff8/signup", async (c) => {
+app.post("/signup", async (c) => {
   try {
     const { email, password, name } = await c.req.json();
     if (!email || !password) {
@@ -70,7 +70,7 @@ app.post("/make-server-7dbc8ff8/signup", async (c) => {
 
 // ── Profile ──────────────────────────────────────────────────────────────────
 
-app.get("/make-server-7dbc8ff8/profile", async (c) => {
+app.get("/profile", async (c) => {
   try {
     const userId = await getUserId(c.req.header("Authorization") ?? null);
     if (!userId) return c.json({ error: "Unauthorized" }, 401);
@@ -82,7 +82,7 @@ app.get("/make-server-7dbc8ff8/profile", async (c) => {
   }
 });
 
-app.post("/make-server-7dbc8ff8/profile", async (c) => {
+app.post("/profile", async (c) => {
   try {
     const userId = await getUserId(c.req.header("Authorization") ?? null);
     if (!userId) return c.json({ error: "Unauthorized" }, 401);
@@ -97,7 +97,7 @@ app.post("/make-server-7dbc8ff8/profile", async (c) => {
 
 // ── Closet ───────────────────────────────────────────────────────────────────
 
-app.get("/make-server-7dbc8ff8/closet", async (c) => {
+app.get("/closet", async (c) => {
   try {
     const userId = await getUserId(c.req.header("Authorization") ?? null);
     if (!userId) return c.json({ error: "Unauthorized" }, 401);
@@ -109,7 +109,7 @@ app.get("/make-server-7dbc8ff8/closet", async (c) => {
   }
 });
 
-app.post("/make-server-7dbc8ff8/closet", async (c) => {
+app.post("/closet", async (c) => {
   try {
     const userId = await getUserId(c.req.header("Authorization") ?? null);
     if (!userId) return c.json({ error: "Unauthorized" }, 401);
@@ -124,9 +124,72 @@ app.post("/make-server-7dbc8ff8/closet", async (c) => {
 
 // ── Iris — Claude AI chat ─────────────────────────────────────────────────────
 
-function buildSystemPrompt(profile: Record<string, unknown>): string {
+type WardrobeItem = {
+  name?: string;
+  category?: string;
+  color?: string;
+  secondaryColor?: string | null;
+  occasions?: string[];
+  seasons?: string[];
+  styleNote?: string;
+  brand?: string | null;
+};
+
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+  timestamp?: string;
+};
+
+function buildWardrobeSummary(items: WardrobeItem[]): string {
+  if (!Array.isArray(items) || items.length === 0) {
+    return "The client has not added wardrobe items yet.";
+  }
+
+  return items.slice(0, 40).map((item) => {
+    const colors = [item.color, item.secondaryColor].filter(Boolean).join(" and ");
+    const occasions = Array.isArray(item.occasions) && item.occasions.length > 0
+      ? ` for ${item.occasions.join(", ")}`
+      : "";
+    const season = Array.isArray(item.seasons) && item.seasons.length > 0
+      ? ` (${item.seasons.join(", ")})`
+      : "";
+    const note = item.styleNote ? ` — ${item.styleNote}` : "";
+    return `- ${item.name ?? "Wardrobe item"}: ${colors || "unknown color"} ${item.category ?? "piece"}${occasions}${season}${note}`;
+  }).join("\n");
+}
+
+function normalizeMessages(messages: unknown): ChatMessage[] {
+  if (!Array.isArray(messages)) return [];
+
+  return messages
+    .filter((m): m is { role: "user" | "assistant"; content: string } => (
+      typeof m === "object" &&
+      m !== null &&
+      ((m as { role?: unknown }).role === "user" || (m as { role?: unknown }).role === "assistant") &&
+      typeof (m as { content?: unknown }).content === "string"
+    ))
+    .map((m) => ({ role: m.role, content: m.content }));
+}
+
+function mergeHistory(stored: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] {
+  const seen = new Set<string>();
+  const merged: ChatMessage[] = [];
+
+  [...stored, ...incoming].forEach((message) => {
+    const key = `${message.role}:${message.content}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    merged.push(message);
+  });
+
+  return merged.slice(-24);
+}
+
+function buildSystemPrompt(profile: Record<string, unknown>, wardrobeItems: WardrobeItem[] = []): string {
   const gender = profile.gender as string ?? "person";
   const measurements = profile.measurements as Record<string, string> ?? {};
+  const wardrobeSummary = buildWardrobeSummary(wardrobeItems);
 
   const measurementLines = Object.entries(measurements)
     .filter(([, v]) => v)
@@ -145,6 +208,9 @@ Your client's Style DNA:
 - Color season: ${profile.colorSeason ?? "not specified"} — this tells you which color palettes make them glow
 - Style personality: ${Array.isArray(profile.stylePersonality) ? (profile.stylePersonality as string[]).join(", ") : "not specified"}
 ${measurementLines ? `- Measurements:\n${measurementLines}` : ""}
+
+Their saved wardrobe:
+${wardrobeSummary}
 
 How to use their profile:
 - Always factor in their color season when suggesting colors
@@ -165,15 +231,52 @@ What you can help with:
 - Capsule wardrobe building
 - Shopping on any budget
 
+Context intelligence:
+- Treat venue, neighborhood, city, time of day, weather, season, and event type as styling inputs, not side details.
+- Calibrate dress code by venue. A polished cocktail bar, hotel lounge, gallery, or stylish neighborhood restaurant should read as elevated smart casual; a casual chain, sports bar, or backyard gathering can read more relaxed.
+- If the user names a specific venue you do not truly know, infer cautiously from the words and location, then say what assumption you are making.
+- If the user gives a city or region, account for likely climate and season. For example, Kansas City summer evening heat changes fabric, layering, and shoe choices.
+- Do not claim live weather access unless weather data was explicitly provided in the conversation. If exact weather matters, ask for temperature/rain/humidity or give a conditional recommendation.
+- If the user gives a time, consider daylight, heat, commute, and whether the outfit needs to transition from day to evening.
+- If a user rejects a recommendation, treat that correction as a preference signal in this conversation and adapt quickly. Avoid repeating the same silhouette, color, or vibe they disliked.
+- When choosing from their wardrobe, prioritize event appropriateness, climate comfort, fit, color harmony, and their stated taste over simply combining the first matching categories.
+
 Response style:
 - Keep it conversational and warm — 2 to 5 sentences for most replies
 - Be specific, not generic ("A camel blazer would complement your autumn coloring" not "try neutral tones")
 - If they ask for a playlist, give 4 to 6 real songs with artists and a one-line vibe description
 - If they ask what to wear to a specific event, give a complete head-to-toe look
-- Never make them feel bad about what they have or how they look`;
+- For event outfits, briefly explain the dress-code read: venue vibe, weather/climate assumption, and why the outfit fits.
+- When useful, reference specific pieces from their saved wardrobe by name and build outfits around items they already own
+- Never make them feel bad about what they have or how they look
+- Be honest about your limits. If you do not know a restaurant, weather, or region detail for sure, say so and ask for the missing context or make a clearly labeled assumption`;
 }
 
-app.post("/make-server-7dbc8ff8/iris/chat", async (c) => {
+app.get("/iris/history", async (c) => {
+  try {
+    const userId = await getUserId(c.req.header("Authorization") ?? null);
+    if (!userId) return c.json({ messages: [] });
+    const messages = await kv.get(`iris-history:${userId}`);
+    return c.json({ messages: Array.isArray(messages) ? messages : [] });
+  } catch (err) {
+    console.log("Get Iris history error:", err);
+    return c.json({ error: "Failed to load Iris history" }, 500);
+  }
+});
+
+app.delete("/iris/history", async (c) => {
+  try {
+    const userId = await getUserId(c.req.header("Authorization") ?? null);
+    if (!userId) return c.json({ success: true });
+    await kv.del(`iris-history:${userId}`);
+    return c.json({ success: true });
+  } catch (err) {
+    console.log("Clear Iris history error:", err);
+    return c.json({ error: "Failed to clear Iris history" }, 500);
+  }
+});
+
+app.post("/iris/chat", async (c) => {
   try {
     const { messages, profile } = await c.req.json();
 
@@ -181,12 +284,21 @@ app.post("/make-server-7dbc8ff8/iris/chat", async (c) => {
       return c.json({ error: "Messages array required" }, 400);
     }
 
+    const userId = await getUserId(c.req.header("Authorization") ?? null);
+    const incomingMessages = normalizeMessages(messages);
+    const storedMessages = userId ? ((await kv.get(`iris-history:${userId}`)) ?? []) : [];
+    const wardrobeItems = userId ? ((await kv.get(`wardrobe:${userId}`)) ?? []) : [];
+    const conversationMessages = mergeHistory(
+      Array.isArray(storedMessages) ? storedMessages : [],
+      incomingMessages,
+    );
+
     const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
     if (!apiKey) {
       return c.json({ error: "Anthropic API key not configured" }, 500);
     }
 
-    const systemPrompt = buildSystemPrompt(profile ?? {});
+    const systemPrompt = buildSystemPrompt(profile ?? {}, Array.isArray(wardrobeItems) ? wardrobeItems : []);
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -199,7 +311,7 @@ app.post("/make-server-7dbc8ff8/iris/chat", async (c) => {
         model: "claude-haiku-4-5-20251001",
         max_tokens: 1024,
         system: systemPrompt,
-        messages: messages.map((m: { role: string; content: string }) => ({
+        messages: conversationMessages.map((m) => ({
           role: m.role,
           content: m.content,
         })),
@@ -215,6 +327,14 @@ app.post("/make-server-7dbc8ff8/iris/chat", async (c) => {
     const data = await response.json();
     const reply = data.content?.[0]?.text ?? "I'm not sure how to help with that — try asking me about outfits, colors, or what to wear!";
 
+    if (userId) {
+      const nextHistory: ChatMessage[] = [
+        ...conversationMessages,
+        { role: "assistant", content: reply, timestamp: new Date().toISOString() },
+      ].slice(-40);
+      await kv.set(`iris-history:${userId}`, nextHistory);
+    }
+
     return c.json({ reply });
   } catch (err) {
     console.log("Iris chat error:", err);
@@ -224,7 +344,7 @@ app.post("/make-server-7dbc8ff8/iris/chat", async (c) => {
 
 // ── Wardrobe — analyze garment with Claude Vision ────────────────────────────
 
-app.post("/make-server-7dbc8ff8/wardrobe/analyze", async (c) => {
+app.post("/wardrobe/analyze", async (c) => {
   try {
     const { imageBase64, mediaType = "image/jpeg" } = await c.req.json();
     if (!imageBase64) return c.json({ error: "Image required" }, 400);
@@ -291,7 +411,7 @@ app.post("/make-server-7dbc8ff8/wardrobe/analyze", async (c) => {
 
 // ── Wardrobe — save & load items ─────────────────────────────────────────────
 
-app.get("/make-server-7dbc8ff8/wardrobe/items", async (c) => {
+app.get("/wardrobe/items", async (c) => {
   try {
     const userId = await getUserId(c.req.header("Authorization") ?? null);
     if (!userId) return c.json({ error: "Unauthorized" }, 401);
@@ -303,7 +423,7 @@ app.get("/make-server-7dbc8ff8/wardrobe/items", async (c) => {
   }
 });
 
-app.post("/make-server-7dbc8ff8/wardrobe/items", async (c) => {
+app.post("/wardrobe/items", async (c) => {
   try {
     const userId = await getUserId(c.req.header("Authorization") ?? null);
     if (!userId) return c.json({ error: "Unauthorized" }, 401);
@@ -316,4 +436,11 @@ app.post("/make-server-7dbc8ff8/wardrobe/items", async (c) => {
   }
 });
 
-Deno.serve(app.fetch);
+Deno.serve((req) => {
+  const url = new URL(req.url);
+  url.pathname = url.pathname
+    .replace(/^\/functions\/v1\/irys-api/, "")
+    .replace(/^\/irys-api/, "") || "/";
+
+  return app.fetch(new Request(url, req));
+});
