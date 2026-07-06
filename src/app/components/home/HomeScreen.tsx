@@ -112,7 +112,7 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: 
   })();
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
+    <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
       <div className="px-6 pt-14 pb-4">
         <div className="flex items-start justify-between">
           <div>
@@ -161,9 +161,9 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: 
 
           {dailyLook.length > 0 ? (
             <>
-              <div className="grid" style={{ gridTemplateColumns: `repeat(${Math.min(dailyLook.length, 4)}, 1fr)` }}>
-                {dailyLook.slice(0, 4).map((item) => (
-                  <div key={item.id} className="relative flex items-center justify-center" style={{ height: 132, background: "var(--surface-2)" }}>
+              <div className="flex overflow-x-auto" style={{ scrollbarWidth: "none", overscrollBehaviorX: "contain", touchAction: "pan-x" }}>
+                {dailyLook.map((item) => (
+                  <div key={item.id} className="relative flex items-center justify-center shrink-0" style={{ width: 116, height: 132, background: "var(--surface-2)", borderRight: "1px solid rgba(22,22,22,0.6)" }}>
                     {isPersistentImage(item.image) ? (
                       <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                     ) : (
