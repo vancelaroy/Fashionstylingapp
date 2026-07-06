@@ -21,16 +21,22 @@ export function AuthScreen({ onAuth }: AuthScreenProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Google OAuth — return to the exact origin that started the flow.
-  // This keeps the PKCE handshake on the same domain on mobile Safari.
+  // Google OAuth returns through a dedicated callback path so Supabase can
+  // exchange the PKCE code before the main app decides whether the user is in.
   const handleGoogle = async () => {
     setError(null);
     setLoading(true);
-    const redirectTo = `${window.location.origin}/`;
+    const redirectTo = `${window.location.origin}/auth/callback`;
 
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo },
+      options: {
+        queryParams: {
+          access_type: "offline",
+          prompt: "select_account",
+        },
+        redirectTo,
+      },
     });
 
     if (oauthError) {
