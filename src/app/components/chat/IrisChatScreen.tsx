@@ -24,6 +24,8 @@ interface PlaylistItem {
 interface IrisChatScreenProps {
   profile: StyleProfile;
   accessToken?: string | null;
+  pendingPrompt?: string | null;
+  onPendingPromptConsumed?: () => void;
 }
 
 // ─── Playlist generator ───────────────────────────────────────────────────────
@@ -288,19 +290,25 @@ function PlaylistCard({ tracks }: { tracks: PlaylistItem[] }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export function IrisChatScreen({ profile, accessToken }: IrisChatScreenProps) {
+export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingPromptConsumed }: IrisChatScreenProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [started, setStarted] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const consumedPromptRef = useRef<string | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
   useEffect(() => {
-    if (!accessToken) return;
+    setHistoryLoaded(false);
+    if (!accessToken) {
+      setHistoryLoaded(true);
+      return;
+    }
 
     fetch(`${SERVER}/iris/history`, {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -317,7 +325,8 @@ export function IrisChatScreen({ profile, accessToken }: IrisChatScreenProps) {
         })));
         setStarted(true);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setHistoryLoaded(true));
   }, [accessToken]);
 
   const clearConversation = async () => {
@@ -397,6 +406,14 @@ export function IrisChatScreen({ profile, accessToken }: IrisChatScreenProps) {
       setIsTyping(false);
     }
   };
+
+  useEffect(() => {
+    if (!pendingPrompt || !historyLoaded || isTyping || consumedPromptRef.current === pendingPrompt) return;
+
+    consumedPromptRef.current = pendingPrompt;
+    onPendingPromptConsumed?.();
+    sendMessage(pendingPrompt);
+  }, [pendingPrompt, historyLoaded, isTyping]);
 
   const formatContent = (text: string) => {
     return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
