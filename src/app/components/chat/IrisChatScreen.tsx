@@ -589,20 +589,26 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
       </div>
 
       {/* Input */}
-      <div className="px-4 pb-6 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
-        <div className="flex items-end gap-2">
+      <div className="px-4 pb-6 pt-3 shrink-0" style={{ borderTop: "1px solid var(--border)", overflow: "hidden" }}>
+        <div className="flex items-end gap-2 w-full" style={{ minWidth: 0 }}>
           <div className="flex-1 flex items-center px-4 py-3 rounded-2xl"
-            style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-            <input
-              type="text" value={input} onChange={(e) => setInput(e.target.value)}
+            style={{ background: "var(--surface)", border: "1px solid var(--border)", minWidth: 0 }}>
+            <textarea
+              value={input}
+              rows={1}
+              onChange={(e) => setInput(e.target.value)}
+              onInput={(e) => {
+                e.currentTarget.style.height = "auto";
+                e.currentTarget.style.height = `${Math.min(e.currentTarget.scrollHeight, 84)}px`;
+              }}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
               placeholder="Ask Iris anything..."
-              className="flex-1 outline-none"
-              style={{ background: "transparent", color: "var(--cream)", fontSize: "14px", fontFamily: "var(--font-body)", border: "none" }}
+              className="flex-1 outline-none resize-none"
+              style={{ background: "transparent", color: "var(--cream)", fontSize: "14px", fontFamily: "var(--font-body)", border: "none", minWidth: 0, maxHeight: 84, lineHeight: 1.45 }}
             />
           </div>
           <button onClick={() => sendMessage(input)} disabled={!input.trim() || isTyping}
-            className="w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-90"
+            className="w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-90 shrink-0"
             style={{ background: input.trim() && !isTyping ? "var(--gold)" : "var(--surface)", border: "none", cursor: input.trim() && !isTyping ? "pointer" : "not-allowed" }}>
             <Send size={16} style={{ color: input.trim() && !isTyping ? "var(--charcoal)" : "var(--muted-foreground)" }} />
           </button>
