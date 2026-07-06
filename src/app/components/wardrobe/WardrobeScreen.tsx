@@ -14,6 +14,10 @@ const CATEGORY_EMOJI: Record<string, string> = {
   accessories: "💍", dresses: "👗", suits: "🤵", bags: "👜",
 };
 
+function isPersistentImage(src: string | undefined): src is string {
+  return !!src && !src.startsWith("blob:");
+}
+
 interface WardrobeScreenProps {
   accessToken?: string | null;
 }
@@ -204,7 +208,13 @@ export function WardrobeScreen({ accessToken }: WardrobeScreenProps) {
                   <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                     className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                     <div className="relative">
-                      <img src={item.image} alt={item.name} className="w-full object-cover" style={{ height: 180 }} />
+                      {isPersistentImage(item.image) ? (
+                        <img src={item.image} alt={item.name} className="w-full object-cover" style={{ height: 180 }} />
+                      ) : (
+                        <div className="w-full flex items-center justify-center" style={{ height: 180, background: "rgba(199,179,139,0.08)" }}>
+                          <span style={{ fontSize: "32px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
+                        </div>
+                      )}
                       <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(22,22,22,0.8) 0%, transparent 55%)" }} />
                       <div className="absolute top-2 left-2 px-2 py-1 rounded-full" style={{ background: "rgba(22,22,22,0.8)", backdropFilter: "blur(6px)" }}>
                         <span style={{ fontSize: "11px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>

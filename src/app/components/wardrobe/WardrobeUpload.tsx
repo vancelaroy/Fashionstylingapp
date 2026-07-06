@@ -35,8 +35,9 @@ const OCCASION_LABELS: Record<string, string> = {
   formal: "Formal", sport: "Sport", weekend: "Weekend",
 };
 
-// Compress image to max 800px wide, JPEG quality 0.8
-async function compressImage(file: File): Promise<{ base64: string; mediaType: string }> {
+// Compress image to max 800px wide, JPEG quality 0.8. The dataUrl is what
+// persists in the saved closet; object URLs are preview-only and expire.
+async function compressImage(file: File): Promise<{ base64: string; dataUrl: string; mediaType: string }> {
   return new Promise((resolve) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -50,8 +51,7 @@ async function compressImage(file: File): Promise<{ base64: string; mediaType: s
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
       URL.revokeObjectURL(url);
-      // Strip the data:image/jpeg;base64, prefix
-      resolve({ base64: dataUrl.split(",")[1], mediaType: "image/jpeg" });
+      resolve({ base64: dataUrl.split(",")[1], dataUrl, mediaType: "image/jpeg" });
     };
     img.src = url;
   });
@@ -62,6 +62,7 @@ type Stage = "idle" | "preview" | "analyzing" | "result" | "saving";
 export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUploadProps) {
   const [stage, setStage] = useState<Stage>("idle");
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
+  const [persistentImageDataUrl, setPersistentImageDataUrl] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<Partial<WardrobeItem> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
@@ -81,7 +82,8 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
     setStage("analyzing");
     setError(null);
     try {
-      const { base64, mediaType } = await compressImage(file);
+      const { base64, dataUrl, mediaType } = await compressImage(file);
+      setPersistentImageDataUrl(dataUrl);
 
       const res = await fetch(`${SERVER}/wardrobe/analyze`, {
         method: "POST",
@@ -106,12 +108,13 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
   };
 
   const handleSave = async () => {
-    if (!analysisResult || !imageDataUrl) return;
+    const savedImage = persistentImageDataUrl ?? imageDataUrl;
+    if (!analysisResult || !savedImage) return;
     setStage("saving");
 
     const newItem: WardrobeItem = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      image: imageDataUrl,
+      image: savedImage,
       name: editName || analysisResult.name || "Unnamed item",
       category: analysisResult.category || "tops",
       color: analysisResult.color || "Unknown",
