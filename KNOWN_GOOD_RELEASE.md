@@ -1,43 +1,38 @@
-# IRYS Known Good Release Checklist
+# IRYS Known Good Release
 
-## Release Date
-July 5, 2026
+## v0.1.0
 
-## Production URL
-https://www.irysstyle.com
+IRYS v0.1.0 is working in production.
 
-## Core Status
-- [x] Frontend live on Vercel
-- [x] Supabase Edge Function live
-- [x] Google OAuth working
-- [x] Email/password auth working
-- [x] Session loop resolved
-- [x] Profile saves and loads
-- [x] Wardrobe upload/save works
+### Production Capabilities
 
-## Fresh User QA
-- [ ] Open site in incognito/private window
-- [ ] Create new account
-- [ ] Complete Style Discovery/Profile setup
-- [ ] Upload or save wardrobe item
-- [ ] Open Iris chat
-- [ ] Confirm Iris can respond
-- [ ] Sign out
-- [ ] Sign back in
-- [ ] Confirm profile data persists
-- [ ] Confirm wardrobe data persists
+- Users can create accounts and sign in
+- Google OAuth is configured and working
+- Email/password authentication is working
+- Style profiles persist between sessions
+- Iris AI chat is available
+- Iris remembers prior conversations
+- Wardrobe items save per user
+- Wardrobe data is separated between users
+- Wardrobe item images persist after reload for new uploads
+- The app is deployed to Vercel production
+- Supabase Edge Function backend is deployed and reachable
 
-## Returning User QA
-- [ ] Open site normally
-- [ ] Sign in with existing account
-- [ ] Confirm session loads correctly
-- [ ] Confirm profile loads
-- [ ] Confirm wardrobe items load
-- [ ] Confirm Iris chat/history loads
-- [ ] Sign out and sign back in successfully
+### Current Wardrobe Limitations
 
-## Known Good Release Notes
-This release confirms IRYS has a working production foundation: authentication, profile persistence, wardrobe saving, backend functions, and live deployment.
+- Users cannot delete wardrobe items yet
+- Users cannot edit wardrobe items yet
+- Wardrobe cards do not open into a full item detail view yet
+- Users cannot attach multiple photos to one wardrobe item yet
+- Users cannot manually correct brand details yet
+- Users cannot manually correct fit details yet
+- Supabase Storage migration is still planned for more durable image handling
 
-## Next Priority
-Polish Iris wardrobe-aware recommendations so she can reference saved closet items naturally.
+### Recommended Next Wardrobe Build Order
+
+1. Add item detail view
+2. Add edit item fields for corrections
+3. Add delete item with confirmation
+4. Add richer fit/brand metadata
+5. Add multiple photos per item
+6. Migrate images to Supabase Storage
