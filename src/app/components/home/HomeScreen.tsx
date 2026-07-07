@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { motion } from "motion/react";
-import { ArrowRight, CalendarDays, Camera, CheckCircle2, CloudSun, Shirt, Sparkles, Sun } from "lucide-react";
+import { ArrowRight, Camera, CheckCircle2, CloudSun, RefreshCw, Shirt, Sparkles, Sun, Wand2 } from "lucide-react";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import type { WardrobeItem } from "../wardrobe/WardrobeUpload";
 import { projectId } from "/utils/supabase/info";
@@ -30,22 +30,32 @@ function isPersistentImage(src: string | undefined): src is string {
   return !!src && !src.startsWith("blob:");
 }
 
-function pickFirst(items: WardrobeItem[], categories: string[], used: string[] = []) {
-  return items.find((item) => categories.includes(item.category) && !used.includes(item.id)) ?? null;
+function localDayKey() {
+  return new Date().toLocaleDateString("en-CA");
 }
 
-function buildDailyLook(items: WardrobeItem[]) {
-  const top = pickFirst(items, ["tops", "dresses"]);
+function seededIndex(seed: number, length: number, offset = 0) {
+  if (length <= 0) return 0;
+  return Math.abs((seed * 9301 + 49297 + offset * 233) % length);
+}
+
+function pickDaily(items: WardrobeItem[], categories: string[], seed: number, used: string[] = [], offset = 0) {
+  const options = items.filter((item) => categories.includes(item.category) && !used.includes(item.id));
+  return options[seededIndex(seed, options.length, offset)] ?? null;
+}
+
+function buildDailyLook(items: WardrobeItem[], seed: number) {
+  const top = pickDaily(items, ["tops", "dresses"], seed, [], 1);
   const used = top ? [top.id] : [];
-  const bottom = top?.category === "dresses" ? null : pickFirst(items, ["bottoms"], used);
+  const bottom = top?.category === "dresses" ? null : pickDaily(items, ["bottoms"], seed, used, 2);
   if (bottom) used.push(bottom.id);
-  const outer = pickFirst(items, ["outerwear", "suits"], used);
+  const outer = pickDaily(items, ["outerwear", "suits"], seed, used, 3);
   if (outer) used.push(outer.id);
-  const shoes = pickFirst(items, ["shoes"], used);
+  const shoes = pickDaily(items, ["shoes"], seed, used, 4);
   if (shoes) used.push(shoes.id);
-  const bag = pickFirst(items, ["bags"], used);
+  const bag = pickDaily(items, ["bags"], seed, used, 5);
   if (bag) used.push(bag.id);
-  const accessory = pickFirst(items, ["accessories"], used);
+  const accessory = pickDaily(items, ["accessories"], seed, used, 6);
 
   return [top, bottom, outer, shoes, bag, accessory].filter(Boolean) as WardrobeItem[];
 }
@@ -76,9 +86,30 @@ function buildAskIrisPrompt(profile: StyleProfile, look: WardrobeItem[]) {
   return `Help me get dressed today using my wardrobe and Style DNA.\n\nMy suggested pieces are:\n${pieces || "I do not have a complete closet look selected yet."}\n\nMy style profile: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"} style personality.\n\nPlease tell me what to wear today, why it works, what to add or swap, and one confidence note.`;
 }
 
+function LoadingBlock({ className = "", style }: { className?: string; style?: CSSProperties }) {
+  return (
+    <div className={`overflow-hidden relative ${className}`} style={{ background: "var(--surface-2)", ...style }}>
+      <motion.div
+        className="absolute inset-y-0 w-1/2"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)" }}
+        animate={{ x: ["-120%", "240%"] }}
+        transition={{ duration: 1.3, repeat: Infinity, ease: "easeInOut" }}
+      />
+    </div>
+  );
+}
+
 export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: HomeScreenProps) {
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dailySeed, setDailySeed] = useState(() => {
+    const key = `irys.dailyLookSeed.${localDayKey()}`;
+    const saved = window.localStorage.getItem(key);
+    if (saved) return Number(saved) || 1;
+    const seed = Date.now();
+    window.localStorage.setItem(key, String(seed));
+    return seed;
+  });
 
   useEffect(() => {
     if (!accessToken) {
@@ -86,6 +117,7 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: 
       return;
     }
 
+    setLoading(true);
     fetch(`${SERVER}/wardrobe/items`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     })
@@ -97,7 +129,13 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: 
       .finally(() => setLoading(false));
   }, [accessToken]);
 
-  const dailyLook = useMemo(() => buildDailyLook(wardrobeItems), [wardrobeItems]);
+  const refreshDailyLook = () => {
+    const seed = Date.now();
+    window.localStorage.setItem(`irys.dailyLookSeed.${localDayKey()}`, String(seed));
+    setDailySeed(seed);
+  };
+
+  const dailyLook = useMemo(() => buildDailyLook(wardrobeItems, dailySeed), [wardrobeItems, dailySeed]);
   const { counts, gaps } = useMemo(() => buildGapList(wardrobeItems), [wardrobeItems]);
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";
@@ -154,12 +192,38 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: 
                 {wardrobeItems.length > 0 ? "Wear this today" : "Start your closet"}
               </h2>
             </div>
-            <div className="px-2.5 py-1 rounded-full" style={{ background: "rgba(199,179,139,0.12)", color: "var(--gold)", fontSize: "10px", fontWeight: 700 }}>
-              {loading ? "Loading" : `${wardrobeItems.length} pieces`}
+            <div className="flex items-center gap-2">
+              {dailyLook.length > 0 && (
+                <button
+                  onClick={refreshDailyLook}
+                  aria-label="Refresh today's outfit"
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95"
+                  style={{ background: "var(--surface-2)", border: "1px solid var(--border)", cursor: "pointer" }}
+                >
+                  <RefreshCw size={13} style={{ color: "var(--gold)" }} />
+                </button>
+              )}
+              <div className="px-2.5 py-1 rounded-full" style={{ background: "rgba(199,179,139,0.12)", color: "var(--gold)", fontSize: "10px", fontWeight: 700 }}>
+                {loading ? "Loading" : `${wardrobeItems.length} pieces`}
+              </div>
             </div>
           </div>
 
-          {dailyLook.length > 0 ? (
+          {loading ? (
+            <div className="p-4 pt-0">
+              <div className="flex gap-2 mb-4 overflow-hidden">
+                {[0, 1, 2].map((i) => (
+                  <LoadingBlock key={i} className="rounded-xl shrink-0" style={{ width: 96, height: 116 }} />
+                ))}
+              </div>
+              <LoadingBlock className="h-4 rounded-full mb-2" />
+              <LoadingBlock className="h-4 rounded-full w-2/3 mb-4" />
+              <div className="grid grid-cols-2 gap-2">
+                <LoadingBlock className="h-11 rounded-xl" />
+                <LoadingBlock className="h-11 rounded-xl" />
+              </div>
+            </div>
+          ) : dailyLook.length > 0 ? (
             <>
               <div className="flex overflow-x-auto" style={{ scrollbarWidth: "none", overscrollBehaviorX: "contain", touchAction: "pan-x" }}>
                 {dailyLook.map((item) => (
@@ -213,7 +277,7 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: 
         {[
           { label: "Pieces", value: wardrobeItems.length, icon: Shirt },
           { label: "Saved", value: savedLooksCount, icon: CheckCircle2 },
-          { label: "Gaps", value: gaps.length, icon: CalendarDays },
+          { label: "Needs", value: gaps.length, icon: Wand2 },
         ].map(({ label, value, icon: Icon }) => (
           <div key={label} className="rounded-2xl p-3" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
             <Icon size={15} style={{ color: "var(--gold)", marginBottom: 8 }} />
@@ -228,7 +292,9 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: 
           <div className="flex items-center justify-between mb-3">
             <div>
               <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase" }}>Closet read</p>
-              <h3 style={{ color: "var(--cream)", fontSize: "14px", fontWeight: 700, marginTop: 2 }}>What Iris notices</h3>
+              <h3 style={{ color: "var(--cream)", fontSize: "14px", fontWeight: 700, marginTop: 2 }}>
+                {gaps.length > 0 ? "Closet needs" : "What Iris notices"}
+              </h3>
             </div>
             <CloudSun size={17} style={{ color: "var(--gold)" }} />
           </div>
