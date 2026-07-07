@@ -5,8 +5,36 @@ import { ScentScreen } from "./ScentScreen";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import type { WardrobeItem } from "../wardrobe/WardrobeUpload";
 import { projectId } from "/utils/supabase/info";
+import productCatalogSeed from "../../data/productCatalog.json";
 
 const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
+
+type ProductGender = "men" | "women" | "unisex";
+type PriceTier = "budget" | "mid" | "premium";
+
+interface CatalogProduct {
+  id: string;
+  name: string;
+  brand: string;
+  retailer: string;
+  category: string;
+  gender: ProductGender;
+  priceTier: PriceTier;
+  approximatePrice: string;
+  styleTags: string[];
+  occasionTags: string[];
+  colorTags: string[];
+  colorSeasonFit: string[];
+  fitTags: string[];
+  whyIrysRecommendsIt: string;
+  pairsWellWith: string[];
+  affiliateReady: boolean;
+  productUrl: string;
+  imageUrl: string;
+  notes: string;
+}
+
+const PRODUCT_CATALOG = productCatalogSeed as CatalogProduct[];
 
 // ── Product data — gender split ───────────────────────────────────────────────
 
@@ -224,6 +252,26 @@ interface DiscoverScreenProps {
 }
 
 const DISCOVER_TABS = ["For You", "Get The Look", "Glasses", "Stylists & Tailors", "Scent"];
+const OCCASION_FILTERS = ["All", "Work", "Date Night", "Casual", "Weekend", "Travel", "Formal"];
+const PRICE_FILTERS: { label: string; value: "all" | PriceTier }[] = [
+  { label: "All prices", value: "all" },
+  { label: "Budget", value: "budget" },
+  { label: "Mid", value: "mid" },
+  { label: "Premium", value: "premium" },
+];
+
+const PRODUCT_IMAGE_FALLBACKS: Record<string, string> = {
+  tops: "https://images.unsplash.com/photo-1532332248682-206cc786359f?w=500&h=620&fit=crop&auto=format",
+  bottoms: "https://images.unsplash.com/photo-1619603364937-8d7af41ef206?w=500&h=620&fit=crop&auto=format",
+  dresses: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&h=620&fit=crop&auto=format",
+  outerwear: "https://images.unsplash.com/photo-1666932521131-d990bd263a2c?w=500&h=620&fit=crop&auto=format",
+  suits: "https://images.unsplash.com/photo-1656695230389-01185e6fbff8?w=500&h=620&fit=crop&auto=format",
+  shoes: "https://images.unsplash.com/photo-1619603364904-c0498317e145?w=500&h=620&fit=crop&auto=format",
+  bags: "https://images.unsplash.com/photo-1589363358751-ab05797e5629?w=500&h=620&fit=crop&auto=format",
+  accessories: "https://images.unsplash.com/photo-1550995694-3f5f4a7e1bd2?w=500&h=620&fit=crop&auto=format",
+  glasses: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=500&h=620&fit=crop&auto=format",
+  fragrance: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=500&h=620&fit=crop&auto=format",
+};
 
 const CATEGORY_COPY: Record<string, { label: string; reason: string; prompt: string }> = {
   tops: {
@@ -285,15 +333,73 @@ function getProductNeedCategory(category: string) {
   const value = category.toLowerCase();
   if (value.includes("top") || value.includes("shirt")) return "tops";
   if (value.includes("bottom") || value.includes("trouser") || value.includes("pant")) return "bottoms";
-  if (value.includes("outer") || value.includes("coat") || value.includes("suiting")) return "outerwear";
+  if (value.includes("outer") || value.includes("coat") || value.includes("suit")) return "outerwear";
   if (value.includes("shoe")) return "shoes";
   if (value.includes("bag")) return "bags";
   return "accessories";
 }
 
-function buildShoppingPrompt(profile: StyleProfile, item: { name: string; brand: string; category: string; price: string }, wardrobeItems: WardrobeItem[]) {
+function normalizeTag(value: string) {
+  return value.toLowerCase().trim();
+}
+
+function getProductImage(item: CatalogProduct) {
+  return item.imageUrl || PRODUCT_IMAGE_FALLBACKS[item.category] || PRODUCT_IMAGE_FALLBACKS.accessories;
+}
+
+function genderMatches(profileGender: string | undefined, productGender: ProductGender) {
+  if (productGender === "unisex") return true;
+  if (profileGender === "man") return productGender === "men";
+  if (profileGender === "woman") return productGender === "women";
+  return true;
+}
+
+function scoreProduct(
+  product: CatalogProduct,
+  profile: StyleProfile,
+  closetNeeds: string[],
+  selectedOccasion: string,
+) {
+  const productNeedCategory = getProductNeedCategory(product.category);
+  const styleTags = product.styleTags.map(normalizeTag);
+  const profileStyles = (profile.stylePersonality || []).map(normalizeTag);
+  const season = normalizeTag(profile.colorSeason || "");
+  const occasion = normalizeTag(selectedOccasion);
+  let score = 50;
+
+  if (closetNeeds.includes(productNeedCategory)) score += 32;
+  if (genderMatches(profile.gender, product.gender)) score += 18;
+  score += profileStyles.filter((style) => styleTags.includes(style)).length * 10;
+  if (product.colorSeasonFit.includes("all") || product.colorSeasonFit.map(normalizeTag).includes(season)) score += 9;
+  if (occasion !== "all" && product.occasionTags.map(normalizeTag).includes(occasion)) score += 18;
+  if (product.priceTier === "mid") score += 4;
+  if (product.affiliateReady) score += 2;
+
+  return score;
+}
+
+function getMatchReason(product: CatalogProduct, profile: StyleProfile, closetNeeds: string[], selectedOccasion: string) {
+  const productNeedCategory = getProductNeedCategory(product.category);
+  const profileStyles = (profile.stylePersonality || []).map(normalizeTag);
+  const styleHit = product.styleTags.find((tag) => profileStyles.includes(normalizeTag(tag)));
+  const occasionHit = selectedOccasion !== "All" && product.occasionTags.map(normalizeTag).includes(normalizeTag(selectedOccasion));
+
+  if (closetNeeds.includes(productNeedCategory)) return CATEGORY_COPY[productNeedCategory]?.reason || product.whyIrysRecommendsIt;
+  if (occasionHit) return `Strong for ${selectedOccasion.toLowerCase()} without fighting your closet.`;
+  if (styleHit) return `Matches your ${styleHit} style direction.`;
+  return product.whyIrysRecommendsIt;
+}
+
+function getCatalogStats(products: CatalogProduct[]) {
+  return {
+    total: products.length,
+    retailers: new Set(products.map((product) => product.retailer)).size,
+  };
+}
+
+function buildShoppingPrompt(profile: StyleProfile, item: CatalogProduct, wardrobeItems: WardrobeItem[]) {
   const closetSummary = wardrobeItems.slice(0, 18).map((piece) => `${piece.name} (${piece.category}, ${piece.color}${piece.fit ? `, ${piece.fit}` : ""})`).join("\n");
-  return `I'm considering this addition for my wardrobe:\n\n${item.name} by ${item.brand}\nCategory: ${item.category}\nPrice: ${item.price}\n\nMy Style DNA: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"} style personality.\n\nMy current closet includes:\n${closetSummary || "No closet items loaded yet."}\n\nTell me if this is worth adding, what it would pair with, when I would wear it, and whether there is a smarter alternative.`;
+  return `I'm considering this addition for my wardrobe:\n\n${item.name} by ${item.brand} from ${item.retailer}\nCategory: ${item.category}\nPrice: ${item.approximatePrice} (${item.priceTier})\nOccasions: ${item.occasionTags.join(", ")}\nStyle tags: ${item.styleTags.join(", ")}\n\nMy Style DNA: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"} style personality.\n\nMy current closet includes:\n${closetSummary || "No closet items loaded yet."}\n\nTell me if this is worth adding, what it would pair with, when I would wear it, and whether there is a smarter alternative. If I already own something too similar, tell me not to buy it.`;
 }
 
 function buildLookPrompt(profile: StyleProfile, look: { title: string; occasion: string }, wardrobeItems: WardrobeItem[]) {
@@ -303,11 +409,13 @@ function buildLookPrompt(profile: StyleProfile, look: { title: string; occasion:
 
 export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: DiscoverScreenProps) {
   const [activeTab, setActiveTab] = useState("For You");
-  const [wishlist, setWishlist] = useState<number[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
   const [expandedLook, setExpandedLook] = useState<number | null>(1);
   const [stylistFilter, setStylistFilter] = useState<"all" | "stylist" | "tailor">("all");
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([]);
   const [loadingWardrobe, setLoadingWardrobe] = useState(true);
+  const [selectedOccasion, setSelectedOccasion] = useState("All");
+  const [selectedPriceTier, setSelectedPriceTier] = useState<"all" | PriceTier>("all");
 
   useEffect(() => {
     if (!accessToken) {
@@ -327,12 +435,8 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
       .finally(() => setLoadingWardrobe(false));
   }, [accessToken]);
 
-  const toggleWishlist = (id: number) =>
+  const toggleWishlist = (id: string) =>
     setWishlist((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
-
-  const shopItems = profile.gender === "man" ? SHOP_MEN
-    : profile.gender === "nonbinary" ? SHOP_NB
-    : SHOP_WOMEN;
 
   const looks = profile.gender === "man" ? LOOKS_MEN
     : profile.gender === "nonbinary" ? LOOKS_NB
@@ -346,12 +450,16 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
 
   const closetNeeds = useMemo(() => getClosetNeeds(wardrobeItems), [wardrobeItems]);
   const discoveryItems = useMemo(() => {
-    return [...shopItems].sort((a, b) => {
-      const aNeed = closetNeeds.includes(getProductNeedCategory(a.category)) ? 1 : 0;
-      const bNeed = closetNeeds.includes(getProductNeedCategory(b.category)) ? 1 : 0;
-      return bNeed - aNeed || b.match - a.match;
-    });
-  }, [shopItems, closetNeeds]);
+    return PRODUCT_CATALOG
+      .filter((product) => genderMatches(profile.gender, product.gender))
+      .filter((product) => selectedPriceTier === "all" || product.priceTier === selectedPriceTier)
+      .filter((product) => selectedOccasion === "All" || product.occasionTags.map(normalizeTag).includes(normalizeTag(selectedOccasion)))
+      .map((product) => ({ product, score: scoreProduct(product, profile, closetNeeds, selectedOccasion) }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 12);
+  }, [closetNeeds, profile, selectedOccasion, selectedPriceTier]);
+
+  const catalogStats = useMemo(() => getCatalogStats(PRODUCT_CATALOG), []);
 
   const genderLabel = profile.gender === "man" ? "men's"
     : profile.gender === "nonbinary" ? "unisex"
@@ -411,7 +519,7 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
               <div className="flex-1">
                 <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 600 }}>Closet-aware discovery</p>
                 <p style={{ color: "var(--muted-foreground)", fontSize: "11px", lineHeight: 1.5, marginTop: 3 }}>
-                  Ideas are ranked by your Style DNA and what would make your real closet more useful.
+                  {catalogStats.total} starter picks across {catalogStats.retailers} retailers, ranked by your Style DNA and what would make your real closet more useful.
                 </p>
               </div>
             </div>
@@ -489,32 +597,87 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
               <p style={{ color: "var(--muted-foreground)", fontSize: 10 }}>{genderLabel} edit</p>
             </div>
 
+            <div className="mb-3">
+              <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+                {OCCASION_FILTERS.map((occasion) => (
+                  <button
+                    key={occasion}
+                    onClick={() => setSelectedOccasion(occasion)}
+                    className="shrink-0 px-3 py-1.5 rounded-full transition-all"
+                    style={{
+                      background: selectedOccasion === occasion ? "var(--gold)" : "var(--surface)",
+                      color: selectedOccasion === occasion ? "var(--charcoal)" : "var(--muted-foreground)",
+                      border: `1px solid ${selectedOccasion === occasion ? "var(--gold)" : "var(--border)"}`,
+                      fontSize: 10,
+                      fontWeight: selectedOccasion === occasion ? 700 : 500,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {occasion}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                {PRICE_FILTERS.map((price) => (
+                  <button
+                    key={price.value}
+                    onClick={() => setSelectedPriceTier(price.value)}
+                    className="shrink-0 px-3 py-1.5 rounded-full transition-all"
+                    style={{
+                      background: selectedPriceTier === price.value ? "rgba(143,136,168,0.18)" : "var(--surface)",
+                      color: selectedPriceTier === price.value ? "var(--lavender)" : "var(--muted-foreground)",
+                      border: `1px solid ${selectedPriceTier === price.value ? "rgba(143,136,168,0.36)" : "var(--border)"}`,
+                      fontSize: 10,
+                      fontWeight: selectedPriceTier === price.value ? 700 : 500,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {price.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
-              {discoveryItems.map((item, i) => {
+              {discoveryItems.map(({ product: item, score }, i) => {
                 const needCategory = getProductNeedCategory(item.category);
                 const needCopy = CATEGORY_COPY[needCategory];
                 const fillsNeed = closetNeeds.includes(needCategory);
+                const matchReason = getMatchReason(item, profile, closetNeeds, selectedOccasion);
                 return (
                 <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                   className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                   <div className="relative">
-                    <img src={item.image} alt={item.name} className="w-full object-cover" style={{ height: 190 }} />
+                    <img src={getProductImage(item)} alt={item.name} className="w-full object-cover" style={{ height: 190 }} />
                     <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(14,13,12,0.7) 0%, transparent 60%)" }} />
                     <div className="absolute top-2 left-2 px-2 py-1 rounded-full" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)" }}>
-                      <span style={{ color: "var(--gold)", fontSize: "10px", fontWeight: 600 }}>{fillsNeed ? "Closet need" : `${item.match}% ✦`}</span>
+                      <span style={{ color: "var(--gold)", fontSize: "10px", fontWeight: 600 }}>{fillsNeed ? "Closet need" : `${Math.min(99, score)}% ✦`}</span>
                     </div>
                     <button onClick={() => toggleWishlist(item.id)} className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer" }}>
                       <Heart size={12} style={{ color: wishlist.includes(item.id) ? "#8F88A8" : "var(--cream)" }} fill={wishlist.includes(item.id) ? "#8F88A8" : "none"} />
                     </button>
+                    <div className="absolute bottom-2 left-2 right-2 flex gap-1 flex-wrap">
+                      <span style={{ color: "var(--cream)", fontSize: 9, background: "rgba(14,13,12,0.72)", padding: "2px 6px", borderRadius: 99, textTransform: "capitalize" }}>
+                        {item.priceTier}
+                      </span>
+                      {item.occasionTags.slice(0, 1).map((tag) => (
+                        <span key={tag} style={{ color: "var(--cream)", fontSize: 9, background: "rgba(14,13,12,0.72)", padding: "2px 6px", borderRadius: 99, textTransform: "capitalize" }}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   <div className="p-3">
                     <p style={{ color: "var(--cream)", fontSize: "12px", fontWeight: 500, marginBottom: 1 }}>{item.name}</p>
-                    <p style={{ color: "var(--muted-foreground)", fontSize: "10px", marginBottom: 8 }}>{item.brand} · {item.category}</p>
+                    <p style={{ color: "var(--muted-foreground)", fontSize: "10px", marginBottom: 8 }}>{item.brand} · {item.retailer}</p>
                     <p style={{ color: "var(--lavender)", fontSize: "10px", lineHeight: 1.35, marginBottom: 10 }}>
-                      {fillsNeed ? needCopy.reason : `Fits your ${profile.colorSeason || "style"} palette and ${profile.stylePersonality?.[0] || "core"} direction.`}
+                      {fillsNeed ? needCopy.reason : matchReason}
+                    </p>
+                    <p style={{ color: "var(--muted-foreground)", fontSize: "9px", lineHeight: 1.35, marginBottom: 10 }}>
+                      Pairs with {item.pairsWellWith.slice(0, 2).join(" + ")}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span style={{ color: "var(--gold)", fontSize: "13px", fontWeight: 600 }}>{item.price}</span>
+                      <span style={{ color: "var(--gold)", fontSize: "13px", fontWeight: 600 }}>{item.approximatePrice}</span>
                       <button onClick={() => onAskIris?.(buildShoppingPrompt(profile, item, wardrobeItems))} className="px-3 py-1.5 rounded-lg transition-all"
                         style={{ background: "var(--surface-2)", color: "var(--muted-foreground)", border: "none", fontSize: "10px", fontWeight: 600, cursor: "pointer" }}>
                         Ask Iris
