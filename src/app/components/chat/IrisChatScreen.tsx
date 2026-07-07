@@ -29,11 +29,18 @@ interface IrisChatScreenProps {
 }
 
 // ─── Playlist generator ───────────────────────────────────────────────────────
-function generatePlaylist(occasion: string, personality: string[]): PlaylistItem[] {
-  const styles = personality.join(" ").toLowerCase();
+function generatePlaylist(occasion: string, profile: StyleProfile): PlaylistItem[] {
+  const styles = (profile.stylePersonality ?? []).join(" ").toLowerCase();
+  const isMens = profile.gender === "man" || styles.includes("mens") || styles.includes("masculine");
 
   if (occasion.match(/interview|work|job|office/)) {
-    return [
+    return isMens ? [
+      { title: "Outstanding", artist: "The Gap Band", vibe: "Clean confidence" },
+      { title: "Ascension", artist: "Maxwell", vibe: "Calm authority" },
+      { title: "The Payback", artist: "James Brown", vibe: "Sharp entrance" },
+      { title: "Good Life", artist: "Kanye West ft. T-Pain", vibe: "Polished optimism" },
+      { title: "So Fresh, So Clean", artist: "Outkast", vibe: "Finished look energy" },
+    ] : [
       { title: "Golden", artist: "Harry Styles", vibe: "Confident & warm" },
       { title: "Higher Ground", artist: "Stevie Wonder", vibe: "Focused energy" },
       { title: "Glorious", artist: "Macklemore ft. Skylar Grey", vibe: "Belief in yourself" },
@@ -42,7 +49,13 @@ function generatePlaylist(occasion: string, personality: string[]): PlaylistItem
     ];
   }
   if (occasion.match(/date|tonight|evening|dinner/)) {
-    return [
+    return isMens ? [
+      { title: "Come Through and Chill", artist: "Miguel", vibe: "Smooth but relaxed" },
+      { title: "Prototype", artist: "Outkast", vibe: "Creative date-night cool" },
+      { title: "Find Your Love", artist: "Drake", vibe: "Easy confidence" },
+      { title: "Sweet Life", artist: "Frank Ocean", vibe: "Soft luxury" },
+      { title: "Suit & Tie", artist: "Justin Timberlake", vibe: "Polished finish" },
+    ] : [
       { title: "Adorn", artist: "Miguel", vibe: "Smooth & magnetic" },
       { title: "Redbone", artist: "Childish Gambino", vibe: "Slow burn confidence" },
       { title: "Make Me Feel", artist: "Janelle Monáe", vibe: "Electric presence" },
@@ -51,7 +64,13 @@ function generatePlaylist(occasion: string, personality: string[]): PlaylistItem
     ];
   }
   if (occasion.match(/wedding|formal|gala|event/)) {
-    return [
+    return isMens ? [
+      { title: "Suit & Tie", artist: "Justin Timberlake", vibe: "Dressed and ready" },
+      { title: "International Players Anthem", artist: "UGK ft. Outkast", vibe: "Big arrival energy" },
+      { title: "Lovely Day", artist: "Bill Withers", vibe: "Warm and classic" },
+      { title: "Can't Take My Eyes Off You", artist: "Frankie Valli", vibe: "Timeless polish" },
+      { title: "Before I Let Go", artist: "Maze ft. Frankie Beverly", vibe: "Celebration mode" },
+    ] : [
       { title: "Empire State of Mind", artist: "JAY-Z & Alicia Keys", vibe: "Grand entrance energy" },
       { title: "Feeling Good", artist: "Nina Simone", vibe: "Timeless & powerful" },
       { title: "Put Your Records On", artist: "Corinne Bailey Rae", vibe: "Effortlessly beautiful" },
@@ -60,12 +79,27 @@ function generatePlaylist(occasion: string, personality: string[]): PlaylistItem
     ];
   }
   if (occasion.match(/casual|weekend|brunch|chill/)) {
-    return [
+    return isMens ? [
+      { title: "Electric Relaxation", artist: "A Tribe Called Quest", vibe: "Laid-back style" },
+      { title: "Pink + White", artist: "Frank Ocean", vibe: "Soft weekend mood" },
+      { title: "Brown Skin Lady", artist: "Black Star", vibe: "Easy confidence" },
+      { title: "Feels Like Summer", artist: "Childish Gambino", vibe: "Warm weather ease" },
+      { title: "The Weekend", artist: "SZA", vibe: "Unbothered rhythm" },
+    ] : [
       { title: "Sunday Best", artist: "Surfaces", vibe: "Relaxed & radiant" },
       { title: "Levitating", artist: "Dua Lipa", vibe: "Effortless cool" },
       { title: "Blinding Lights", artist: "The Weeknd", vibe: "Nostalgic & alive" },
       { title: "Stay", artist: "Rihanna ft. Mikky Ekko", vibe: "Calm and present" },
       { title: "Good Days", artist: "SZA", vibe: "Soft & intentional" },
+    ];
+  }
+  if (isMens) {
+    return [
+      { title: "So Fresh, So Clean", artist: "Outkast", vibe: "Final mirror check" },
+      { title: "Ascension", artist: "Maxwell", vibe: "Quiet confidence" },
+      { title: "Ain't No Stoppin' Us Now", artist: "McFadden & Whitehead", vibe: "Walk-out energy" },
+      { title: "Get Lucky", artist: "Daft Punk ft. Pharrell", vibe: "Crisp and modern" },
+      { title: "Umi Says", artist: "Mos Def", vibe: "Centered and cool" },
     ];
   }
   // Default getting-ready playlist
@@ -104,7 +138,7 @@ function generateIrisResponse(userMessage: string, profile: StyleProfile): { con
       : msg.includes("wedding") || msg.includes("formal") ? "wedding"
       : msg.includes("casual") || msg.includes("weekend") ? "casual"
       : "ready";
-    const playlist = generatePlaylist(occasion, profile.stylePersonality || []);
+    const playlist = generatePlaylist(occasion, profile);
     const occasionLabel = occasion === "interview" ? "job interview" : occasion === "date" ? "date night" : occasion === "wedding" ? "formal event" : occasion === "casual" ? "casual day out" : "getting ready";
     return {
       content: `I've curated your getting-ready soundtrack for a **${occasionLabel}** ✦\n\nEvery track is chosen to build your confidence from the first button to the last look in the mirror. Press play, get dressed, and walk out like you already won.`,
@@ -297,6 +331,7 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
   const [started, setStarted] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const consumedPromptRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -355,6 +390,7 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setInput("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
     setStarted(true);
     setIsTyping(true);
 
@@ -379,7 +415,7 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
 
       // Check if the reply contains playlist-style content
       const isPlaylist = text.toLowerCase().match(/playlist|music|song|vibe|getting ready|pump up/);
-      const playlist = isPlaylist ? generatePlaylist(text.toLowerCase(), profile.stylePersonality ?? []) : undefined;
+      const playlist = isPlaylist ? generatePlaylist(text.toLowerCase(), profile) : undefined;
 
       const irisMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -427,7 +463,7 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
+    <div className="flex flex-col h-full min-h-0 overflow-hidden" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
 
       {/* Header */}
       <div className="px-6 pt-14 pb-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--border)" }}>
@@ -459,7 +495,7 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
       </div>
 
       {/* Chat area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4" style={{ scrollbarWidth: "none" }}>
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4" style={{ scrollbarWidth: "none", overscrollBehavior: "contain" }}>
         {!started ? (
           <div className="flex flex-col items-center text-center px-2 pt-4 pb-4">
             {/* Iris avatar */}
@@ -589,26 +625,28 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
       </div>
 
       {/* Input */}
-      <div className="px-4 pb-6 pt-3 shrink-0" style={{ borderTop: "1px solid var(--border)", overflow: "hidden" }}>
+      <div className="px-4 pb-4 pt-2 shrink-0" style={{ borderTop: "1px solid var(--border)", overflow: "hidden", background: "var(--charcoal)" }}>
         <div className="flex items-end gap-2 w-full" style={{ minWidth: 0 }}>
-          <div className="flex-1 flex items-center px-4 py-3 rounded-2xl"
+          <div className="flex-1 flex items-center px-4 py-2.5 rounded-2xl"
             style={{ background: "var(--surface)", border: "1px solid var(--border)", minWidth: 0 }}>
             <textarea
+              ref={inputRef}
               value={input}
               rows={1}
               onChange={(e) => setInput(e.target.value)}
               onInput={(e) => {
                 e.currentTarget.style.height = "auto";
-                e.currentTarget.style.height = `${Math.min(e.currentTarget.scrollHeight, 84)}px`;
+                e.currentTarget.style.height = `${Math.min(e.currentTarget.scrollHeight, 56)}px`;
               }}
+              onFocus={() => setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 120)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
               placeholder="Ask Iris anything..."
               className="flex-1 outline-none resize-none"
-              style={{ background: "transparent", color: "var(--cream)", fontSize: "14px", fontFamily: "var(--font-body)", border: "none", minWidth: 0, maxHeight: 84, lineHeight: 1.45 }}
+              style={{ background: "transparent", color: "var(--cream)", fontSize: "14px", fontFamily: "var(--font-body)", border: "none", minWidth: 0, maxHeight: 56, lineHeight: 1.35, overflowY: "auto" }}
             />
           </div>
-          <button onClick={() => sendMessage(input)} disabled={!input.trim() || isTyping}
-            className="w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-90 shrink-0"
+          <button onClick={() => sendMessage(input)} disabled={!input.trim() || isTyping} aria-label="Send message"
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 shrink-0"
             style={{ background: input.trim() && !isTyping ? "var(--gold)" : "var(--surface)", border: "none", cursor: input.trim() && !isTyping ? "pointer" : "not-allowed" }}>
             <Send size={16} style={{ color: input.trim() && !isTyping ? "var(--charcoal)" : "var(--muted-foreground)" }} />
           </button>
