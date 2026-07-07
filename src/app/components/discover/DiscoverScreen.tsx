@@ -5,7 +5,7 @@ import { ScentScreen } from "./ScentScreen";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import type { WardrobeItem } from "../wardrobe/WardrobeUpload";
 import { projectId } from "/utils/supabase/info";
-import productCatalogSeed from "../../data/productCatalog.json";
+import productCatalogSeed from "./productCatalog.json";
 
 const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 

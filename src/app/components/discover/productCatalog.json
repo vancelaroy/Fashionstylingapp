@@ -1,0 +1,4895 @@
+[
+  {
+    "id": "uniqlo-supima-cotton-crew-neck-t-shirt",
+    "name": "Supima Cotton Crew Neck T-Shirt",
+    "brand": "Uniqlo",
+    "retailer": "Uniqlo",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$25",
+    "styleTags": [
+      "classic",
+      "minimal",
+      "casual"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "white",
+      "black",
+      "navy",
+      "gray"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A clean everyday base layer that works across almost every wardrobe.",
+    "pairsWellWith": [
+      "straight-leg jeans",
+      "linen trousers",
+      "overshirt"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "j-crew-oxford-cloth-button-down-shirt",
+    "name": "Oxford Cloth Button-Down Shirt",
+    "brand": "J.Crew",
+    "retailer": "J.Crew",
+    "category": "tops",
+    "gender": "men",
+    "priceTier": "mid",
+    "approximatePrice": "$98",
+    "styleTags": [
+      "classic",
+      "smart casual",
+      "preppy"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "date night"
+    ],
+    "colorTags": [
+      "white",
+      "blue",
+      "pink"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "It gives structure without feeling too formal.",
+    "pairsWellWith": [
+      "chinos",
+      "dark denim",
+      "unstructured blazer"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cos-ribbed-long-sleeve-top",
+    "name": "Ribbed Long Sleeve Top",
+    "brand": "COS",
+    "retailer": "COS",
+    "category": "tops",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$69",
+    "styleTags": [
+      "minimal",
+      "classic",
+      "elevated basics"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "slim"
+    ],
+    "whyIrysRecommendsIt": "A polished fitted layer that can anchor relaxed or tailored looks.",
+    "pairsWellWith": [
+      "wide-leg trousers",
+      "midi skirt",
+      "wool coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "everlane-boxy-heavyweight-t-shirt",
+    "name": "Boxy Heavyweight T-Shirt",
+    "brand": "Everlane",
+    "retailer": "Everlane",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$45",
+    "styleTags": [
+      "minimal",
+      "casual",
+      "streetwear"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "white",
+      "black",
+      "olive",
+      "gray"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "relaxed",
+      "boxy"
+    ],
+    "whyIrysRecommendsIt": "The heavier fabric makes a simple tee feel more intentional.",
+    "pairsWellWith": [
+      "cargo pants",
+      "straight denim",
+      "chore jacket"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "mango-linen-button-up-shirt",
+    "name": "Linen Button-Up Shirt",
+    "brand": "Mango",
+    "retailer": "Mango",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$70",
+    "styleTags": [
+      "resort",
+      "minimal",
+      "classic"
+    ],
+    "occasionTags": [
+      "travel",
+      "weekend",
+      "date night"
+    ],
+    "colorTags": [
+      "white",
+      "cream",
+      "olive",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "A breathable warm-weather shirt that can dress up or down.",
+    "pairsWellWith": [
+      "linen shorts",
+      "drawstring trousers",
+      "sandals"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "banana-republic-silk-blend-blouse",
+    "name": "Silk-Blend Blouse",
+    "brand": "Banana Republic",
+    "retailer": "Banana Republic",
+    "category": "tops",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$130",
+    "styleTags": [
+      "classic",
+      "romantic",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "formal"
+    ],
+    "colorTags": [
+      "cream",
+      "black",
+      "camel"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "It adds softness and polish under tailoring.",
+    "pairsWellWith": [
+      "trousers",
+      "pencil skirt",
+      "blazer"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "massimo-dutti-merino-wool-polo",
+    "name": "Merino Wool Polo",
+    "brand": "Massimo Dutti",
+    "retailer": "Massimo Dutti",
+    "category": "tops",
+    "gender": "men",
+    "priceTier": "premium",
+    "approximatePrice": "$120",
+    "styleTags": [
+      "classic",
+      "smart casual",
+      "minimal"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "navy",
+      "brown",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A refined alternative to a t-shirt that still feels easy.",
+    "pairsWellWith": [
+      "pleated trousers",
+      "suede loafers",
+      "wool jacket"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "zara-relaxed-striped-shirt",
+    "name": "Relaxed Striped Shirt",
+    "brand": "Zara",
+    "retailer": "Zara",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$50",
+    "styleTags": [
+      "classic",
+      "casual",
+      "editorial"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "blue",
+      "white",
+      "green"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "Stripes add visual interest without making an outfit complicated.",
+    "pairsWellWith": [
+      "white denim",
+      "chinos",
+      "linen pants"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "quince-cashmere-crew-sweater",
+    "name": "Cashmere Crew Sweater",
+    "brand": "Quince",
+    "retailer": "Quince",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$60",
+    "styleTags": [
+      "classic",
+      "minimal",
+      "quiet luxury"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "gray",
+      "camel",
+      "navy",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A soft layering piece that instantly elevates basics.",
+    "pairsWellWith": [
+      "jeans",
+      "tailored pants",
+      "wool coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "aritzia-draped-satin-camisole",
+    "name": "Draped Satin Camisole",
+    "brand": "Aritzia",
+    "retailer": "Aritzia",
+    "category": "tops",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$78",
+    "styleTags": [
+      "romantic",
+      "date night",
+      "minimal"
+    ],
+    "occasionTags": [
+      "date night",
+      "formal",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "champagne"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A versatile evening layer that also works under blazers.",
+    "pairsWellWith": [
+      "wide-leg trousers",
+      "midi skirt",
+      "tailored blazer"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "levi-s-denim-western-shirt",
+    "name": "Denim Western Shirt",
+    "brand": "Levi’s",
+    "retailer": "Levi’s",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$80",
+    "styleTags": [
+      "classic",
+      "americana",
+      "casual"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "blue",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "spring",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A rugged staple that adds texture and character.",
+    "pairsWellWith": [
+      "black jeans",
+      "khaki chinos",
+      "white tee"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "abercrombie-oversized-hoodie",
+    "name": "Oversized Hoodie",
+    "brand": "Abercrombie",
+    "retailer": "Abercrombie",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$70",
+    "styleTags": [
+      "casual",
+      "streetwear",
+      "athleisure"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "gray",
+      "black",
+      "cream",
+      "green"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "oversized"
+    ],
+    "whyIrysRecommendsIt": "A quality hoodie adds comfort while still supporting styled streetwear looks.",
+    "pairsWellWith": [
+      "cargo pants",
+      "denim jacket",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "uniqlo-merino-turtleneck",
+    "name": "Merino Turtleneck",
+    "brand": "Uniqlo",
+    "retailer": "Uniqlo",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$50",
+    "styleTags": [
+      "classic",
+      "minimal",
+      "smart casual"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "gray",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "slim",
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A turtleneck creates instant sophistication under coats and blazers.",
+    "pairsWellWith": [
+      "wool trousers",
+      "overcoat",
+      "pleated skirt"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "todd-snyder-camp-collar-shirt",
+    "name": "Camp Collar Shirt",
+    "brand": "Todd Snyder",
+    "retailer": "Todd Snyder",
+    "category": "tops",
+    "gender": "men",
+    "priceTier": "premium",
+    "approximatePrice": "$178",
+    "styleTags": [
+      "resort",
+      "smart casual",
+      "editorial"
+    ],
+    "occasionTags": [
+      "date night",
+      "travel",
+      "weekend"
+    ],
+    "colorTags": [
+      "cream",
+      "navy",
+      "green",
+      "print"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer"
+    ],
+    "fitTags": [
+      "regular",
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "A camp collar shirt adds personality while staying grown-up.",
+    "pairsWellWith": [
+      "linen trousers",
+      "shorts",
+      "loafers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "levi-s-slim-straight-jeans",
+    "name": "Slim Straight Jeans",
+    "brand": "Levi’s",
+    "retailer": "Levi’s",
+    "category": "bottoms",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$98",
+    "styleTags": [
+      "classic",
+      "casual",
+      "streetwear"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "date night"
+    ],
+    "colorTags": [
+      "blue",
+      "black",
+      "gray"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "slim",
+      "straight"
+    ],
+    "whyIrysRecommendsIt": "A reliable denim shape that works with sneakers, boots, or loafers.",
+    "pairsWellWith": [
+      "white tee",
+      "oxford shirt",
+      "bomber jacket"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cos-wide-leg-pleated-trousers",
+    "name": "Wide-Leg Pleated Trousers",
+    "brand": "COS",
+    "retailer": "COS",
+    "category": "bottoms",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$150",
+    "styleTags": [
+      "minimal",
+      "tailored",
+      "editorial"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "gray",
+      "camel",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "relaxed",
+      "tailored"
+    ],
+    "whyIrysRecommendsIt": "They create instant polish while staying comfortable.",
+    "pairsWellWith": [
+      "fitted knit",
+      "button-up shirt",
+      "loafers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "gap-relaxed-chinos",
+    "name": "Relaxed Chinos",
+    "brand": "Gap",
+    "retailer": "Gap",
+    "category": "bottoms",
+    "gender": "men",
+    "priceTier": "budget",
+    "approximatePrice": "$60",
+    "styleTags": [
+      "classic",
+      "casual",
+      "preppy"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "weekend"
+    ],
+    "colorTags": [
+      "khaki",
+      "navy",
+      "olive",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular",
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "A practical bridge between jeans and dress trousers.",
+    "pairsWellWith": [
+      "polo",
+      "oxford shirt",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "madewell-high-rise-straight-jeans",
+    "name": "High-Rise Straight Jeans",
+    "brand": "Madewell",
+    "retailer": "Madewell",
+    "category": "bottoms",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$128",
+    "styleTags": [
+      "classic",
+      "casual",
+      "everyday"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "date night"
+    ],
+    "colorTags": [
+      "blue",
+      "black",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "straight"
+    ],
+    "whyIrysRecommendsIt": "An easy denim silhouette that flatters without feeling overdone.",
+    "pairsWellWith": [
+      "ribbed top",
+      "blazer",
+      "ankle boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "mango-linen-drawstring-trousers",
+    "name": "Linen Drawstring Trousers",
+    "brand": "Mango",
+    "retailer": "Mango",
+    "category": "bottoms",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$80",
+    "styleTags": [
+      "resort",
+      "minimal",
+      "casual"
+    ],
+    "occasionTags": [
+      "travel",
+      "weekend",
+      "casual"
+    ],
+    "colorTags": [
+      "cream",
+      "olive",
+      "brown",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "They keep warm-weather outfits polished and breathable.",
+    "pairsWellWith": [
+      "linen shirt",
+      "tank top",
+      "sandals"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "theory-tailored-wool-trousers",
+    "name": "Tailored Wool Trousers",
+    "brand": "Theory",
+    "retailer": "Theory",
+    "category": "bottoms",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$295",
+    "styleTags": [
+      "tailored",
+      "minimal",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "formal",
+      "date night"
+    ],
+    "colorTags": [
+      "black",
+      "gray",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "tailored",
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A serious foundation piece for professional and elevated looks.",
+    "pairsWellWith": [
+      "merino polo",
+      "silk blouse",
+      "structured blazer"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "abercrombie-cargo-pants",
+    "name": "Cargo Pants",
+    "brand": "Abercrombie",
+    "retailer": "Abercrombie",
+    "category": "bottoms",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$90",
+    "styleTags": [
+      "streetwear",
+      "casual",
+      "utility"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "olive",
+      "black",
+      "khaki"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "autumn",
+      "all"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "They add utility and edge without sacrificing wearability.",
+    "pairsWellWith": [
+      "boxy tee",
+      "hoodie",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "quince-bias-cut-midi-skirt",
+    "name": "Bias-Cut Midi Skirt",
+    "brand": "Quince",
+    "retailer": "Quince",
+    "category": "bottoms",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$60",
+    "styleTags": [
+      "romantic",
+      "minimal",
+      "classic"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "formal"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A soft skirt that can feel casual with knits or dressy with silk.",
+    "pairsWellWith": [
+      "cashmere sweater",
+      "satin cami",
+      "boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "nike-athletic-tech-joggers",
+    "name": "Athletic Tech Joggers",
+    "brand": "Nike",
+    "retailer": "Nike",
+    "category": "bottoms",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$85",
+    "styleTags": [
+      "athleisure",
+      "streetwear",
+      "casual"
+    ],
+    "occasionTags": [
+      "travel",
+      "casual",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "gray",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular",
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "A comfortable off-duty staple that still looks intentional.",
+    "pairsWellWith": [
+      "hoodie",
+      "oversized tee",
+      "running sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "aritzia-ribbed-knit-midi-dress",
+    "name": "Ribbed Knit Midi Dress",
+    "brand": "Aritzia",
+    "retailer": "Aritzia",
+    "category": "dresses",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$128",
+    "styleTags": [
+      "minimal",
+      "classic",
+      "date night"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "brown",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "slim"
+    ],
+    "whyIrysRecommendsIt": "A one-piece outfit that can be styled casually or formally.",
+    "pairsWellWith": [
+      "wool coat",
+      "ankle boots",
+      "gold jewelry"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cos-poplin-shirt-dress",
+    "name": "Poplin Shirt Dress",
+    "brand": "COS",
+    "retailer": "COS",
+    "category": "dresses",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$150",
+    "styleTags": [
+      "minimal",
+      "classic",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "white",
+      "navy",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "It has structure but remains easy and breathable.",
+    "pairsWellWith": [
+      "loafers",
+      "belt",
+      "trench coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "quince-slip-dress",
+    "name": "Slip Dress",
+    "brand": "Quince",
+    "retailer": "Quince",
+    "category": "dresses",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$80",
+    "styleTags": [
+      "romantic",
+      "minimal",
+      "date night"
+    ],
+    "occasionTags": [
+      "date night",
+      "formal",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "champagne",
+      "olive"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A simple dress that layers beautifully under knits or blazers.",
+    "pairsWellWith": [
+      "cardigan",
+      "heels",
+      "tailored blazer"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "s-zane-wrap-midi-dress",
+    "name": "Wrap Midi Dress",
+    "brand": "Sézane",
+    "retailer": "Sézane",
+    "category": "dresses",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$170",
+    "styleTags": [
+      "romantic",
+      "classic",
+      "feminine"
+    ],
+    "occasionTags": [
+      "date night",
+      "work",
+      "weekend"
+    ],
+    "colorTags": [
+      "navy",
+      "cream",
+      "green",
+      "burgundy"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "autumn",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "The wrap shape is versatile and easy to adjust for comfort.",
+    "pairsWellWith": [
+      "ankle boots",
+      "small crossbody",
+      "wool coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "everlane-t-shirt-dress",
+    "name": "T-Shirt Dress",
+    "brand": "Everlane",
+    "retailer": "Everlane",
+    "category": "dresses",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$58",
+    "styleTags": [
+      "casual",
+      "minimal",
+      "travel"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "gray",
+      "olive"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "A low-effort casual dress that still feels clean.",
+    "pairsWellWith": [
+      "sneakers",
+      "denim jacket",
+      "canvas tote"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "banana-republic-tailored-sheath-dress",
+    "name": "Tailored Sheath Dress",
+    "brand": "Banana Republic",
+    "retailer": "Banana Republic",
+    "category": "dresses",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$180",
+    "styleTags": [
+      "classic",
+      "workwear",
+      "tailored"
+    ],
+    "occasionTags": [
+      "work",
+      "formal",
+      "date night"
+    ],
+    "colorTags": [
+      "black",
+      "navy",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "tailored",
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "A polished professional option that needs minimal styling.",
+    "pairsWellWith": [
+      "blazer",
+      "pumps",
+      "structured bag"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "mango-relaxed-trench-coat",
+    "name": "Relaxed Trench Coat",
+    "brand": "Mango",
+    "retailer": "Mango",
+    "category": "outerwear",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$180",
+    "styleTags": [
+      "classic",
+      "minimal",
+      "editorial"
+    ],
+    "occasionTags": [
+      "work",
+      "travel",
+      "date night"
+    ],
+    "colorTags": [
+      "camel",
+      "khaki",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "autumn"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "A trench instantly makes simple outfits feel finished.",
+    "pairsWellWith": [
+      "striped shirt",
+      "straight jeans",
+      "loafers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cos-wool-blend-overcoat",
+    "name": "Wool Blend Overcoat",
+    "brand": "COS",
+    "retailer": "COS",
+    "category": "outerwear",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$350",
+    "styleTags": [
+      "minimal",
+      "classic",
+      "tailored"
+    ],
+    "occasionTags": [
+      "work",
+      "formal",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "camel",
+      "gray"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "structured",
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A clean overcoat elevates everything underneath.",
+    "pairsWellWith": [
+      "cashmere sweater",
+      "tailored trousers",
+      "boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "buck-mason-chore-jacket",
+    "name": "Chore Jacket",
+    "brand": "Buck Mason",
+    "retailer": "Buck Mason",
+    "category": "outerwear",
+    "gender": "men",
+    "priceTier": "mid",
+    "approximatePrice": "$168",
+    "styleTags": [
+      "americana",
+      "casual",
+      "utility"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "navy",
+      "olive",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "autumn"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A practical layer with a rugged but refined feel.",
+    "pairsWellWith": [
+      "white tee",
+      "denim",
+      "canvas sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "madewell-cropped-denim-jacket",
+    "name": "Cropped Denim Jacket",
+    "brand": "Madewell",
+    "retailer": "Madewell",
+    "category": "outerwear",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$128",
+    "styleTags": [
+      "casual",
+      "classic",
+      "americana"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "blue",
+      "black",
+      "white"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "autumn"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "An easy layer that adds structure to dresses and soft basics.",
+    "pairsWellWith": [
+      "midi dress",
+      "tee",
+      "wide-leg pants"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "allsaints-leather-moto-jacket",
+    "name": "Leather Moto Jacket",
+    "brand": "AllSaints",
+    "retailer": "AllSaints",
+    "category": "outerwear",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$529",
+    "styleTags": [
+      "edgy",
+      "streetwear",
+      "date night"
+    ],
+    "occasionTags": [
+      "date night",
+      "weekend",
+      "casual"
+    ],
+    "colorTags": [
+      "black",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "slim",
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "It adds attitude and sharpness to otherwise simple outfits.",
+    "pairsWellWith": [
+      "black jeans",
+      "slip dress",
+      "boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "uniqlo-quilted-liner-jacket",
+    "name": "Quilted Liner Jacket",
+    "brand": "Uniqlo",
+    "retailer": "Uniqlo",
+    "category": "outerwear",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$80",
+    "styleTags": [
+      "minimal",
+      "casual",
+      "utility"
+    ],
+    "occasionTags": [
+      "travel",
+      "casual",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "olive",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A lightweight layer that works under coats or on its own.",
+    "pairsWellWith": [
+      "sweater",
+      "cargo pants",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "suitsupply-navy-two-piece-suit",
+    "name": "Navy Two-Piece Suit",
+    "brand": "SuitSupply",
+    "retailer": "SuitSupply",
+    "category": "suits",
+    "gender": "men",
+    "priceTier": "premium",
+    "approximatePrice": "$699",
+    "styleTags": [
+      "classic",
+      "tailored",
+      "formal"
+    ],
+    "occasionTags": [
+      "formal",
+      "work",
+      "wedding"
+    ],
+    "colorTags": [
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "tailored",
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "A navy suit is one of the most versatile formal anchors.",
+    "pairsWellWith": [
+      "white dress shirt",
+      "brown loafers",
+      "silk tie"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cos-relaxed-suiting-set",
+    "name": "Relaxed Suiting Set",
+    "brand": "COS",
+    "retailer": "COS",
+    "category": "suits",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$450",
+    "styleTags": [
+      "minimal",
+      "tailored",
+      "editorial"
+    ],
+    "occasionTags": [
+      "work",
+      "formal",
+      "date night"
+    ],
+    "colorTags": [
+      "black",
+      "gray",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "relaxed",
+      "tailored"
+    ],
+    "whyIrysRecommendsIt": "Soft tailoring gives polish without feeling corporate.",
+    "pairsWellWith": [
+      "ribbed tank",
+      "loafers",
+      "minimal jewelry"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "bonobos-performance-suit-jacket",
+    "name": "Performance Suit Jacket",
+    "brand": "Bonobos",
+    "retailer": "Bonobos",
+    "category": "suits",
+    "gender": "men",
+    "priceTier": "premium",
+    "approximatePrice": "$400",
+    "styleTags": [
+      "classic",
+      "smart casual",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "travel",
+      "formal"
+    ],
+    "colorTags": [
+      "navy",
+      "gray",
+      "charcoal"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "tailored"
+    ],
+    "whyIrysRecommendsIt": "A stretch suit jacket is useful for travel and long workdays.",
+    "pairsWellWith": [
+      "performance trousers",
+      "dress shirt",
+      "chelsea boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "massimo-dutti-wide-leg-suit-trousers",
+    "name": "Wide-Leg Suit Trousers",
+    "brand": "Massimo Dutti",
+    "retailer": "Massimo Dutti",
+    "category": "suits",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$170",
+    "styleTags": [
+      "tailored",
+      "classic",
+      "minimal"
+    ],
+    "occasionTags": [
+      "work",
+      "formal",
+      "date night"
+    ],
+    "colorTags": [
+      "black",
+      "gray",
+      "camel"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "tailored",
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "They bring modern shape to professional dressing.",
+    "pairsWellWith": [
+      "matching blazer",
+      "silk blouse",
+      "pumps"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "reiss-double-breasted-blazer",
+    "name": "Double-Breasted Blazer",
+    "brand": "Reiss",
+    "retailer": "Reiss",
+    "category": "suits",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$475",
+    "styleTags": [
+      "tailored",
+      "classic",
+      "editorial"
+    ],
+    "occasionTags": [
+      "work",
+      "formal",
+      "date night"
+    ],
+    "colorTags": [
+      "navy",
+      "black",
+      "camel"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "It creates a strong silhouette that works dressed up or down.",
+    "pairsWellWith": [
+      "pleated trousers",
+      "straight jeans",
+      "loafers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "zara-suiting-vest",
+    "name": "Suiting Vest",
+    "brand": "Zara",
+    "retailer": "Zara",
+    "category": "suits",
+    "gender": "women",
+    "priceTier": "budget",
+    "approximatePrice": "$60",
+    "styleTags": [
+      "tailored",
+      "editorial",
+      "minimal"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "formal"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "gray"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "tailored"
+    ],
+    "whyIrysRecommendsIt": "A vest adds sharpness and can stand alone or layer under blazers.",
+    "pairsWellWith": [
+      "matching trousers",
+      "wide-leg jeans",
+      "heels"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "g-h-bass-leather-loafers",
+    "name": "Leather Loafers",
+    "brand": "G.H. Bass",
+    "retailer": "Nordstrom",
+    "category": "shoes",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$175",
+    "styleTags": [
+      "classic",
+      "preppy",
+      "smart casual"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "brown",
+      "burgundy"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Loafers add instant polish without the formality of dress shoes.",
+    "pairsWellWith": [
+      "pleated trousers",
+      "jeans",
+      "midi skirt"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "adidas-white-leather-sneakers",
+    "name": "White Leather Sneakers",
+    "brand": "Adidas",
+    "retailer": "Adidas",
+    "category": "shoes",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$100",
+    "styleTags": [
+      "classic",
+      "casual",
+      "streetwear"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "white"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A clean white sneaker works across casual and smart-casual outfits.",
+    "pairsWellWith": [
+      "chinos",
+      "straight jeans",
+      "shirt dress"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "new-balance-new-balance-574-sneakers",
+    "name": "New Balance 574 Sneakers",
+    "brand": "New Balance",
+    "retailer": "New Balance",
+    "category": "shoes",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$90",
+    "styleTags": [
+      "casual",
+      "streetwear",
+      "athleisure"
+    ],
+    "occasionTags": [
+      "weekend",
+      "travel",
+      "casual"
+    ],
+    "colorTags": [
+      "gray",
+      "navy",
+      "green"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A comfortable sneaker that adds relaxed everyday energy.",
+    "pairsWellWith": [
+      "cargo pants",
+      "jeans",
+      "sweatshirt"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "dr-martens-chelsea-boots",
+    "name": "Chelsea Boots",
+    "brand": "Dr. Martens",
+    "retailer": "Dr. Martens",
+    "category": "shoes",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$170",
+    "styleTags": [
+      "edgy",
+      "classic",
+      "streetwear"
+    ],
+    "occasionTags": [
+      "casual",
+      "date night",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A durable boot that adds structure and attitude.",
+    "pairsWellWith": [
+      "black denim",
+      "midi dress",
+      "wool coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "mango-minimal-leather-sandals",
+    "name": "Minimal Leather Sandals",
+    "brand": "Mango",
+    "retailer": "Mango",
+    "category": "shoes",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$90",
+    "styleTags": [
+      "minimal",
+      "resort",
+      "classic"
+    ],
+    "occasionTags": [
+      "travel",
+      "date night",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "brown",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A simple sandal finishes warm-weather outfits without visual clutter.",
+    "pairsWellWith": [
+      "linen trousers",
+      "slip dress",
+      "midi skirt"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "todd-snyder-suede-loafers",
+    "name": "Suede Loafers",
+    "brand": "Todd Snyder",
+    "retailer": "Todd Snyder",
+    "category": "shoes",
+    "gender": "men",
+    "priceTier": "premium",
+    "approximatePrice": "$298",
+    "styleTags": [
+      "classic",
+      "smart casual",
+      "resort"
+    ],
+    "occasionTags": [
+      "date night",
+      "work",
+      "travel"
+    ],
+    "colorTags": [
+      "brown",
+      "navy",
+      "tan"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "autumn"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Suede loafers soften tailoring and elevate casual looks.",
+    "pairsWellWith": [
+      "linen blazer",
+      "chinos",
+      "polo"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "s-zane-pointed-ankle-boots",
+    "name": "Pointed Ankle Boots",
+    "brand": "Sézane",
+    "retailer": "Sézane",
+    "category": "shoes",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$250",
+    "styleTags": [
+      "romantic",
+      "classic",
+      "date night"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "formal"
+    ],
+    "colorTags": [
+      "black",
+      "brown",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A refined boot that works with dresses, denim, and trousers.",
+    "pairsWellWith": [
+      "midi dress",
+      "straight jeans",
+      "wool coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "nike-nike-killshot-sneakers",
+    "name": "Nike Killshot Sneakers",
+    "brand": "Nike",
+    "retailer": "Nike",
+    "category": "shoes",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$90",
+    "styleTags": [
+      "classic",
+      "sporty",
+      "casual"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "white",
+      "navy",
+      "green"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A retro sneaker that reads more styled than gym-focused.",
+    "pairsWellWith": [
+      "jeans",
+      "chinos",
+      "casual suit"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "madewell-mary-jane-flats",
+    "name": "Mary Jane Flats",
+    "brand": "Madewell",
+    "retailer": "Madewell",
+    "category": "shoes",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$128",
+    "styleTags": [
+      "romantic",
+      "classic",
+      "casual"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "brown",
+      "red"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "autumn",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "They add personality while staying practical for everyday wear.",
+    "pairsWellWith": [
+      "midi skirt",
+      "straight jeans",
+      "shirt dress"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "madewell-leather-tote-bag",
+    "name": "Leather Tote Bag",
+    "brand": "Madewell",
+    "retailer": "Madewell",
+    "category": "bags",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$188",
+    "styleTags": [
+      "classic",
+      "workwear",
+      "minimal"
+    ],
+    "occasionTags": [
+      "work",
+      "travel",
+      "casual"
+    ],
+    "colorTags": [
+      "brown",
+      "black",
+      "camel"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "A durable tote makes everyday carry look polished.",
+    "pairsWellWith": [
+      "trench coat",
+      "jeans",
+      "loafers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "coach-structured-crossbody-bag",
+    "name": "Structured Crossbody Bag",
+    "brand": "Coach",
+    "retailer": "Coach",
+    "category": "bags",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$295",
+    "styleTags": [
+      "classic",
+      "polished",
+      "date night"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "brown",
+      "cream",
+      "red"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "A structured crossbody works day to night without feeling bulky.",
+    "pairsWellWith": [
+      "blazer",
+      "midi dress",
+      "wide-leg trousers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "everlane-minimal-backpack",
+    "name": "Minimal Backpack",
+    "brand": "Everlane",
+    "retailer": "Everlane",
+    "category": "bags",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$95",
+    "styleTags": [
+      "minimal",
+      "casual",
+      "travel"
+    ],
+    "occasionTags": [
+      "work",
+      "travel",
+      "casual"
+    ],
+    "colorTags": [
+      "black",
+      "gray",
+      "olive"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "A simple backpack keeps practical looks clean and modern.",
+    "pairsWellWith": [
+      "tech jacket",
+      "chinos",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "pol-ne-mini-leather-bag",
+    "name": "Mini Leather Bag",
+    "brand": "Polène",
+    "retailer": "Polène",
+    "category": "bags",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$420",
+    "styleTags": [
+      "romantic",
+      "editorial",
+      "polished"
+    ],
+    "occasionTags": [
+      "date night",
+      "formal",
+      "weekend"
+    ],
+    "colorTags": [
+      "camel",
+      "black",
+      "cream",
+      "green"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "spring",
+      "all"
+    ],
+    "fitTags": [
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "A sculptural bag adds a memorable focal point.",
+    "pairsWellWith": [
+      "slip dress",
+      "tailored coat",
+      "blouse"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "l-l-bean-canvas-weekend-tote",
+    "name": "Canvas Weekend Tote",
+    "brand": "L.L.Bean",
+    "retailer": "Nordstrom",
+    "category": "bags",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$45",
+    "styleTags": [
+      "classic",
+      "preppy",
+      "travel"
+    ],
+    "occasionTags": [
+      "travel",
+      "weekend",
+      "casual"
+    ],
+    "colorTags": [
+      "cream",
+      "navy",
+      "green"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A practical tote for errands, travel, and casual days.",
+    "pairsWellWith": [
+      "denim jacket",
+      "sweatshirt",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "uniqlo-sleek-belt-bag",
+    "name": "Sleek Belt Bag",
+    "brand": "Uniqlo",
+    "retailer": "Uniqlo",
+    "category": "bags",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$20",
+    "styleTags": [
+      "minimal",
+      "casual",
+      "travel"
+    ],
+    "occasionTags": [
+      "travel",
+      "casual",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "gray",
+      "olive"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A hands-free option that works for errands and travel.",
+    "pairsWellWith": [
+      "puffer jacket",
+      "joggers",
+      "oversized shirt"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "banana-republic-leather-belt",
+    "name": "Leather Belt",
+    "brand": "Banana Republic",
+    "retailer": "Banana Republic",
+    "category": "accessories",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$80",
+    "styleTags": [
+      "classic",
+      "minimal",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "formal"
+    ],
+    "colorTags": [
+      "black",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A quality belt finishes trousers and denim cleanly.",
+    "pairsWellWith": [
+      "suit trousers",
+      "jeans",
+      "shirt dress"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "mejuri-minimal-gold-hoops",
+    "name": "Minimal Gold Hoops",
+    "brand": "Mejuri",
+    "retailer": "Mejuri",
+    "category": "accessories",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$78",
+    "styleTags": [
+      "classic",
+      "minimal",
+      "romantic"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "casual"
+    ],
+    "colorTags": [
+      "gold"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "autumn",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Small hoops add polish without overpowering the outfit.",
+    "pairsWellWith": [
+      "silk blouse",
+      "cashmere sweater",
+      "slip dress"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "mejuri-silver-chain-necklace",
+    "name": "Silver Chain Necklace",
+    "brand": "Mejuri",
+    "retailer": "Mejuri",
+    "category": "accessories",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$98",
+    "styleTags": [
+      "minimal",
+      "streetwear",
+      "classic"
+    ],
+    "occasionTags": [
+      "casual",
+      "date night",
+      "weekend"
+    ],
+    "colorTags": [
+      "silver"
+    ],
+    "colorSeasonFit": [
+      "winter",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A subtle chain adds personality at the neckline.",
+    "pairsWellWith": [
+      "plain tee",
+      "open shirt",
+      "knit sweater"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cos-wool-scarf",
+    "name": "Wool Scarf",
+    "brand": "COS",
+    "retailer": "COS",
+    "category": "accessories",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$99",
+    "styleTags": [
+      "minimal",
+      "classic",
+      "winter"
+    ],
+    "occasionTags": [
+      "work",
+      "travel",
+      "casual"
+    ],
+    "colorTags": [
+      "gray",
+      "camel",
+      "black",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A scarf adds warmth and a finished layer in colder seasons.",
+    "pairsWellWith": [
+      "wool coat",
+      "sweater",
+      "boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "new-era-baseball-cap",
+    "name": "Baseball Cap",
+    "brand": "New Era",
+    "retailer": "ASOS",
+    "category": "accessories",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$35",
+    "styleTags": [
+      "streetwear",
+      "casual",
+      "sporty"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "navy",
+      "green"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A simple cap can make off-duty outfits feel intentional.",
+    "pairsWellWith": [
+      "hoodie",
+      "denim jacket",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "fossil-classic-watch",
+    "name": "Classic Watch",
+    "brand": "Fossil",
+    "retailer": "Fossil",
+    "category": "accessories",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$160",
+    "styleTags": [
+      "classic",
+      "workwear",
+      "smart casual"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "formal"
+    ],
+    "colorTags": [
+      "brown",
+      "black",
+      "silver",
+      "gold"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A watch adds subtle polish without relying on trend pieces.",
+    "pairsWellWith": [
+      "oxford shirt",
+      "blazer",
+      "knit polo"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "ray-ban-wayfarer-sunglasses",
+    "name": "Wayfarer Sunglasses",
+    "brand": "Ray-Ban",
+    "retailer": "Ray-Ban",
+    "category": "glasses",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$180",
+    "styleTags": [
+      "classic",
+      "casual",
+      "editorial"
+    ],
+    "occasionTags": [
+      "travel",
+      "weekend",
+      "date night"
+    ],
+    "colorTags": [
+      "black",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A classic frame works across many face shapes and style directions.",
+    "pairsWellWith": [
+      "white tee",
+      "trench coat",
+      "denim"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "ray-ban-round-metal-sunglasses",
+    "name": "Round Metal Sunglasses",
+    "brand": "Ray-Ban",
+    "retailer": "Ray-Ban",
+    "category": "glasses",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$175",
+    "styleTags": [
+      "retro",
+      "editorial",
+      "casual"
+    ],
+    "occasionTags": [
+      "weekend",
+      "travel",
+      "date night"
+    ],
+    "colorTags": [
+      "gold",
+      "silver",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Round frames add a softer, more expressive finish.",
+    "pairsWellWith": [
+      "linen shirt",
+      "midi dress",
+      "denim jacket"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "warby-parker-square-optical-frames",
+    "name": "Square Optical Frames",
+    "brand": "Warby Parker",
+    "retailer": "Warby Parker",
+    "category": "glasses",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$145",
+    "styleTags": [
+      "classic",
+      "smart casual",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "brown",
+      "tortoise"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A square frame adds structure and intelligence to everyday looks.",
+    "pairsWellWith": [
+      "blazer",
+      "button-up shirt",
+      "knit sweater"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "warby-parker-aviator-sunglasses",
+    "name": "Aviator Sunglasses",
+    "brand": "Warby Parker",
+    "retailer": "Warby Parker",
+    "category": "glasses",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$145",
+    "styleTags": [
+      "classic",
+      "retro",
+      "casual"
+    ],
+    "occasionTags": [
+      "travel",
+      "weekend",
+      "date night"
+    ],
+    "colorTags": [
+      "gold",
+      "silver",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Aviators bring a timeless relaxed confidence.",
+    "pairsWellWith": [
+      "leather jacket",
+      "linen shirt",
+      "denim"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "le-specs-cat-eye-sunglasses",
+    "name": "Cat-Eye Sunglasses",
+    "brand": "Le Specs",
+    "retailer": "Nordstrom",
+    "category": "glasses",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$70",
+    "styleTags": [
+      "romantic",
+      "editorial",
+      "date night"
+    ],
+    "occasionTags": [
+      "date night",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "tortoise"
+    ],
+    "colorSeasonFit": [
+      "summer",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A cat-eye frame adds instant drama to simple outfits.",
+    "pairsWellWith": [
+      "slip dress",
+      "trench coat",
+      "tailored blazer"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "zara-fresh-citrus-eau-de-toilette",
+    "name": "Fresh Citrus Eau de Toilette",
+    "brand": "Zara",
+    "retailer": "Zara",
+    "category": "fragrance",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$30",
+    "styleTags": [
+      "fresh",
+      "minimal",
+      "casual"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "citrus"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A light citrus scent is easy for daytime and warm weather.",
+    "pairsWellWith": [
+      "linen shirt",
+      "white sneakers",
+      "casual tote"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": "Fragrance is personal; recommend sampling first."
+  },
+  {
+    "id": "maison-margiela-woody-amber-fragrance",
+    "name": "Woody Amber Fragrance",
+    "brand": "Maison Margiela",
+    "retailer": "Nordstrom",
+    "category": "fragrance",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$165",
+    "styleTags": [
+      "warm",
+      "date night",
+      "editorial"
+    ],
+    "occasionTags": [
+      "date night",
+      "formal",
+      "winter"
+    ],
+    "colorTags": [
+      "amber",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A warm woody scent can make evening looks feel more complete.",
+    "pairsWellWith": [
+      "wool coat",
+      "leather boots",
+      "black knit"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": "Use as an optional finishing layer, not a core wardrobe need."
+  },
+  {
+    "id": "glossier-clean-skin-scent",
+    "name": "Clean Skin Scent",
+    "brand": "Glossier",
+    "retailer": "Glossier",
+    "category": "fragrance",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$78",
+    "styleTags": [
+      "minimal",
+      "soft",
+      "casual"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "date night"
+    ],
+    "colorTags": [
+      "clean"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A subtle skin scent works for users who prefer quiet polish.",
+    "pairsWellWith": [
+      "cashmere sweater",
+      "white shirt",
+      "straight denim"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": "Best for people who want understated fragrance."
+  },
+  {
+    "id": "vans-minimal-slip-on-sneakers",
+    "name": "Minimal Slip-On Sneakers",
+    "brand": "Vans",
+    "retailer": "ASOS",
+    "category": "shoes",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$65",
+    "styleTags": [
+      "casual",
+      "skate",
+      "minimal"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "white",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Slip-ons are easy, practical, and visually clean.",
+    "pairsWellWith": [
+      "chinos",
+      "denim",
+      "shorts"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "coach-leather-card-holder",
+    "name": "Leather Card Holder",
+    "brand": "Coach",
+    "retailer": "Coach",
+    "category": "accessories",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$95",
+    "styleTags": [
+      "classic",
+      "minimal",
+      "polished"
+    ],
+    "occasionTags": [
+      "work",
+      "travel",
+      "casual"
+    ],
+    "colorTags": [
+      "black",
+      "brown",
+      "red"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A small leather accessory upgrades the everyday carry experience.",
+    "pairsWellWith": [
+      "tote",
+      "messenger bag",
+      "workwear"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "everlane-crisp-poplin-shirt",
+    "name": "Crisp Poplin Shirt",
+    "brand": "Everlane",
+    "retailer": "Everlane",
+    "category": "tops",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$88",
+    "styleTags": [
+      "classic",
+      "minimal",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "white",
+      "blue",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A crisp shirt sharpens casual outfits and supports polished work looks.",
+    "pairsWellWith": [
+      "straight jeans",
+      "tailored trousers",
+      "midi skirt"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "s-zane-textured-knit-cardigan",
+    "name": "Textured Knit Cardigan",
+    "brand": "Sézane",
+    "retailer": "Sézane",
+    "category": "tops",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$145",
+    "styleTags": [
+      "romantic",
+      "classic",
+      "soft"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "weekend"
+    ],
+    "colorTags": [
+      "cream",
+      "red",
+      "navy",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "spring"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A textured cardigan adds warmth, color, and personality without overcomplicating the look.",
+    "pairsWellWith": [
+      "slip dress",
+      "straight jeans",
+      "wide-leg trousers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "zara-open-knit-polo",
+    "name": "Open-Knit Polo",
+    "brand": "Zara",
+    "retailer": "Zara",
+    "category": "tops",
+    "gender": "men",
+    "priceTier": "budget",
+    "approximatePrice": "$60",
+    "styleTags": [
+      "resort",
+      "smart casual",
+      "editorial"
+    ],
+    "occasionTags": [
+      "date night",
+      "travel",
+      "weekend"
+    ],
+    "colorTags": [
+      "cream",
+      "black",
+      "green"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A knit polo gives men a stronger warm-weather option than a basic tee.",
+    "pairsWellWith": [
+      "linen trousers",
+      "tailored shorts",
+      "loafers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "aritzia-mock-neck-top",
+    "name": "Mock Neck Top",
+    "brand": "Aritzia",
+    "retailer": "Aritzia",
+    "category": "tops",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$58",
+    "styleTags": [
+      "minimal",
+      "classic",
+      "layering"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "gray",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "slim"
+    ],
+    "whyIrysRecommendsIt": "A mock neck frames the face well and layers cleanly under jackets.",
+    "pairsWellWith": [
+      "blazer",
+      "wide-leg trousers",
+      "wool coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "buck-mason-heavyweight-overshirt",
+    "name": "Heavyweight Overshirt",
+    "brand": "Buck Mason",
+    "retailer": "Buck Mason",
+    "category": "tops",
+    "gender": "men",
+    "priceTier": "premium",
+    "approximatePrice": "$168",
+    "styleTags": [
+      "americana",
+      "utility",
+      "casual"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "olive",
+      "navy",
+      "brown",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "spring",
+      "winter"
+    ],
+    "fitTags": [
+      "regular",
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "An overshirt works as both a shirt and light jacket, making it highly versatile.",
+    "pairsWellWith": [
+      "white tee",
+      "dark denim",
+      "chinos"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "asos-relaxed-graphic-tee",
+    "name": "Relaxed Graphic Tee",
+    "brand": "ASOS",
+    "retailer": "ASOS",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$30",
+    "styleTags": [
+      "streetwear",
+      "casual",
+      "creative"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "white",
+      "red",
+      "blue"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "A graphic tee gives personality to otherwise simple outfits.",
+    "pairsWellWith": [
+      "cargo pants",
+      "straight jeans",
+      "oversized blazer"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cos-fine-rib-tank",
+    "name": "Fine Rib Tank",
+    "brand": "COS",
+    "retailer": "COS",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$45",
+    "styleTags": [
+      "minimal",
+      "casual",
+      "layering"
+    ],
+    "occasionTags": [
+      "casual",
+      "travel",
+      "weekend"
+    ],
+    "colorTags": [
+      "white",
+      "black",
+      "brown",
+      "olive"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "slim"
+    ],
+    "whyIrysRecommendsIt": "A clean rib tank is useful alone in warm weather or layered under shirts.",
+    "pairsWellWith": [
+      "linen trousers",
+      "denim jacket",
+      "wide-leg jeans"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "j-crew-soft-flannel-shirt",
+    "name": "Soft Flannel Shirt",
+    "brand": "J.Crew",
+    "retailer": "J.Crew",
+    "category": "tops",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$98",
+    "styleTags": [
+      "classic",
+      "casual",
+      "heritage"
+    ],
+    "occasionTags": [
+      "weekend",
+      "travel",
+      "casual"
+    ],
+    "colorTags": [
+      "navy",
+      "green",
+      "red",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A flannel adds pattern and warmth while staying practical.",
+    "pairsWellWith": [
+      "jeans",
+      "chore jacket",
+      "boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "everlane-barrel-leg-jeans",
+    "name": "Barrel-Leg Jeans",
+    "brand": "Everlane",
+    "retailer": "Everlane",
+    "category": "bottoms",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$128",
+    "styleTags": [
+      "editorial",
+      "casual",
+      "modern"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "date night"
+    ],
+    "colorTags": [
+      "blue",
+      "black",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "Barrel-leg denim adds modern shape without being difficult to style.",
+    "pairsWellWith": [
+      "fitted tank",
+      "cropped jacket",
+      "loafers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "abercrombie-relaxed-utility-shorts",
+    "name": "Relaxed Utility Shorts",
+    "brand": "Abercrombie",
+    "retailer": "Abercrombie",
+    "category": "bottoms",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$60",
+    "styleTags": [
+      "utility",
+      "casual",
+      "streetwear"
+    ],
+    "occasionTags": [
+      "weekend",
+      "travel",
+      "casual"
+    ],
+    "colorTags": [
+      "olive",
+      "khaki",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "Utility shorts are useful for travel and warm-weather casual looks.",
+    "pairsWellWith": [
+      "boxy tee",
+      "camp collar shirt",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "mango-pleated-midi-skirt",
+    "name": "Pleated Midi Skirt",
+    "brand": "Mango",
+    "retailer": "Mango",
+    "category": "bottoms",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$90",
+    "styleTags": [
+      "romantic",
+      "classic",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "formal"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "navy",
+      "green"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "autumn",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Pleats create movement and polish, especially with simple tops.",
+    "pairsWellWith": [
+      "cashmere sweater",
+      "silk blouse",
+      "ankle boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "bonobos-slim-travel-pants",
+    "name": "Slim Travel Pants",
+    "brand": "Bonobos",
+    "retailer": "Bonobos",
+    "category": "bottoms",
+    "gender": "men",
+    "priceTier": "mid",
+    "approximatePrice": "$119",
+    "styleTags": [
+      "smart casual",
+      "travel",
+      "minimal"
+    ],
+    "occasionTags": [
+      "work",
+      "travel",
+      "casual"
+    ],
+    "colorTags": [
+      "navy",
+      "gray",
+      "olive",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "slim"
+    ],
+    "whyIrysRecommendsIt": "Travel pants give a polished look with comfort built in.",
+    "pairsWellWith": [
+      "merino polo",
+      "button-up shirt",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "gap-wide-leg-jeans",
+    "name": "Wide-Leg Jeans",
+    "brand": "Gap",
+    "retailer": "Gap",
+    "category": "bottoms",
+    "gender": "women",
+    "priceTier": "budget",
+    "approximatePrice": "$80",
+    "styleTags": [
+      "casual",
+      "classic",
+      "modern"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "blue",
+      "black",
+      "white"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "Wide-leg denim creates an easy modern silhouette at an accessible price.",
+    "pairsWellWith": [
+      "ribbed top",
+      "button-up shirt",
+      "sandals"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "lululemon-tailored-jogger",
+    "name": "Tailored Jogger",
+    "brand": "Lululemon",
+    "retailer": "Lululemon",
+    "category": "bottoms",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$128",
+    "styleTags": [
+      "athleisure",
+      "smart casual",
+      "travel"
+    ],
+    "occasionTags": [
+      "travel",
+      "casual",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "navy",
+      "gray",
+      "olive"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular",
+      "tapered"
+    ],
+    "whyIrysRecommendsIt": "A tailored jogger bridges comfort and polish for active lifestyles.",
+    "pairsWellWith": [
+      "polo",
+      "hoodie",
+      "clean sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cos-column-maxi-dress",
+    "name": "Column Maxi Dress",
+    "brand": "COS",
+    "retailer": "COS",
+    "category": "dresses",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$150",
+    "styleTags": [
+      "minimal",
+      "editorial",
+      "date night"
+    ],
+    "occasionTags": [
+      "date night",
+      "travel",
+      "formal"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "olive"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "slim",
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A column dress creates a clean elegant line with minimal styling.",
+    "pairsWellWith": [
+      "sandals",
+      "structured bag",
+      "wool coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "mango-knit-tank-dress",
+    "name": "Knit Tank Dress",
+    "brand": "Mango",
+    "retailer": "Mango",
+    "category": "dresses",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$80",
+    "styleTags": [
+      "minimal",
+      "casual",
+      "resort"
+    ],
+    "occasionTags": [
+      "travel",
+      "weekend",
+      "date night"
+    ],
+    "colorTags": [
+      "cream",
+      "black",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer"
+    ],
+    "fitTags": [
+      "slim"
+    ],
+    "whyIrysRecommendsIt": "A knit tank dress works as a vacation staple or easy summer outfit.",
+    "pairsWellWith": [
+      "leather sandals",
+      "denim jacket",
+      "woven bag"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "reiss-long-sleeve-wrap-dress",
+    "name": "Long Sleeve Wrap Dress",
+    "brand": "Reiss",
+    "retailer": "Reiss",
+    "category": "dresses",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$285",
+    "styleTags": [
+      "classic",
+      "romantic",
+      "formal"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "formal"
+    ],
+    "colorTags": [
+      "black",
+      "navy",
+      "burgundy"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A long sleeve wrap dress is useful for polished events and professional settings.",
+    "pairsWellWith": [
+      "pointed boots",
+      "structured bag",
+      "wool coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "banana-republic-utility-shirt-dress",
+    "name": "Utility Shirt Dress",
+    "brand": "Banana Republic",
+    "retailer": "Banana Republic",
+    "category": "dresses",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$160",
+    "styleTags": [
+      "utility",
+      "classic",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "travel",
+      "weekend"
+    ],
+    "colorTags": [
+      "olive",
+      "khaki",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "autumn",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "It combines structure, practicality, and feminine ease.",
+    "pairsWellWith": [
+      "belt",
+      "loafers",
+      "crossbody bag"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "abercrombie-cropped-bomber-jacket",
+    "name": "Cropped Bomber Jacket",
+    "brand": "Abercrombie",
+    "retailer": "Abercrombie",
+    "category": "outerwear",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$140",
+    "styleTags": [
+      "streetwear",
+      "casual",
+      "modern"
+    ],
+    "occasionTags": [
+      "casual",
+      "weekend",
+      "date night"
+    ],
+    "colorTags": [
+      "black",
+      "olive",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "autumn"
+    ],
+    "fitTags": [
+      "regular",
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "A bomber adds shape and casual edge without feeling too heavy.",
+    "pairsWellWith": [
+      "straight jeans",
+      "tee",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "quince-longline-cardigan-coat",
+    "name": "Longline Cardigan Coat",
+    "brand": "Quince",
+    "retailer": "Quince",
+    "category": "outerwear",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$90",
+    "styleTags": [
+      "soft",
+      "minimal",
+      "classic"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "camel",
+      "gray",
+      "black",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "relaxed"
+    ],
+    "whyIrysRecommendsIt": "A cardigan coat is a comfortable layer for softer polished looks.",
+    "pairsWellWith": [
+      "ribbed dress",
+      "jeans",
+      "ankle boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "barbour-waxed-cotton-jacket",
+    "name": "Waxed Cotton Jacket",
+    "brand": "Barbour",
+    "retailer": "Nordstrom",
+    "category": "outerwear",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$398",
+    "styleTags": [
+      "heritage",
+      "classic",
+      "utility"
+    ],
+    "occasionTags": [
+      "travel",
+      "weekend",
+      "casual"
+    ],
+    "colorTags": [
+      "olive",
+      "navy",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "spring"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A waxed jacket adds weather resistance and timeless character.",
+    "pairsWellWith": [
+      "flannel shirt",
+      "denim",
+      "boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "theory-tailored-wool-blazer",
+    "name": "Tailored Wool Blazer",
+    "brand": "Theory",
+    "retailer": "Theory",
+    "category": "outerwear",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$475",
+    "styleTags": [
+      "tailored",
+      "minimal",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "formal"
+    ],
+    "colorTags": [
+      "black",
+      "gray",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "tailored",
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "A wool blazer anchors professional, formal, and elevated casual outfits.",
+    "pairsWellWith": [
+      "dress shirt",
+      "silk cami",
+      "wide-leg trousers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "suitsupply-tuxedo-jacket",
+    "name": "Tuxedo Jacket",
+    "brand": "SuitSupply",
+    "retailer": "SuitSupply",
+    "category": "suits",
+    "gender": "men",
+    "priceTier": "premium",
+    "approximatePrice": "$599",
+    "styleTags": [
+      "formal",
+      "classic",
+      "evening"
+    ],
+    "occasionTags": [
+      "formal",
+      "date night",
+      "wedding"
+    ],
+    "colorTags": [
+      "black",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "tailored",
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "A tuxedo jacket supports black-tie and elevated evening moments.",
+    "pairsWellWith": [
+      "dress trousers",
+      "white shirt",
+      "patent shoes"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "aritzia-oversized-suit-blazer",
+    "name": "Oversized Suit Blazer",
+    "brand": "Aritzia",
+    "retailer": "Aritzia",
+    "category": "suits",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$248",
+    "styleTags": [
+      "tailored",
+      "editorial",
+      "minimal"
+    ],
+    "occasionTags": [
+      "work",
+      "date night",
+      "formal"
+    ],
+    "colorTags": [
+      "black",
+      "gray",
+      "cream",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "oversized",
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "Oversized tailoring creates a modern fashion-forward silhouette.",
+    "pairsWellWith": [
+      "matching trousers",
+      "straight jeans",
+      "fitted tank"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "banana-republic-tailored-suit-separates",
+    "name": "Tailored Suit Separates",
+    "brand": "Banana Republic",
+    "retailer": "Banana Republic",
+    "category": "suits",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$500",
+    "styleTags": [
+      "classic",
+      "tailored",
+      "workwear"
+    ],
+    "occasionTags": [
+      "work",
+      "formal",
+      "travel"
+    ],
+    "colorTags": [
+      "navy",
+      "gray",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "tailored"
+    ],
+    "whyIrysRecommendsIt": "Suit separates allow users to build formal looks without buying a rigid full set.",
+    "pairsWellWith": [
+      "dress shirt",
+      "silk blouse",
+      "loafers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "dr-martens-platform-loafers",
+    "name": "Platform Loafers",
+    "brand": "Dr. Martens",
+    "retailer": "Dr. Martens",
+    "category": "shoes",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$170",
+    "styleTags": [
+      "edgy",
+      "streetwear",
+      "classic"
+    ],
+    "occasionTags": [
+      "casual",
+      "date night",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Platform loafers give classic outfits a sharper contemporary edge.",
+    "pairsWellWith": [
+      "wide-leg trousers",
+      "midi skirt",
+      "straight jeans"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "everlane-minimal-ballet-flat",
+    "name": "Minimal Ballet Flat",
+    "brand": "Everlane",
+    "retailer": "Everlane",
+    "category": "shoes",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$125",
+    "styleTags": [
+      "classic",
+      "minimal",
+      "romantic"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "red"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A ballet flat offers easy polish when heels feel too formal.",
+    "pairsWellWith": [
+      "cropped trousers",
+      "midi dress",
+      "straight jeans"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cole-haan-leather-court-sneaker",
+    "name": "Leather Court Sneaker",
+    "brand": "Cole Haan",
+    "retailer": "Nordstrom",
+    "category": "shoes",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$150",
+    "styleTags": [
+      "classic",
+      "smart casual",
+      "minimal"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "white",
+      "black",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A leather court sneaker works well for users who want casual polish.",
+    "pairsWellWith": [
+      "chinos",
+      "shirt dress",
+      "casual suit"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "madewell-western-ankle-boot",
+    "name": "Western Ankle Boot",
+    "brand": "Madewell",
+    "retailer": "Madewell",
+    "category": "shoes",
+    "gender": "women",
+    "priceTier": "mid",
+    "approximatePrice": "$198",
+    "styleTags": [
+      "americana",
+      "casual",
+      "editorial"
+    ],
+    "occasionTags": [
+      "weekend",
+      "date night",
+      "travel"
+    ],
+    "colorTags": [
+      "brown",
+      "black",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "spring",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A western boot adds personality to denim, skirts, and dresses.",
+    "pairsWellWith": [
+      "denim maxi skirt",
+      "straight jeans",
+      "midi dress"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "reiss-minimal-derby-shoe",
+    "name": "Minimal Derby Shoe",
+    "brand": "Reiss",
+    "retailer": "Reiss",
+    "category": "shoes",
+    "gender": "men",
+    "priceTier": "premium",
+    "approximatePrice": "$275",
+    "styleTags": [
+      "classic",
+      "formal",
+      "minimal"
+    ],
+    "occasionTags": [
+      "work",
+      "formal",
+      "date night"
+    ],
+    "colorTags": [
+      "black",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A derby shoe is a versatile formal option that pairs with suits or smart separates.",
+    "pairsWellWith": [
+      "navy suit",
+      "wool trousers",
+      "overcoat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "baggu-nylon-crossbody-bag",
+    "name": "Nylon Crossbody Bag",
+    "brand": "Baggu",
+    "retailer": "ASOS",
+    "category": "bags",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$52",
+    "styleTags": [
+      "casual",
+      "streetwear",
+      "travel"
+    ],
+    "occasionTags": [
+      "travel",
+      "casual",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "green",
+      "blue",
+      "red"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A nylon crossbody is lightweight, practical, and useful for daily movement.",
+    "pairsWellWith": [
+      "puffer jacket",
+      "cargo pants",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cuyana-structured-work-tote",
+    "name": "Structured Work Tote",
+    "brand": "Cuyana",
+    "retailer": "Cuyana",
+    "category": "bags",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$298",
+    "styleTags": [
+      "minimal",
+      "workwear",
+      "classic"
+    ],
+    "occasionTags": [
+      "work",
+      "travel",
+      "formal"
+    ],
+    "colorTags": [
+      "black",
+      "camel",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "A structured tote supports professional life without feeling corporate.",
+    "pairsWellWith": [
+      "blazer",
+      "shirt dress",
+      "wool coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "fossil-leather-duffle-bag",
+    "name": "Leather Duffle Bag",
+    "brand": "Fossil",
+    "retailer": "Fossil",
+    "category": "bags",
+    "gender": "unisex",
+    "priceTier": "premium",
+    "approximatePrice": "$350",
+    "styleTags": [
+      "classic",
+      "travel",
+      "heritage"
+    ],
+    "occasionTags": [
+      "travel",
+      "weekend"
+    ],
+    "colorTags": [
+      "brown",
+      "black"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "structured"
+    ],
+    "whyIrysRecommendsIt": "A leather duffle upgrades weekend travel and makes packing feel intentional.",
+    "pairsWellWith": [
+      "trench coat",
+      "sneakers",
+      "knitwear"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "herschel-mini-backpack",
+    "name": "Mini Backpack",
+    "brand": "Herschel",
+    "retailer": "Nordstrom",
+    "category": "bags",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$65",
+    "styleTags": [
+      "casual",
+      "streetwear",
+      "travel"
+    ],
+    "occasionTags": [
+      "travel",
+      "casual",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "navy",
+      "gray"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A compact backpack is practical for casual users who avoid handbags.",
+    "pairsWellWith": [
+      "hoodie",
+      "denim jacket",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "mejuri-statement-ring",
+    "name": "Statement Ring",
+    "brand": "Mejuri",
+    "retailer": "Mejuri",
+    "category": "accessories",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$98",
+    "styleTags": [
+      "minimal",
+      "editorial",
+      "date night"
+    ],
+    "occasionTags": [
+      "date night",
+      "casual",
+      "formal"
+    ],
+    "colorTags": [
+      "silver",
+      "gold"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A single ring can add personality without requiring a full jewelry wardrobe.",
+    "pairsWellWith": [
+      "button-up shirt",
+      "black knit",
+      "slip dress"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "j-crew-patterned-socks",
+    "name": "Patterned Socks",
+    "brand": "J.Crew",
+    "retailer": "J.Crew",
+    "category": "accessories",
+    "gender": "unisex",
+    "priceTier": "budget",
+    "approximatePrice": "$18",
+    "styleTags": [
+      "preppy",
+      "classic",
+      "creative"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "weekend"
+    ],
+    "colorTags": [
+      "navy",
+      "red",
+      "green",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Socks are a low-risk way to add color or personality.",
+    "pairsWellWith": [
+      "loafers",
+      "cropped trousers",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "nordstrom-leather-gloves",
+    "name": "Leather Gloves",
+    "brand": "Nordstrom",
+    "retailer": "Nordstrom",
+    "category": "accessories",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$90",
+    "styleTags": [
+      "classic",
+      "winter",
+      "polished"
+    ],
+    "occasionTags": [
+      "work",
+      "formal",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "winter"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Leather gloves make winter dressing feel intentional and finished.",
+    "pairsWellWith": [
+      "wool coat",
+      "scarf",
+      "chelsea boots"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "cos-canvas-baseball-cap",
+    "name": "Canvas Baseball Cap",
+    "brand": "COS",
+    "retailer": "COS",
+    "category": "accessories",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$55",
+    "styleTags": [
+      "minimal",
+      "casual",
+      "travel"
+    ],
+    "occasionTags": [
+      "travel",
+      "weekend",
+      "casual"
+    ],
+    "colorTags": [
+      "black",
+      "cream",
+      "olive",
+      "navy"
+    ],
+    "colorSeasonFit": [
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A clean cap supports casual looks without feeling too sporty.",
+    "pairsWellWith": [
+      "overshirt",
+      "linen trousers",
+      "sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "le-specs-slim-rectangle-sunglasses",
+    "name": "Slim Rectangle Sunglasses",
+    "brand": "Le Specs",
+    "retailer": "Nordstrom",
+    "category": "glasses",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$80",
+    "styleTags": [
+      "editorial",
+      "streetwear",
+      "minimal"
+    ],
+    "occasionTags": [
+      "date night",
+      "weekend",
+      "travel"
+    ],
+    "colorTags": [
+      "black",
+      "brown",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "summer",
+      "winter",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A slim rectangular frame adds a more fashion-forward finish.",
+    "pairsWellWith": [
+      "leather jacket",
+      "blazer",
+      "wide-leg jeans"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "warby-parker-tortoise-optical-frames",
+    "name": "Tortoise Optical Frames",
+    "brand": "Warby Parker",
+    "retailer": "Warby Parker",
+    "category": "glasses",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$145",
+    "styleTags": [
+      "classic",
+      "creative",
+      "smart casual"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "tortoise",
+      "brown"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "spring",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Tortoise frames add warmth and character while staying professional.",
+    "pairsWellWith": [
+      "oxford shirt",
+      "cashmere sweater",
+      "trench coat"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "coach-oversized-sunglasses",
+    "name": "Oversized Sunglasses",
+    "brand": "Coach",
+    "retailer": "Coach",
+    "category": "glasses",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$180",
+    "styleTags": [
+      "glam",
+      "classic",
+      "editorial"
+    ],
+    "occasionTags": [
+      "date night",
+      "travel",
+      "weekend"
+    ],
+    "colorTags": [
+      "black",
+      "brown",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "Oversized frames bring polish and drama to simple outfits.",
+    "pairsWellWith": [
+      "silk scarf",
+      "wool coat",
+      "structured bag"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": ""
+  },
+  {
+    "id": "kayali-warm-vanilla-fragrance",
+    "name": "Warm Vanilla Fragrance",
+    "brand": "Kayali",
+    "retailer": "Sephora",
+    "category": "fragrance",
+    "gender": "unisex",
+    "priceTier": "mid",
+    "approximatePrice": "$100",
+    "styleTags": [
+      "warm",
+      "date night",
+      "romantic"
+    ],
+    "occasionTags": [
+      "date night",
+      "winter",
+      "formal"
+    ],
+    "colorTags": [
+      "vanilla",
+      "amber"
+    ],
+    "colorSeasonFit": [
+      "autumn",
+      "winter"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A warm scent can support a cozy, romantic style direction.",
+    "pairsWellWith": [
+      "knit dress",
+      "wool coat",
+      "gold jewelry"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": "Fragrance should be sampled before buying."
+  },
+  {
+    "id": "acqua-di-gio-fresh-aquatic-fragrance",
+    "name": "Fresh Aquatic Fragrance",
+    "brand": "Acqua di Gio",
+    "retailer": "Nordstrom",
+    "category": "fragrance",
+    "gender": "men",
+    "priceTier": "premium",
+    "approximatePrice": "$105",
+    "styleTags": [
+      "fresh",
+      "classic",
+      "casual"
+    ],
+    "occasionTags": [
+      "work",
+      "casual",
+      "travel"
+    ],
+    "colorTags": [
+      "blue",
+      "citrus"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A fresh aquatic scent is easy and approachable for daily wear.",
+    "pairsWellWith": [
+      "linen shirt",
+      "chinos",
+      "white sneakers"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": "Use lightly; scent preference is highly personal."
+  },
+  {
+    "id": "chlo-soft-floral-fragrance",
+    "name": "Soft Floral Fragrance",
+    "brand": "Chloé",
+    "retailer": "Nordstrom",
+    "category": "fragrance",
+    "gender": "women",
+    "priceTier": "premium",
+    "approximatePrice": "$140",
+    "styleTags": [
+      "romantic",
+      "classic",
+      "soft"
+    ],
+    "occasionTags": [
+      "date night",
+      "work",
+      "formal"
+    ],
+    "colorTags": [
+      "floral",
+      "cream"
+    ],
+    "colorSeasonFit": [
+      "spring",
+      "summer",
+      "all"
+    ],
+    "fitTags": [
+      "regular"
+    ],
+    "whyIrysRecommendsIt": "A soft floral scent can enhance romantic and polished looks.",
+    "pairsWellWith": [
+      "wrap dress",
+      "silk blouse",
+      "structured bag"
+    ],
+    "affiliateReady": false,
+    "productUrl": "",
+    "imageUrl": "",
+    "notes": "Best offered as an optional finishing detail."
+  }
+]
