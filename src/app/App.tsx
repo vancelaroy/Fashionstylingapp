@@ -175,7 +175,7 @@ export default function App() {
   };
 
   const mobileShell: CSSProperties = {
-    width: "100%",
+    width: "min(100vw, 430px)",
     maxWidth: 430,
     height: "100dvh",          // dvh = excludes browser chrome on iOS
     background: "#161616",
@@ -183,6 +183,7 @@ export default function App() {
     flexDirection: "column",
     overflow: "hidden",
     position: "relative",
+    boxSizing: "border-box",
   };
 
   // ── Loading splash — show until both auth resolves AND 2s timer fires ─────
