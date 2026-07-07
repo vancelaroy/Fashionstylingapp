@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { motion } from "motion/react";
-import { ArrowRight, Camera, CheckCircle2, CloudSun, Heart, RefreshCw, Shirt, Sparkles, Sun, Wand2 } from "lucide-react";
+import { ArrowRight, Camera, CheckCircle2, CloudSun, Heart, MapPin, RefreshCw, Shirt, Sparkles, Sun, Thermometer, Wand2 } from "lucide-react";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import type { WardrobeItem } from "../wardrobe/WardrobeUpload";
 import { projectId } from "/utils/supabase/info";
@@ -37,6 +37,13 @@ const SEASON_COLORS: Record<string, { name: string; hex: string; pairsWith: stri
 };
 
 const DAILY_OCCASIONS = ["Work", "Date", "Errands", "Travel", "Dinner", "Interview", "Event"];
+const WEATHER_CONDITIONS = ["Hot", "Humid", "Mild", "Cold", "Rain", "Wind", "Overcast"];
+
+interface WeatherContext {
+  city: string;
+  temp: string;
+  condition: string;
+}
 
 function isPersistentImage(src: string | undefined): src is string {
   return !!src && !src.startsWith("blob:");
@@ -44,6 +51,18 @@ function isPersistentImage(src: string | undefined): src is string {
 
 function localDayKey() {
   return new Date().toLocaleDateString("en-CA");
+}
+
+function readWeatherContext(): WeatherContext {
+  try {
+    return {
+      city: window.localStorage.getItem("irys.weather.city") ?? "",
+      temp: window.localStorage.getItem("irys.weather.temp") ?? "",
+      condition: window.localStorage.getItem("irys.weather.condition") ?? "",
+    };
+  } catch {
+    return { city: "", temp: "", condition: "" };
+  }
 }
 
 function seededIndex(seed: number, length: number, offset = 0) {
@@ -99,10 +118,16 @@ function buildAskIrisPrompt(profile: StyleProfile, look: WardrobeItem[]) {
   return `Help me get dressed today using my wardrobe and Style DNA.\n\nMy suggested pieces are:\n${pieces || "I do not have a complete closet look selected yet."}\n\nMy style profile: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"} style personality.\n\nPlease tell me what to wear today, why it works, what to add or swap, and one confidence note.`;
 }
 
-function buildDailyContextPrompt(profile: StyleProfile, look: WardrobeItem[], occasion: string, details: string) {
+function buildDailyContextPrompt(profile: StyleProfile, look: WardrobeItem[], occasion: string, details: string, weather: WeatherContext) {
   const pieces = look.map((item) => `${item.name}${item.brand ? ` by ${item.brand}` : ""} (${item.category}, ${item.color}${item.fit ? `, ${item.fit} fit` : ""})`).join("\n");
+  const weatherLine = [
+    weather.city.trim() ? `Location: ${weather.city.trim()}` : null,
+    weather.temp.trim() ? `Temperature: ${weather.temp.trim()}F` : null,
+    weather.condition ? `Weather: ${weather.condition}` : null,
+  ].filter(Boolean).join(", ");
   const context = [
     occasion ? `Occasion: ${occasion}` : null,
+    weatherLine ? `Location/weather: ${weatherLine}` : null,
     details.trim() ? `Extra details: ${details.trim()}` : null,
   ].filter(Boolean).join("\n");
 
@@ -158,6 +183,9 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, on
   const [savedTodayLook, setSavedTodayLook] = useState(false);
   const [selectedOccasion, setSelectedOccasion] = useState("");
   const [occasionDetails, setOccasionDetails] = useState("");
+  const [weatherCity, setWeatherCity] = useState(() => readWeatherContext().city);
+  const [weatherTemp, setWeatherTemp] = useState(() => readWeatherContext().temp);
+  const [weatherCondition, setWeatherCondition] = useState(() => readWeatherContext().condition);
   const [dailySeed, setDailySeed] = useState(() => {
     const key = `irys.dailyLookSeed.${localDayKey()}`;
     const saved = window.localStorage.getItem(key);
@@ -188,6 +216,12 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, on
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [accessToken]);
+
+  useEffect(() => {
+    window.localStorage.setItem("irys.weather.city", weatherCity);
+    window.localStorage.setItem("irys.weather.temp", weatherTemp);
+    window.localStorage.setItem("irys.weather.condition", weatherCondition);
+  }, [weatherCity, weatherTemp, weatherCondition]);
 
   const refreshDailyLook = () => {
     const nextVariant = dailyVariant + 1;
@@ -398,6 +432,50 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, on
             ))}
           </div>
 
+          <div className="grid grid-cols-[1fr_82px] gap-2 mt-2">
+            <div className="relative">
+              <MapPin size={13} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--muted-foreground)" }} />
+              <input
+                value={weatherCity}
+                onChange={(event) => setWeatherCity(event.target.value)}
+                placeholder="City"
+                className="w-full pl-8 pr-3 py-2.5 rounded-xl outline-none"
+                style={{ background: "var(--surface)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "11px", fontFamily: "var(--font-body)", minWidth: 0 }}
+              />
+            </div>
+            <div className="relative">
+              <Thermometer size={13} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--muted-foreground)" }} />
+              <input
+                value={weatherTemp}
+                onChange={(event) => setWeatherTemp(event.target.value.replace(/[^\d-]/g, "").slice(0, 3))}
+                placeholder="Temp"
+                inputMode="numeric"
+                className="w-full pl-8 pr-3 py-2.5 rounded-xl outline-none"
+                style={{ background: "var(--surface)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "11px", fontFamily: "var(--font-body)", minWidth: 0 }}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-1 mt-2" style={{ scrollbarWidth: "none" }}>
+            {WEATHER_CONDITIONS.map((condition) => (
+              <button
+                key={condition}
+                onClick={() => setWeatherCondition(weatherCondition === condition ? "" : condition)}
+                className="shrink-0 px-3 py-1.5 rounded-full transition-all"
+                style={{
+                  background: weatherCondition === condition ? "rgba(199,179,139,0.18)" : "var(--surface)",
+                  color: weatherCondition === condition ? "var(--gold)" : "var(--muted-foreground)",
+                  border: `1px solid ${weatherCondition === condition ? "rgba(199,179,139,0.45)" : "var(--border)"}`,
+                  fontSize: 10,
+                  fontWeight: weatherCondition === condition ? 700 : 500,
+                  cursor: "pointer",
+                }}
+              >
+                {condition}
+              </button>
+            ))}
+          </div>
+
           <div className="flex items-center gap-2 mt-2">
             <input
               value={occasionDetails}
@@ -407,7 +485,11 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, on
               style={{ background: "var(--surface)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "12px", fontFamily: "var(--font-body)", minWidth: 0 }}
             />
             <button
-              onClick={() => onAskIris?.(buildDailyContextPrompt(profile, dailyLook, selectedOccasion, occasionDetails))}
+              onClick={() => onAskIris?.(buildDailyContextPrompt(profile, dailyLook, selectedOccasion, occasionDetails, {
+                city: weatherCity,
+                temp: weatherTemp,
+                condition: weatherCondition,
+              }))}
               className="px-3 py-3 rounded-xl flex items-center justify-center transition-all active:scale-95"
               style={{ background: "var(--gold)", color: "var(--charcoal)", border: "none", fontWeight: 800, fontSize: 11, cursor: "pointer", whiteSpace: "nowrap" }}
             >
