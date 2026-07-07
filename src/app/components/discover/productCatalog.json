@@ -37,9 +37,9 @@
       "overshirt"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.uniqlo.com/us/en/search?q=Uniqlo%20Supima%20Cotton%20Crew%20Neck%20T-Shirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "j-crew-oxford-cloth-button-down-shirt",
@@ -80,9 +80,9 @@
       "unstructured blazer"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.jcrew.com/search?Ntrm=J.Crew%20Oxford%20Cloth%20Button-Down%20Shirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "cos-ribbed-long-sleeve-top",
@@ -123,9 +123,9 @@
       "wool coat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.cos.com/en_usd/search.html?q=COS%20Ribbed%20Long%20Sleeve%20Top",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "everlane-boxy-heavyweight-t-shirt",
@@ -166,9 +166,9 @@
       "chore jacket"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.everlane.com/search?q=Everlane%20Boxy%20Heavyweight%20T-Shirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "mango-linen-button-up-shirt",
@@ -209,9 +209,9 @@
       "sandals"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://shop.mango.com/us/search?kw=Mango%20Linen%20Button-Up%20Shirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "banana-republic-silk-blend-blouse",
@@ -252,9 +252,9 @@
       "blazer"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://bananarepublic.gap.com/browse/search.do?searchText=Banana%20Republic%20Silk-Blend%20Blouse",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "massimo-dutti-merino-wool-polo",
@@ -295,9 +295,9 @@
       "wool jacket"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.massimodutti.com/us/search?searchTerm=Massimo%20Dutti%20Merino%20Wool%20Polo",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "zara-relaxed-striped-shirt",
@@ -338,9 +338,9 @@
       "linen pants"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.zara.com/us/en/search?searchTerm=Zara%20Relaxed%20Striped%20Shirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "quince-cashmere-crew-sweater",
@@ -381,9 +381,9 @@
       "wool coat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.quince.com/search?q=Quince%20Cashmere%20Crew%20Sweater",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "aritzia-draped-satin-camisole",
@@ -424,9 +424,9 @@
       "tailored blazer"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.aritzia.com/us/en/search?q=Aritzia%20Draped%20Satin%20Camisole",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "levi-s-denim-western-shirt",
@@ -466,9 +466,9 @@
       "white tee"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.levi.com/US/en_US/search/Levi%E2%80%99s%20Denim%20Western%20Shirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "abercrombie-oversized-hoodie",
@@ -510,9 +510,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.abercrombie.com/shop/us/search?searchTerm=Abercrombie%20Oversized%20Hoodie",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "uniqlo-merino-turtleneck",
@@ -554,9 +554,9 @@
       "pleated skirt"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.uniqlo.com/us/en/search?q=Uniqlo%20Merino%20Turtleneck",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "todd-snyder-camp-collar-shirt",
@@ -598,9 +598,9 @@
       "loafers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.toddsnyder.com/search?q=Todd%20Snyder%20Camp%20Collar%20Shirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "levi-s-slim-straight-jeans",
@@ -640,9 +640,9 @@
       "bomber jacket"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.levi.com/US/en_US/search/Levi%E2%80%99s%20Slim%20Straight%20Jeans",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "cos-wide-leg-pleated-trousers",
@@ -685,9 +685,9 @@
       "loafers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.cos.com/en_usd/search.html?q=COS%20Wide-Leg%20Pleated%20Trousers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "gap-relaxed-chinos",
@@ -769,9 +769,9 @@
       "ankle boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.madewell.com/search?q=Madewell%20High-Rise%20Straight%20Jeans",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "mango-linen-drawstring-trousers",
@@ -812,9 +812,9 @@
       "sandals"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://shop.mango.com/us/search?kw=Mango%20Linen%20Drawstring%20Trousers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "theory-tailored-wool-trousers",
@@ -856,9 +856,9 @@
       "structured blazer"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.theory.com/search?q=Theory%20Tailored%20Wool%20Trousers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "abercrombie-cargo-pants",
@@ -899,9 +899,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.abercrombie.com/shop/us/search?searchTerm=Abercrombie%20Cargo%20Pants",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "quince-bias-cut-midi-skirt",
@@ -942,9 +942,9 @@
       "boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.quince.com/search?q=Quince%20Bias-Cut%20Midi%20Skirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "nike-athletic-tech-joggers",
@@ -984,9 +984,9 @@
       "running sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nike.com/w?q=Nike%20Athletic%20Tech%20Joggers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "aritzia-ribbed-knit-midi-dress",
@@ -1027,9 +1027,9 @@
       "gold jewelry"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.aritzia.com/us/en/search?q=Aritzia%20Ribbed%20Knit%20Midi%20Dress",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "cos-poplin-shirt-dress",
@@ -1070,9 +1070,9 @@
       "trench coat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.cos.com/en_usd/search.html?q=COS%20Poplin%20Shirt%20Dress",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "quince-slip-dress",
@@ -1113,9 +1113,9 @@
       "tailored blazer"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.quince.com/search?q=Quince%20Slip%20Dress",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "s-zane-wrap-midi-dress",
@@ -1157,9 +1157,9 @@
       "wool coat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.sezane.com/us/search?q=S%C3%A9zane%20Wrap%20Midi%20Dress",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "everlane-t-shirt-dress",
@@ -1199,9 +1199,9 @@
       "canvas tote"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.everlane.com/search?q=Everlane%20T-Shirt%20Dress",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "banana-republic-tailored-sheath-dress",
@@ -1241,9 +1241,9 @@
       "structured bag"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://bananarepublic.gap.com/browse/search.do?searchText=Banana%20Republic%20Tailored%20Sheath%20Dress",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "mango-relaxed-trench-coat",
@@ -1283,9 +1283,9 @@
       "loafers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://shop.mango.com/us/search?kw=Mango%20Relaxed%20Trench%20Coat",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "cos-wool-blend-overcoat",
@@ -1326,9 +1326,9 @@
       "boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.cos.com/en_usd/search.html?q=COS%20Wool%20Blend%20Overcoat",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "buck-mason-chore-jacket",
@@ -1368,9 +1368,9 @@
       "canvas sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.buckmason.com/search?q=Buck%20Mason%20Chore%20Jacket",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "madewell-cropped-denim-jacket",
@@ -1411,9 +1411,9 @@
       "wide-leg pants"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.madewell.com/search?q=Madewell%20Cropped%20Denim%20Jacket",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "allsaints-leather-moto-jacket",
@@ -1454,9 +1454,9 @@
       "boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.allsaints.com/us/search?q=AllSaints%20Leather%20Moto%20Jacket",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "uniqlo-quilted-liner-jacket",
@@ -1496,9 +1496,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.uniqlo.com/us/en/search?q=Uniqlo%20Quilted%20Liner%20Jacket",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "suitsupply-navy-two-piece-suit",
@@ -1536,9 +1536,9 @@
       "silk tie"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://suitsupply.com/en-us/search?q=SuitSupply%20Navy%20Two-Piece%20Suit",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "cos-relaxed-suiting-set",
@@ -1578,9 +1578,9 @@
       "minimal jewelry"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.cos.com/en_usd/search.html?q=COS%20Relaxed%20Suiting%20Set",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "bonobos-performance-suit-jacket",
@@ -1619,9 +1619,9 @@
       "chelsea boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://bonobos.com/search?q=Bonobos%20Performance%20Suit%20Jacket",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "massimo-dutti-wide-leg-suit-trousers",
@@ -1661,9 +1661,9 @@
       "pumps"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.massimodutti.com/us/search?searchTerm=Massimo%20Dutti%20Wide-Leg%20Suit%20Trousers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "reiss-double-breasted-blazer",
@@ -1704,9 +1704,9 @@
       "loafers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.reiss.com/us/en/search?w=Reiss%20Double-Breasted%20Blazer",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "zara-suiting-vest",
@@ -1747,9 +1747,9 @@
       "heels"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.zara.com/us/en/search?searchTerm=Zara%20Suiting%20Vest",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "g-h-bass-leather-loafers",
@@ -1790,9 +1790,9 @@
       "midi skirt"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=G.H.%20Bass%20Leather%20Loafers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "adidas-white-leather-sneakers",
@@ -1829,9 +1829,9 @@
       "shirt dress"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.adidas.com/us/search?q=Adidas%20White%20Leather%20Sneakers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "new-balance-new-balance-574-sneakers",
@@ -1870,9 +1870,9 @@
       "sweatshirt"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.newbalance.com/search?q=New%20Balance%20New%20Balance%20574%20Sneakers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "dr-martens-chelsea-boots",
@@ -1911,9 +1911,9 @@
       "wool coat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.drmartens.com/us/en/search?q=Dr.%20Martens%20Chelsea%20Boots",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "mango-minimal-leather-sandals",
@@ -1953,9 +1953,9 @@
       "midi skirt"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://shop.mango.com/us/search?kw=Mango%20Minimal%20Leather%20Sandals",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "todd-snyder-suede-loafers",
@@ -1996,9 +1996,9 @@
       "polo"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.toddsnyder.com/search?q=Todd%20Snyder%20Suede%20Loafers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "s-zane-pointed-ankle-boots",
@@ -2039,9 +2039,9 @@
       "wool coat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.sezane.com/us/search?q=S%C3%A9zane%20Pointed%20Ankle%20Boots",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "nike-nike-killshot-sneakers",
@@ -2080,9 +2080,9 @@
       "casual suit"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nike.com/w?q=Nike%20Nike%20Killshot%20Sneakers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "madewell-mary-jane-flats",
@@ -2123,9 +2123,9 @@
       "shirt dress"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.madewell.com/search?q=Madewell%20Mary%20Jane%20Flats",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "madewell-leather-tote-bag",
@@ -2164,9 +2164,9 @@
       "loafers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.madewell.com/search?q=Madewell%20Leather%20Tote%20Bag",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "coach-structured-crossbody-bag",
@@ -2206,9 +2206,9 @@
       "wide-leg trousers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.coach.com/search?q=Coach%20Structured%20Crossbody%20Bag",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "everlane-minimal-backpack",
@@ -2247,9 +2247,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.everlane.com/search?q=Everlane%20Minimal%20Backpack",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "pol-ne-mini-leather-bag",
@@ -2291,9 +2291,9 @@
       "blouse"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://eng.polene-paris.com/search?q=Pol%C3%A8ne%20Mini%20Leather%20Bag",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "l-l-bean-canvas-weekend-tote",
@@ -2332,9 +2332,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=L.L.Bean%20Canvas%20Weekend%20Tote",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "uniqlo-sleek-belt-bag",
@@ -2373,9 +2373,9 @@
       "oversized shirt"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.uniqlo.com/us/en/search?q=Uniqlo%20Sleek%20Belt%20Bag",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "banana-republic-leather-belt",
@@ -2413,9 +2413,9 @@
       "shirt dress"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://bananarepublic.gap.com/browse/search.do?searchText=Banana%20Republic%20Leather%20Belt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "mejuri-minimal-gold-hoops",
@@ -2454,9 +2454,9 @@
       "slip dress"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://mejuri.com/search?q=Mejuri%20Minimal%20Gold%20Hoops",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "mejuri-silver-chain-necklace",
@@ -2495,9 +2495,9 @@
       "knit sweater"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://mejuri.com/search?q=Mejuri%20Silver%20Chain%20Necklace",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "cos-wool-scarf",
@@ -2538,9 +2538,9 @@
       "boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.cos.com/en_usd/search.html?q=COS%20Wool%20Scarf",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "new-era-baseball-cap",
@@ -2579,9 +2579,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.asos.com/us/search/?q=New%20Era%20Baseball%20Cap",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "fossil-classic-watch",
@@ -2621,9 +2621,9 @@
       "knit polo"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.fossil.com/en-us/search/?q=Fossil%20Classic%20Watch",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "ray-ban-wayfarer-sunglasses",
@@ -2661,9 +2661,9 @@
       "denim"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.ray-ban.com/usa/search?q=Ray-Ban%20Wayfarer%20Sunglasses",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "ray-ban-round-metal-sunglasses",
@@ -2704,9 +2704,9 @@
       "denim jacket"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.ray-ban.com/usa/search?q=Ray-Ban%20Round%20Metal%20Sunglasses",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "warby-parker-square-optical-frames",
@@ -2745,9 +2745,9 @@
       "knit sweater"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.warbyparker.com/search?q=Warby%20Parker%20Square%20Optical%20Frames",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "warby-parker-aviator-sunglasses",
@@ -2788,9 +2788,9 @@
       "denim"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.warbyparker.com/search?q=Warby%20Parker%20Aviator%20Sunglasses",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "le-specs-cat-eye-sunglasses",
@@ -2831,9 +2831,9 @@
       "tailored blazer"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=Le%20Specs%20Cat-Eye%20Sunglasses",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "zara-fresh-citrus-eau-de-toilette",
@@ -2871,9 +2871,9 @@
       "casual tote"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.zara.com/us/en/search?searchTerm=Zara%20Fresh%20Citrus%20Eau%20de%20Toilette",
     "imageUrl": "",
-    "notes": "Fragrance is personal; recommend sampling first."
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "maison-margiela-woody-amber-fragrance",
@@ -2912,9 +2912,9 @@
       "black knit"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=Maison%20Margiela%20Woody%20Amber%20Fragrance",
     "imageUrl": "",
-    "notes": "Use as an optional finishing layer, not a core wardrobe need."
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "glossier-clean-skin-scent",
@@ -2951,9 +2951,9 @@
       "straight denim"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.glossier.com/search?q=Glossier%20Clean%20Skin%20Scent",
     "imageUrl": "",
-    "notes": "Best for people who want understated fragrance."
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "vans-minimal-slip-on-sneakers",
@@ -2992,9 +2992,9 @@
       "shorts"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.asos.com/us/search/?q=Vans%20Minimal%20Slip-On%20Sneakers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "coach-leather-card-holder",
@@ -3033,9 +3033,9 @@
       "workwear"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.coach.com/search?q=Coach%20Leather%20Card%20Holder",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "everlane-crisp-poplin-shirt",
@@ -3076,9 +3076,9 @@
       "midi skirt"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.everlane.com/search?q=Everlane%20Crisp%20Poplin%20Shirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "s-zane-textured-knit-cardigan",
@@ -3120,9 +3120,9 @@
       "wide-leg trousers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.sezane.com/us/search?q=S%C3%A9zane%20Textured%20Knit%20Cardigan",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "zara-open-knit-polo",
@@ -3162,9 +3162,9 @@
       "loafers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.zara.com/us/en/search?searchTerm=Zara%20Open-Knit%20Polo",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "aritzia-mock-neck-top",
@@ -3206,9 +3206,9 @@
       "wool coat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.aritzia.com/us/en/search?q=Aritzia%20Mock%20Neck%20Top",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "buck-mason-heavyweight-overshirt",
@@ -3251,9 +3251,9 @@
       "chinos"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.buckmason.com/search?q=Buck%20Mason%20Heavyweight%20Overshirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "asos-relaxed-graphic-tee",
@@ -3293,9 +3293,9 @@
       "oversized blazer"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.asos.com/us/search/?q=ASOS%20Relaxed%20Graphic%20Tee",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "cos-fine-rib-tank",
@@ -3337,9 +3337,9 @@
       "wide-leg jeans"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.cos.com/en_usd/search.html?q=COS%20Fine%20Rib%20Tank",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "j-crew-soft-flannel-shirt",
@@ -3380,9 +3380,9 @@
       "boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.jcrew.com/search?Ntrm=J.Crew%20Soft%20Flannel%20Shirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "everlane-barrel-leg-jeans",
@@ -3421,9 +3421,9 @@
       "loafers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.everlane.com/search?q=Everlane%20Barrel-Leg%20Jeans",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "abercrombie-relaxed-utility-shorts",
@@ -3463,9 +3463,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.abercrombie.com/shop/us/search?searchTerm=Abercrombie%20Relaxed%20Utility%20Shorts",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "mango-pleated-midi-skirt",
@@ -3507,9 +3507,9 @@
       "ankle boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://shop.mango.com/us/search?kw=Mango%20Pleated%20Midi%20Skirt",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "bonobos-slim-travel-pants",
@@ -3549,9 +3549,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://bonobos.com/search?q=Bonobos%20Slim%20Travel%20Pants",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "gap-wide-leg-jeans",
@@ -3677,9 +3677,9 @@
       "wool coat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.cos.com/en_usd/search.html?q=COS%20Column%20Maxi%20Dress",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "mango-knit-tank-dress",
@@ -3719,9 +3719,9 @@
       "woven bag"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://shop.mango.com/us/search?kw=Mango%20Knit%20Tank%20Dress",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "reiss-long-sleeve-wrap-dress",
@@ -3762,9 +3762,9 @@
       "wool coat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.reiss.com/us/en/search?w=Reiss%20Long%20Sleeve%20Wrap%20Dress",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "banana-republic-utility-shirt-dress",
@@ -3805,9 +3805,9 @@
       "crossbody bag"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://bananarepublic.gap.com/browse/search.do?searchText=Banana%20Republic%20Utility%20Shirt%20Dress",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "abercrombie-cropped-bomber-jacket",
@@ -3848,9 +3848,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.abercrombie.com/shop/us/search?searchTerm=Abercrombie%20Cropped%20Bomber%20Jacket",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "quince-longline-cardigan-coat",
@@ -3891,9 +3891,9 @@
       "ankle boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.quince.com/search?q=Quince%20Longline%20Cardigan%20Coat",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "barbour-waxed-cotton-jacket",
@@ -3934,9 +3934,9 @@
       "boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=Barbour%20Waxed%20Cotton%20Jacket",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "theory-tailored-wool-blazer",
@@ -3976,9 +3976,9 @@
       "wide-leg trousers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.theory.com/search?q=Theory%20Tailored%20Wool%20Blazer",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "suitsupply-tuxedo-jacket",
@@ -4017,9 +4017,9 @@
       "patent shoes"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://suitsupply.com/en-us/search?q=SuitSupply%20Tuxedo%20Jacket",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "aritzia-oversized-suit-blazer",
@@ -4060,9 +4060,9 @@
       "fitted tank"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.aritzia.com/us/en/search?q=Aritzia%20Oversized%20Suit%20Blazer",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "banana-republic-tailored-suit-separates",
@@ -4101,9 +4101,9 @@
       "loafers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://bananarepublic.gap.com/browse/search.do?searchText=Banana%20Republic%20Tailored%20Suit%20Separates",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "dr-martens-platform-loafers",
@@ -4143,9 +4143,9 @@
       "straight jeans"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.drmartens.com/us/en/search?q=Dr.%20Martens%20Platform%20Loafers",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "everlane-minimal-ballet-flat",
@@ -4186,9 +4186,9 @@
       "straight jeans"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.everlane.com/search?q=Everlane%20Minimal%20Ballet%20Flat",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "cole-haan-leather-court-sneaker",
@@ -4227,9 +4227,9 @@
       "casual suit"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=Cole%20Haan%20Leather%20Court%20Sneaker",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "madewell-western-ankle-boot",
@@ -4270,9 +4270,9 @@
       "midi dress"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.madewell.com/search?q=Madewell%20Western%20Ankle%20Boot",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "reiss-minimal-derby-shoe",
@@ -4310,9 +4310,9 @@
       "overcoat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.reiss.com/us/en/search?w=Reiss%20Minimal%20Derby%20Shoe",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "baggu-nylon-crossbody-bag",
@@ -4352,9 +4352,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.asos.com/us/search/?q=Baggu%20Nylon%20Crossbody%20Bag",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "cuyana-structured-work-tote",
@@ -4432,9 +4432,9 @@
       "knitwear"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.fossil.com/en-us/search/?q=Fossil%20Leather%20Duffle%20Bag",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "herschel-mini-backpack",
@@ -4473,9 +4473,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=Herschel%20Mini%20Backpack",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "mejuri-statement-ring",
@@ -4513,9 +4513,9 @@
       "slip dress"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://mejuri.com/search?q=Mejuri%20Statement%20Ring",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "j-crew-patterned-socks",
@@ -4555,9 +4555,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.jcrew.com/search?Ntrm=J.Crew%20Patterned%20Socks",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "nordstrom-leather-gloves",
@@ -4595,9 +4595,9 @@
       "chelsea boots"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=Nordstrom%20Leather%20Gloves",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "cos-canvas-baseball-cap",
@@ -4637,9 +4637,9 @@
       "sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.cos.com/en_usd/search.html?q=COS%20Canvas%20Baseball%20Cap",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "le-specs-slim-rectangle-sunglasses",
@@ -4680,9 +4680,9 @@
       "wide-leg jeans"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=Le%20Specs%20Slim%20Rectangle%20Sunglasses",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "warby-parker-tortoise-optical-frames",
@@ -4722,9 +4722,9 @@
       "trench coat"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.warbyparker.com/search?q=Warby%20Parker%20Tortoise%20Optical%20Frames",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "coach-oversized-sunglasses",
@@ -4764,9 +4764,9 @@
       "structured bag"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.coach.com/search?q=Coach%20Oversized%20Sunglasses",
     "imageUrl": "",
-    "notes": ""
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "kayali-warm-vanilla-fragrance",
@@ -4846,9 +4846,9 @@
       "white sneakers"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=Acqua%20di%20Gio%20Fresh%20Aquatic%20Fragrance",
     "imageUrl": "",
-    "notes": "Use lightly; scent preference is highly personal."
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   },
   {
     "id": "chlo-soft-floral-fragrance",
@@ -4888,8 +4888,8 @@
       "structured bag"
     ],
     "affiliateReady": false,
-    "productUrl": "",
+    "productUrl": "https://www.nordstrom.com/sr?keyword=Chlo%C3%A9%20Soft%20Floral%20Fragrance",
     "imageUrl": "",
-    "notes": "Best offered as an optional finishing detail."
+    "notes": "Manual retailer search link. Use for prototype shopping flow; replace with exact product or affiliate URL after validation."
   }
 ]

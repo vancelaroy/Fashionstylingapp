@@ -725,12 +725,20 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
                     <p style={{ color: "var(--muted-foreground)", fontSize: "9px", lineHeight: 1.35, marginBottom: 10 }}>
                       Pairs with {item.pairsWellWith.slice(0, 2).join(" + ")}
                     </p>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span style={{ color: "var(--gold)", fontSize: "13px", fontWeight: 600 }}>{item.approximatePrice}</span>
-                      <button onClick={() => onAskIris?.(buildShoppingPrompt(profile, item, wardrobeItems))} className="px-3 py-1.5 rounded-lg transition-all"
-                        style={{ background: "var(--surface-2)", color: "var(--muted-foreground)", border: "none", fontSize: "10px", fontWeight: 600, cursor: "pointer" }}>
-                        Ask Iris
-                      </button>
+                      <div className="flex gap-1.5">
+                        <button onClick={() => onAskIris?.(buildShoppingPrompt(profile, item, wardrobeItems))} className="px-2.5 py-1.5 rounded-lg transition-all"
+                          style={{ background: "var(--surface-2)", color: "var(--muted-foreground)", border: "none", fontSize: "10px", fontWeight: 600, cursor: "pointer" }}>
+                          Ask
+                        </button>
+                        {item.productUrl && (
+                          <button onClick={() => window.open(item.productUrl, "_blank", "noopener,noreferrer")} className="px-2.5 py-1.5 rounded-lg transition-all"
+                            style={{ background: "var(--gold)", color: "var(--charcoal)", border: "none", fontSize: "10px", fontWeight: 700, cursor: "pointer" }}>
+                            Shop
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </motion.div>
