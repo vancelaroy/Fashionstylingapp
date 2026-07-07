@@ -339,6 +339,12 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
   }, [messages, isTyping]);
 
   useEffect(() => {
+    if (!inputRef.current) return;
+    inputRef.current.style.height = "auto";
+    inputRef.current.style.height = input ? `${Math.min(inputRef.current.scrollHeight, 52)}px` : "22px";
+  }, [input]);
+
+  useEffect(() => {
     setHistoryLoaded(false);
     if (!accessToken) {
       setHistoryLoaded(true);
@@ -463,10 +469,10 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-hidden" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
+    <div className="flex flex-col h-full min-h-0 overflow-hidden" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)", width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
 
       {/* Header */}
-      <div className="px-6 pt-14 pb-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--border)" }}>
+      <div className="px-6 pt-14 pb-4 flex items-center justify-between shrink-0" style={{ borderBottom: "1px solid var(--border)", maxWidth: "100%", boxSizing: "border-box", overflow: "hidden" }}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full flex items-center justify-center relative"
             style={{ background: "linear-gradient(135deg, rgba(201,169,110,0.25) 0%, rgba(212,165,181,0.2) 100%)", border: "1.5px solid var(--gold)" }}>
@@ -495,7 +501,7 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
       </div>
 
       {/* Chat area */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4" style={{ scrollbarWidth: "none", overscrollBehavior: "contain" }}>
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 py-4" style={{ scrollbarWidth: "none", overscrollBehavior: "contain", maxWidth: "100%", boxSizing: "border-box" }}>
         {!started ? (
           <div className="flex flex-col items-center text-center px-2 pt-4 pb-4">
             {/* Iris avatar */}
@@ -559,20 +565,21 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
             </motion.div>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 overflow-x-hidden" style={{ maxWidth: "100%" }}>
             <AnimatePresence initial={false}>
               {messages.map((msg) => (
                 <motion.div key={msg.id}
                   initial={{ opacity: 0, y: 12, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} gap-2`}>
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} gap-2`}
+                  style={{ maxWidth: "100%", overflow: "hidden" }}>
                   {msg.role === "iris" && (
                     <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-1"
                       style={{ background: "linear-gradient(135deg, rgba(201,169,110,0.25) 0%, rgba(212,165,181,0.2) 100%)", border: "1px solid var(--gold)" }}>
                       <span style={{ fontFamily: "var(--font-display)", color: "var(--gold)", fontSize: "12px", fontStyle: "italic", fontWeight: 600 }}>I</span>
                     </div>
                   )}
-                  <div className="flex flex-col gap-2" style={{ maxWidth: "80%" }}>
+                  <div className="flex flex-col gap-2" style={{ maxWidth: msg.role === "iris" ? "calc(100% - 36px)" : "86%", minWidth: 0 }}>
                     <div className="px-4 py-3 rounded-2xl"
                       style={{
                         background: msg.role === "user" ? "linear-gradient(135deg, rgba(201,169,110,0.25) 0%, rgba(201,169,110,0.15) 100%)" : "var(--surface)",
@@ -580,7 +587,7 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
                         borderBottomRightRadius: msg.role === "user" ? 4 : undefined,
                         borderBottomLeftRadius: msg.role === "iris" ? 4 : undefined,
                       }}>
-                      <p style={{ color: "var(--cream)", fontSize: "13px", lineHeight: 1.65, margin: 0 }}>
+                      <p style={{ color: "var(--cream)", fontSize: "13px", lineHeight: 1.65, margin: 0, overflowWrap: "anywhere" }}>
                         {msg.role === "iris" ? formatContent(msg.content) : msg.content}
                       </p>
                     </div>
@@ -625,10 +632,10 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
       </div>
 
       {/* Input */}
-      <div className="px-4 pb-4 pt-2 shrink-0" style={{ borderTop: "1px solid var(--border)", overflow: "hidden", background: "var(--charcoal)" }}>
+      <div className="px-3 pb-4 pt-2 shrink-0" style={{ borderTop: "1px solid var(--border)", overflow: "hidden", background: "var(--charcoal)", width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
         <div className="flex items-end gap-2 w-full" style={{ minWidth: 0 }}>
-          <div className="flex-1 flex items-center px-4 py-2.5 rounded-2xl"
-            style={{ background: "var(--surface)", border: "1px solid var(--border)", minWidth: 0 }}>
+          <div className="flex-1 flex items-center px-3 py-2 rounded-2xl"
+            style={{ background: "var(--surface)", border: "1px solid var(--border)", minWidth: 0, maxWidth: "100%", boxSizing: "border-box" }}>
             <textarea
               ref={inputRef}
               value={input}
@@ -636,13 +643,13 @@ export function IrisChatScreen({ profile, accessToken, pendingPrompt, onPendingP
               onChange={(e) => setInput(e.target.value)}
               onInput={(e) => {
                 e.currentTarget.style.height = "auto";
-                e.currentTarget.style.height = `${Math.min(e.currentTarget.scrollHeight, 56)}px`;
+                e.currentTarget.style.height = `${Math.min(e.currentTarget.scrollHeight, 52)}px`;
               }}
               onFocus={() => setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 120)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
               placeholder="Ask Iris anything..."
               className="flex-1 outline-none resize-none"
-              style={{ background: "transparent", color: "var(--cream)", fontSize: "14px", fontFamily: "var(--font-body)", border: "none", minWidth: 0, maxHeight: 56, lineHeight: 1.35, overflowY: "auto" }}
+              style={{ background: "transparent", color: "var(--cream)", fontSize: "16px", fontFamily: "var(--font-body)", border: "none", minWidth: 0, width: "100%", maxHeight: 52, lineHeight: 1.35, overflowY: "auto" }}
             />
           </div>
           <button onClick={() => sendMessage(input)} disabled={!input.trim() || isTyping} aria-label="Send message"
