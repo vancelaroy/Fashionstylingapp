@@ -33,6 +33,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("home");
   const [splashDone, setSplashDone] = useState(false);
   const [irisItemPrompt, setIrisItemPrompt] = useState<string | null>(null);
+  const [pendingOutfitItemIds, setPendingOutfitItemIds] = useState<string[] | null>(null);
   const isAuthCallback = typeof window !== "undefined" && window.location.pathname === "/auth/callback";
 
   // Guarantee the splash shows for at least 2s — gives the logo animation time to play
@@ -174,6 +175,11 @@ export default function App() {
     setActiveTab("iris");
   };
 
+  const handleEditDailyLook = (itemIds: string[]) => {
+    setPendingOutfitItemIds(itemIds);
+    setActiveTab("wardrobe");
+  };
+
   const mobileShell: CSSProperties = {
     width: "min(100vw, 430px)",
     maxWidth: 430,
@@ -254,9 +260,17 @@ export default function App() {
               accessToken={accessToken}
               onAskIris={handleAskIrisAboutItem}
               onOpenWardrobe={() => setActiveTab("wardrobe")}
+              onEditLook={handleEditDailyLook}
             />
           )}
-          {activeTab === "wardrobe" && <WardrobeScreen accessToken={accessToken} onAskIris={handleAskIrisAboutItem} />}
+          {activeTab === "wardrobe" && (
+            <WardrobeScreen
+              accessToken={accessToken}
+              onAskIris={handleAskIrisAboutItem}
+              pendingOutfitItemIds={pendingOutfitItemIds}
+              onPendingOutfitConsumed={() => setPendingOutfitItemIds(null)}
+            />
+          )}
           {activeTab === "iris" && (
             <IrisChatScreen
               profile={profile}
