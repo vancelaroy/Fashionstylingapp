@@ -20,6 +20,41 @@ function isPersistentImage(src: string | undefined): src is string {
   return !!src && !src.startsWith("blob:");
 }
 
+function WardrobeLoadingState() {
+  return (
+    <div className="px-6 py-12">
+      <div className="rounded-2xl p-4 mb-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+        <div className="flex items-center gap-3 mb-5">
+          <motion.div
+            className="w-12 h-12 rounded-full"
+            style={{ background: "rgba(199,179,139,0.14)" }}
+            animate={{ opacity: [0.45, 1, 0.45] }}
+            transition={{ duration: 1.2, repeat: Infinity }}
+          />
+          <div className="flex-1">
+            <motion.div className="h-4 rounded-full mb-2" style={{ background: "var(--surface-2)" }} animate={{ opacity: [0.35, 0.8, 0.35] }} transition={{ duration: 1.2, repeat: Infinity }} />
+            <motion.div className="h-3 rounded-full w-2/3" style={{ background: "var(--surface-2)" }} animate={{ opacity: [0.25, 0.65, 0.25] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0.15 }} />
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[0, 1, 2, 3, 4, 5].map((slot) => (
+            <motion.div
+              key={slot}
+              className="rounded-xl"
+              style={{ height: 94, background: "var(--surface-2)", border: "1px solid var(--border)" }}
+              animate={{ opacity: [0.35, 0.75, 0.35] }}
+              transition={{ duration: 1.1, repeat: Infinity, delay: slot * 0.08 }}
+            />
+          ))}
+        </div>
+      </div>
+      <p className="text-center" style={{ color: "var(--muted-foreground)", fontSize: 13 }}>
+        Loading your closet...
+      </p>
+    </div>
+  );
+}
+
 async function compressDetailPhoto(file: File): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();
@@ -59,6 +94,7 @@ export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) 
     const token = accessToken ?? publicAnonKey;
     if (!accessToken) { setLoading(false); return; }
 
+    setLoading(true);
     fetch(`${SERVER}/wardrobe/items`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -148,7 +184,7 @@ export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) 
         <div className="flex items-start justify-between mb-4">
           <div>
             <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 500 }}>
-              {myItems.length} {myItems.length === 1 ? "piece" : "pieces"} catalogued
+              {loading ? "Loading closet" : `${myItems.length} ${myItems.length === 1 ? "piece" : "pieces"} catalogued`}
             </p>
             <h1 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "36px", lineHeight: 1.05, fontWeight: 400, letterSpacing: "-0.03em", marginTop: 2 }}>
               My Wardrobe
@@ -218,7 +254,7 @@ export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) 
       <div className={view === "items" ? "flex-1 overflow-y-auto pb-24" : "flex-1 overflow-hidden"}>
 
         {/* ── Virtual Closet ── */}
-        {view === "closet" && <VirtualCloset items={myItems} initialView="builder" onAddPiece={() => setShowUpload(true)} />}
+        {view === "closet" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} initialView="builder" onAddPiece={() => setShowUpload(true)} />)}
 
         {/* ── My Pieces ── */}
         {view === "items" && (
@@ -307,7 +343,7 @@ export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) 
         )}
 
         {/* ── Outfits ── */}
-        {view === "outfits" && <VirtualCloset items={myItems} initialView="saved" onAddPiece={() => setShowUpload(true)} />}
+        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
       </div>
     </div>
   );
