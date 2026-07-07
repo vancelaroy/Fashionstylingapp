@@ -36,6 +36,8 @@ const SEASON_COLORS: Record<string, { name: string; hex: string; pairsWith: stri
   winter: { name: "Deep Cobalt", hex: "#244C9A", pairsWith: ["Black", "White", "Silver"], desc: "Crisp contrast that brings polish fast." },
 };
 
+const DAILY_OCCASIONS = ["Work", "Date", "Errands", "Travel", "Dinner", "Interview", "Event"];
+
 function isPersistentImage(src: string | undefined): src is string {
   return !!src && !src.startsWith("blob:");
 }
@@ -97,6 +99,16 @@ function buildAskIrisPrompt(profile: StyleProfile, look: WardrobeItem[]) {
   return `Help me get dressed today using my wardrobe and Style DNA.\n\nMy suggested pieces are:\n${pieces || "I do not have a complete closet look selected yet."}\n\nMy style profile: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"} style personality.\n\nPlease tell me what to wear today, why it works, what to add or swap, and one confidence note.`;
 }
 
+function buildDailyContextPrompt(profile: StyleProfile, look: WardrobeItem[], occasion: string, details: string) {
+  const pieces = look.map((item) => `${item.name}${item.brand ? ` by ${item.brand}` : ""} (${item.category}, ${item.color}${item.fit ? `, ${item.fit} fit` : ""})`).join("\n");
+  const context = [
+    occasion ? `Occasion: ${occasion}` : null,
+    details.trim() ? `Extra details: ${details.trim()}` : null,
+  ].filter(Boolean).join("\n");
+
+  return `Help me dress for today using my real wardrobe.\n\nToday's context:\n${context || "No specific occasion selected yet."}\n\nCurrent suggested outfit:\n${pieces || "I do not have a complete closet look selected yet."}\n\nMy Style DNA: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"} style personality.\n\nGive me a clear outfit verdict first. Then tell me whether to keep this look, swap a piece, dress it up or down, and what detail will make it feel intentional.`;
+}
+
 function getSlotForCategory(category: string): OutfitSlotKey | null {
   if (category === "tops" || category === "dresses") return "top";
   if (category === "bottoms") return "bottom";
@@ -144,6 +156,8 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, on
   const [loading, setLoading] = useState(true);
   const [savedLooksCount, setSavedLooksCount] = useState(() => readSavedOutfits().length);
   const [savedTodayLook, setSavedTodayLook] = useState(false);
+  const [selectedOccasion, setSelectedOccasion] = useState("");
+  const [occasionDetails, setOccasionDetails] = useState("");
   const [dailySeed, setDailySeed] = useState(() => {
     const key = `irys.dailyLookSeed.${localDayKey()}`;
     const saved = window.localStorage.getItem(key);
@@ -341,6 +355,69 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, on
               </button>
             </div>
           )}
+        </motion.div>
+      </div>
+
+      <div className="px-6 mb-5">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.06 }}
+          className="rounded-2xl p-4"
+          style={{ background: "rgba(143,136,168,0.08)", border: "1px solid rgba(143,136,168,0.22)" }}
+        >
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase" }}>
+                Daily context
+              </p>
+              <h3 style={{ color: "var(--cream)", fontSize: "15px", fontWeight: 700, marginTop: 3 }}>
+                What are you dressing for?
+              </h3>
+            </div>
+            <Sparkles size={17} style={{ color: "var(--lavender)" }} />
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+            {DAILY_OCCASIONS.map((occasion) => (
+              <button
+                key={occasion}
+                onClick={() => setSelectedOccasion(selectedOccasion === occasion ? "" : occasion)}
+                className="shrink-0 px-3 py-1.5 rounded-full transition-all"
+                style={{
+                  background: selectedOccasion === occasion ? "var(--gold)" : "var(--surface)",
+                  color: selectedOccasion === occasion ? "var(--charcoal)" : "var(--muted-foreground)",
+                  border: `1px solid ${selectedOccasion === occasion ? "var(--gold)" : "var(--border)"}`,
+                  fontSize: 10,
+                  fontWeight: selectedOccasion === occasion ? 700 : 500,
+                  cursor: "pointer",
+                }}
+              >
+                {occasion}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 mt-2">
+            <input
+              value={occasionDetails}
+              onChange={(event) => setOccasionDetails(event.target.value)}
+              placeholder="Add details: location, vibe, weather..."
+              className="flex-1 px-3 py-3 rounded-xl outline-none"
+              style={{ background: "var(--surface)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "12px", fontFamily: "var(--font-body)", minWidth: 0 }}
+            />
+            <button
+              onClick={() => onAskIris?.(buildDailyContextPrompt(profile, dailyLook, selectedOccasion, occasionDetails))}
+              className="px-3 py-3 rounded-xl flex items-center justify-center transition-all active:scale-95"
+              style={{ background: "var(--gold)", color: "var(--charcoal)", border: "none", fontWeight: 800, fontSize: 11, cursor: "pointer", whiteSpace: "nowrap" }}
+            >
+              Style
+            </button>
+          </div>
+
+          <p style={{ color: "var(--muted-foreground)", fontSize: "10px", lineHeight: 1.45, marginTop: 9 }}>
+            Iris will use today’s look, your closet, and this context to refine the outfit.
+          </p>
         </motion.div>
       </div>
 
