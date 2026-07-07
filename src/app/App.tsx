@@ -265,7 +265,14 @@ export default function App() {
               onPendingPromptConsumed={() => setIrisItemPrompt(null)}
             />
           )}
-          {activeTab === "discover" && <DiscoverScreen profile={profile} />}
+          {activeTab === "discover" && (
+            <DiscoverScreen
+              profile={profile}
+              accessToken={accessToken}
+              onAskIris={handleAskIrisAboutItem}
+              onOpenWardrobe={() => setActiveTab("wardrobe")}
+            />
+          )}
           {activeTab === "profile" && (
             <ProfileScreen
               profile={profile}
