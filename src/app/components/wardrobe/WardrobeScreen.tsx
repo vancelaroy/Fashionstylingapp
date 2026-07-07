@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Camera, X, Trash2, Save, ImagePlus, Sparkles } from "lucide-react";
+import { Plus, Search, Camera, X, Trash2, Save, ImagePlus, Sparkles, Pencil } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { VirtualCloset } from "./VirtualCloset";
 import { WardrobeUpload, type WardrobeItem } from "./WardrobeUpload";
@@ -78,9 +78,11 @@ async function compressDetailPhoto(file: File): Promise<string> {
 interface WardrobeScreenProps {
   accessToken?: string | null;
   onAskIris?: (prompt: string) => void;
+  pendingOutfitItemIds?: string[] | null;
+  onPendingOutfitConsumed?: () => void;
 }
 
-export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) {
+export function WardrobeScreen({ accessToken, onAskIris, pendingOutfitItemIds, onPendingOutfitConsumed }: WardrobeScreenProps) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState<"closet" | "items" | "outfits">("closet");
@@ -105,6 +107,12 @@ export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) 
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [accessToken]);
+
+  useEffect(() => {
+    if (pendingOutfitItemIds && pendingOutfitItemIds.length > 0) {
+      setView("closet");
+    }
+  }, [pendingOutfitItemIds]);
 
   const saveToServer = async (items: WardrobeItem[]) => {
     if (!accessToken) return;
@@ -254,7 +262,15 @@ export function WardrobeScreen({ accessToken, onAskIris }: WardrobeScreenProps) 
       <div className={view === "items" ? "flex-1 overflow-y-auto pb-24" : "flex-1 overflow-hidden"}>
 
         {/* ── Virtual Closet ── */}
-        {view === "closet" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} initialView="builder" onAddPiece={() => setShowUpload(true)} />)}
+        {view === "closet" && (loading ? <WardrobeLoadingState /> : (
+          <VirtualCloset
+            items={myItems}
+            initialView="builder"
+            onAddPiece={() => setShowUpload(true)}
+            pendingItemIds={pendingOutfitItemIds}
+            onPendingItemIdsConsumed={onPendingOutfitConsumed}
+          />
+        ))}
 
         {/* ── My Pieces ── */}
         {view === "items" && (
@@ -376,6 +392,7 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
     photos: item.photos && item.photos.length > 0 ? item.photos : [item.image].filter(Boolean),
   });
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const photos = (draft.photos && draft.photos.length > 0 ? draft.photos : [draft.image]).filter(Boolean);
 
@@ -434,12 +451,19 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
         <div>
           <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase" }}>Wardrobe Detail</p>
           <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "28px", fontWeight: 400, letterSpacing: "-0.02em" }}>
-            Edit piece
+            {isEditing ? "Edit piece" : "Piece details"}
           </h2>
         </div>
-        <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "var(--surface)", border: "none", cursor: "pointer" }}>
-          <X size={16} style={{ color: "var(--muted-foreground)" }} />
-        </button>
+        <div className="flex items-center gap-2">
+          {!isEditing && (
+            <button onClick={() => setIsEditing(true)} className="px-3 py-2 rounded-full flex items-center gap-1.5" style={{ background: "rgba(201,169,110,0.12)", color: "var(--gold)", border: "1px solid rgba(201,169,110,0.28)", cursor: "pointer", fontSize: 11, fontWeight: 700 }}>
+              <Pencil size={12} /> Edit
+            </button>
+          )}
+          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "var(--surface)", border: "none", cursor: "pointer" }}>
+            <X size={16} style={{ color: "var(--muted-foreground)" }} />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 py-5 pb-40">
@@ -463,50 +487,72 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
               ) : (
                 <span style={{ fontSize: "24px" }}>{CATEGORY_EMOJI[draft.category] ?? "👔"}</span>
               )}
-              {photos.length > 1 && (
+              {isEditing && photos.length > 1 && (
                 <span onClick={(e) => { e.stopPropagation(); removePhoto(photo); }}
                   className="absolute top-1 right-1 rounded-full flex items-center justify-center"
                   style={{ width: 18, height: 18, background: "rgba(22,22,22,0.75)", color: "var(--cream)", fontSize: 10 }}>×</span>
               )}
             </button>
           ))}
-          <label className="shrink-0 rounded-xl flex flex-col items-center justify-center gap-1"
-            style={{ width: 72, height: 72, border: "1px dashed var(--border)", background: "transparent", cursor: "pointer" }}>
-            <ImagePlus size={18} style={{ color: "var(--gold)" }} />
-            <span style={{ color: "var(--muted-foreground)", fontSize: 9 }}>Photo</span>
-            <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) addPhoto(e.target.files[0]); }} />
-          </label>
+          {isEditing && (
+            <label className="shrink-0 rounded-xl flex flex-col items-center justify-center gap-1"
+              style={{ width: 72, height: 72, border: "1px dashed var(--border)", background: "transparent", cursor: "pointer" }}>
+              <ImagePlus size={18} style={{ color: "var(--gold)" }} />
+              <span style={{ color: "var(--muted-foreground)", fontSize: 9 }}>Photo</span>
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) addPhoto(e.target.files[0]); }} />
+            </label>
+          )}
         </div>
 
         <div className="flex flex-col gap-4">
-          <EditField label="Item Name" value={draft.name} onChange={(value) => updateDraft({ name: value })} />
-          <EditField label="Brand" value={draft.brand ?? ""} onChange={(value) => updateDraft({ brand: value })} placeholder="Add or correct brand" />
+          {isEditing ? (
+            <>
+              <EditField label="Item Name" value={draft.name} onChange={(value) => updateDraft({ name: value })} />
+              <EditField label="Brand" value={draft.brand ?? ""} onChange={(value) => updateDraft({ brand: value })} placeholder="Add or correct brand" />
 
-          <div className="grid grid-cols-2 gap-3">
-            <EditSelect label="Category" value={draft.category} options={CATEGORY_VALUES} onChange={(value) => updateDraft({ category: value })} />
-            <EditSelect label="Fit" value={draft.fit || "Not specified"} options={FIT_VALUES} onChange={(value) => updateDraft({ fit: value === "Not specified" ? "" : value })} />
-          </div>
+              <div className="grid grid-cols-2 gap-3">
+                <EditSelect label="Category" value={draft.category} options={CATEGORY_VALUES} onChange={(value) => updateDraft({ category: value })} />
+                <EditSelect label="Fit" value={draft.fit || "Not specified"} options={FIT_VALUES} onChange={(value) => updateDraft({ fit: value === "Not specified" ? "" : value })} />
+              </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <EditField label="Color" value={draft.color} onChange={(value) => updateDraft({ color: value })} />
-            <EditField label="Second Color" value={draft.secondaryColor ?? ""} onChange={(value) => updateDraft({ secondaryColor: value || null })} placeholder="Optional" />
-          </div>
+              <div className="grid grid-cols-2 gap-3">
+                <EditField label="Color" value={draft.color} onChange={(value) => updateDraft({ color: value })} />
+                <EditField label="Second Color" value={draft.secondaryColor ?? ""} onChange={(value) => updateDraft({ secondaryColor: value || null })} placeholder="Optional" />
+              </div>
 
-          <EditTagField label="Occasions" values={draft.occasions} onChange={(values) => updateDraft({ occasions: values })} placeholder="casual, work, evening" />
-          <EditTagField label="Seasons" values={draft.seasons} onChange={(values) => updateDraft({ seasons: values })} placeholder="spring, summer, fall" />
+              <EditTagField label="Occasions" values={draft.occasions} onChange={(values) => updateDraft({ occasions: values })} placeholder="casual, work, evening" />
+              <EditTagField label="Seasons" values={draft.seasons} onChange={(values) => updateDraft({ seasons: values })} placeholder="spring, summer, fall" />
 
-          <div>
-            <label style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
-              Iris Styling Note
-            </label>
-            <textarea
-              value={draft.styleNote}
-              onChange={(e) => updateDraft({ styleNote: e.target.value })}
-              rows={4}
-              className="w-full px-4 py-3 rounded-xl outline-none resize-none"
-              style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "14px", lineHeight: 1.5 }}
-            />
-          </div>
+              <div>
+                <label style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+                  Iris Styling Note
+                </label>
+                <textarea
+                  value={draft.styleNote}
+                  onChange={(e) => updateDraft({ styleNote: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-xl outline-none resize-none"
+                  style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "14px", lineHeight: 1.5 }}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <ReadOnlyField label="Item Name" value={draft.name} />
+              <ReadOnlyField label="Brand" value={draft.brand || "Not specified"} />
+              <div className="grid grid-cols-2 gap-3">
+                <ReadOnlyField label="Category" value={draft.category} capitalize />
+                <ReadOnlyField label="Fit" value={draft.fit || "Not specified"} capitalize />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <ReadOnlyField label="Color" value={draft.color} />
+                <ReadOnlyField label="Second Color" value={draft.secondaryColor || "None"} />
+              </div>
+              <ReadOnlyField label="Occasions" value={draft.occasions.length > 0 ? draft.occasions.join(", ") : "Not specified"} />
+              <ReadOnlyField label="Seasons" value={draft.seasons.length > 0 ? draft.seasons.join(", ") : "Not specified"} />
+              <ReadOnlyField label="Iris Styling Note" value={draft.styleNote || "No note yet"} multiline />
+            </>
+          )}
         </div>
       </div>
 
@@ -520,7 +566,7 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
               Delete
             </button>
           </div>
-        ) : (
+        ) : isEditing ? (
           <>
             {onAskIris && (
               <button onClick={askIrisAboutDraft} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "rgba(201,169,110,0.12)", color: "var(--gold)", border: "1px solid rgba(201,169,110,0.32)", fontWeight: 700, fontSize: 14 }}>
@@ -536,9 +582,50 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
               </button>
             </div>
           </>
+        ) : (
+          <>
+            {onAskIris && (
+              <button onClick={askIrisAboutDraft} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "rgba(201,169,110,0.12)", color: "var(--gold)", border: "1px solid rgba(201,169,110,0.32)", fontWeight: 700, fontSize: 14 }}>
+                <Sparkles size={16} /> Ask Iris about this item
+              </button>
+            )}
+            <button onClick={() => setIsEditing(true)} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "var(--gold)", color: "#161616", border: "none", fontWeight: 700, fontSize: 14 }}>
+              <Pencil size={16} /> Edit Piece
+            </button>
+          </>
         )}
       </div>
     </motion.div>
+  );
+}
+
+function ReadOnlyField({ label, value, multiline = false, capitalize = false }: {
+  label: string;
+  value: string;
+  multiline?: boolean;
+  capitalize?: boolean;
+}) {
+  return (
+    <div>
+      <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 6 }}>
+        {label}
+      </p>
+      <div
+        className="w-full px-4 py-3 rounded-xl"
+        style={{
+          background: "var(--surface-2)",
+          color: "var(--cream)",
+          border: "1px solid var(--border)",
+          fontSize: "14px",
+          lineHeight: 1.5,
+          minHeight: multiline ? 112 : "auto",
+          textTransform: capitalize ? "capitalize" : "none",
+          whiteSpace: multiline ? "pre-wrap" : "normal",
+        }}
+      >
+        {value}
+      </div>
+    </div>
   );
 }
 

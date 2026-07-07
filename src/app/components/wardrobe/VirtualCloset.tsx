@@ -24,6 +24,8 @@ interface VirtualClosetProps {
   items: WardrobeItem[];
   initialView?: "builder" | "saved";
   onAddPiece?: () => void;
+  pendingItemIds?: string[] | null;
+  onPendingItemIdsConsumed?: () => void;
 }
 
 const EMPTY_SLOTS: OutfitSlots = {
@@ -110,11 +112,20 @@ function getSavedOutfitSlots(saved: SavedOutfit, items: WardrobeItem[]): OutfitS
   };
 }
 
+function buildSlotsFromItems(selectedItems: WardrobeItem[]): OutfitSlots {
+  return selectedItems.reduce<OutfitSlots>((slots, item) => {
+    const slot = getSlotForCategory(item.category);
+    if (!slot || slots[slot]) return slots;
+    if (item.category === "dresses") return { ...slots, top: item, bottom: null };
+    return { ...slots, [slot]: item };
+  }, { ...EMPTY_SLOTS });
+}
+
 function getOutfitItemCount(slots: OutfitSlots) {
   return Object.values(slots).filter(Boolean).length;
 }
 
-export function VirtualCloset({ items, initialView = "builder", onAddPiece }: VirtualClosetProps) {
+export function VirtualCloset({ items, initialView = "builder", onAddPiece, pendingItemIds, onPendingItemIdsConsumed }: VirtualClosetProps) {
   const [outfit, setOutfit] = useState<OutfitSlots>(EMPTY_SLOTS);
   const [activeSlot, setActiveSlot] = useState<OutfitSlotKey | null>(null);
   const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>([]);
@@ -138,6 +149,18 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece }: Vi
   useEffect(() => {
     window.localStorage.setItem("irys.savedOutfits.v1", JSON.stringify(savedOutfits));
   }, [savedOutfits]);
+
+  useEffect(() => {
+    if (!pendingItemIds || pendingItemIds.length === 0 || items.length === 0) return;
+    const selectedItems = pendingItemIds
+      .map((id) => items.find((item) => item.id === id))
+      .filter(Boolean) as WardrobeItem[];
+    if (selectedItems.length === 0) return;
+    setOutfit(buildSlotsFromItems(selectedItems));
+    setActiveSlot(null);
+    setView("builder");
+    onPendingItemIdsConsumed?.();
+  }, [items, onPendingItemIdsConsumed, pendingItemIds]);
 
   const suggestions = useMemo(() => {
     if (items.length === 0) return [];
