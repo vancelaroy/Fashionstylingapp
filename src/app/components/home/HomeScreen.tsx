@@ -39,23 +39,24 @@ function seededIndex(seed: number, length: number, offset = 0) {
   return Math.abs((seed * 9301 + 49297 + offset * 233) % length);
 }
 
-function pickDaily(items: WardrobeItem[], categories: string[], seed: number, used: string[] = [], offset = 0) {
+function pickDaily(items: WardrobeItem[], categories: string[], seed: number, variant: number, used: string[] = [], offset = 0) {
   const options = items.filter((item) => categories.includes(item.category) && !used.includes(item.id));
-  return options[seededIndex(seed, options.length, offset)] ?? null;
+  const base = seededIndex(seed, options.length, offset);
+  return options[(base + variant) % options.length] ?? null;
 }
 
-function buildDailyLook(items: WardrobeItem[], seed: number) {
-  const top = pickDaily(items, ["tops", "dresses"], seed, [], 1);
+function buildDailyLook(items: WardrobeItem[], seed: number, variant: number) {
+  const top = pickDaily(items, ["tops", "dresses"], seed, variant, [], 1);
   const used = top ? [top.id] : [];
-  const bottom = top?.category === "dresses" ? null : pickDaily(items, ["bottoms"], seed, used, 2);
+  const bottom = top?.category === "dresses" ? null : pickDaily(items, ["bottoms"], seed, variant + 1, used, 2);
   if (bottom) used.push(bottom.id);
-  const outer = pickDaily(items, ["outerwear", "suits"], seed, used, 3);
+  const outer = pickDaily(items, ["outerwear", "suits"], seed, variant + 2, used, 3);
   if (outer) used.push(outer.id);
-  const shoes = pickDaily(items, ["shoes"], seed, used, 4);
+  const shoes = pickDaily(items, ["shoes"], seed, variant + 3, used, 4);
   if (shoes) used.push(shoes.id);
-  const bag = pickDaily(items, ["bags"], seed, used, 5);
+  const bag = pickDaily(items, ["bags"], seed, variant + 4, used, 5);
   if (bag) used.push(bag.id);
-  const accessory = pickDaily(items, ["accessories"], seed, used, 6);
+  const accessory = pickDaily(items, ["accessories"], seed, variant + 5, used, 6);
 
   return [top, bottom, outer, shoes, bag, accessory].filter(Boolean) as WardrobeItem[];
 }
@@ -110,6 +111,10 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: 
     window.localStorage.setItem(key, String(seed));
     return seed;
   });
+  const [dailyVariant, setDailyVariant] = useState(() => {
+    const saved = window.localStorage.getItem(`irys.dailyLookVariant.${localDayKey()}`);
+    return saved ? Number(saved) || 0 : 0;
+  });
 
   useEffect(() => {
     if (!accessToken) {
@@ -130,12 +135,12 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: 
   }, [accessToken]);
 
   const refreshDailyLook = () => {
-    const seed = Date.now();
-    window.localStorage.setItem(`irys.dailyLookSeed.${localDayKey()}`, String(seed));
-    setDailySeed(seed);
+    const nextVariant = dailyVariant + 1;
+    window.localStorage.setItem(`irys.dailyLookVariant.${localDayKey()}`, String(nextVariant));
+    setDailyVariant(nextVariant);
   };
 
-  const dailyLook = useMemo(() => buildDailyLook(wardrobeItems, dailySeed), [wardrobeItems, dailySeed]);
+  const dailyLook = useMemo(() => buildDailyLook(wardrobeItems, dailySeed, dailyVariant), [wardrobeItems, dailySeed, dailyVariant]);
   const { counts, gaps } = useMemo(() => buildGapList(wardrobeItems), [wardrobeItems]);
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";
