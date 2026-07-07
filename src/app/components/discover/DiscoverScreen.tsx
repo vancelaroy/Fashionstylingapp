@@ -34,6 +34,13 @@ interface CatalogProduct {
   notes: string;
 }
 
+interface ProductVerdict {
+  label: "Fills Gap" | "Possible Duplicate" | "Upgrade Pick" | "Completes Looks";
+  tone: "gold" | "red" | "lavender" | "slate";
+  reason: string;
+  similarItems: WardrobeItem[];
+}
+
 const PRODUCT_CATALOG = productCatalogSeed as CatalogProduct[];
 
 // ── Product data — gender split ───────────────────────────────────────────────
@@ -393,9 +400,90 @@ function getCatalogStats(products: CatalogProduct[]) {
   };
 }
 
-function buildShoppingPrompt(profile: StyleProfile, item: CatalogProduct, wardrobeItems: WardrobeItem[]) {
+function wordSet(value: string) {
+  return new Set(value.toLowerCase().split(/[^a-z0-9]+/).filter((word) => word.length > 2));
+}
+
+function countOverlap(a: string[], b: string[]) {
+  const bSet = new Set(b.map(normalizeTag));
+  return a.map(normalizeTag).filter((value) => bSet.has(value)).length;
+}
+
+function getSimilarClosetItems(product: CatalogProduct, wardrobeItems: WardrobeItem[]) {
+  const productNeedCategory = getProductNeedCategory(product.category);
+  const productWords = wordSet(`${product.name} ${product.brand} ${product.category} ${product.styleTags.join(" ")} ${product.fitTags.join(" ")}`);
+  const productColors = product.colorTags.map(normalizeTag);
+
+  return wardrobeItems
+    .map((item) => {
+      const itemNeedCategory = getProductNeedCategory(item.category);
+      const itemWords = wordSet(`${item.name} ${item.brand ?? ""} ${item.category} ${item.fit ?? ""} ${item.styleNote}`);
+      const wordOverlap = [...productWords].filter((word) => itemWords.has(word)).length;
+      const colorMatch = productColors.includes(normalizeTag(item.color)) || productColors.includes(normalizeTag(item.secondaryColor ?? ""));
+      const sameCategory = itemNeedCategory === productNeedCategory;
+      const score = (sameCategory ? 4 : 0) + wordOverlap + (colorMatch ? 2 : 0);
+      return { item, score, sameCategory };
+    })
+    .filter((match) => match.sameCategory && match.score >= 5)
+    .sort((a, b) => b.score - a.score)
+    .map((match) => match.item)
+    .slice(0, 3);
+}
+
+function getProductVerdict(product: CatalogProduct, wardrobeItems: WardrobeItem[], closetNeeds: string[]): ProductVerdict {
+  const needCategory = getProductNeedCategory(product.category);
+  const similarItems = getSimilarClosetItems(product, wardrobeItems);
+
+  if (closetNeeds.includes(needCategory)) {
+    return {
+      label: "Fills Gap",
+      tone: "gold",
+      reason: CATEGORY_COPY[needCategory]?.reason || "This fills a missing role in your closet.",
+      similarItems,
+    };
+  }
+
+  if (similarItems.length >= 2) {
+    return {
+      label: "Possible Duplicate",
+      tone: "red",
+      reason: `You already own similar ${CATEGORY_COPY[needCategory]?.label.toLowerCase() || "pieces"} like ${similarItems.slice(0, 2).map((item) => item.name).join(" and ")}.`,
+      similarItems,
+    };
+  }
+
+  if (similarItems.length === 1) {
+    return {
+      label: "Upgrade Pick",
+      tone: "lavender",
+      reason: `This may be a cleaner upgrade or alternate to ${similarItems[0].name}, not a brand-new closet role.`,
+      similarItems,
+    };
+  }
+
+  return {
+    label: "Completes Looks",
+    tone: "slate",
+    reason: product.pairsWellWith.length > 0
+      ? `This could work with ${product.pairsWellWith.slice(0, 2).join(" and ")}.`
+      : "This adds range without duplicating an obvious closet piece.",
+    similarItems,
+  };
+}
+
+function getVerdictStyle(tone: ProductVerdict["tone"]) {
+  if (tone === "red") return { background: "rgba(192,57,43,0.24)", color: "#ff9a9a", border: "1px solid rgba(192,57,43,0.35)" };
+  if (tone === "lavender") return { background: "rgba(143,136,168,0.24)", color: "var(--lavender)", border: "1px solid rgba(143,136,168,0.35)" };
+  if (tone === "slate") return { background: "rgba(143,163,177,0.20)", color: "var(--slate)", border: "1px solid rgba(143,163,177,0.32)" };
+  return { background: "rgba(199,179,139,0.24)", color: "var(--gold)", border: "1px solid rgba(199,179,139,0.36)" };
+}
+
+function buildShoppingPrompt(profile: StyleProfile, item: CatalogProduct, wardrobeItems: WardrobeItem[], verdict?: ProductVerdict) {
   const closetSummary = wardrobeItems.slice(0, 18).map((piece) => `${piece.name} (${piece.category}, ${piece.color}${piece.fit ? `, ${piece.fit}` : ""})`).join("\n");
-  return `I'm considering this addition for my wardrobe:\n\n${item.name} by ${item.brand} from ${item.retailer}\nCategory: ${item.category}\nPrice: ${item.approximatePrice} (${item.priceTier})\nOccasions: ${item.occasionTags.join(", ")}\nStyle tags: ${item.styleTags.join(", ")}\n\nMy Style DNA: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"} style personality.\n\nMy current closet includes:\n${closetSummary || "No closet items loaded yet."}\n\nTell me if this is worth adding, what it would pair with, when I would wear it, and whether there is a smarter alternative. If I already own something too similar, tell me not to buy it.`;
+  const verdictContext = verdict
+    ? `\nIRYS pre-check: ${verdict.label}. ${verdict.reason}${verdict.similarItems.length > 0 ? ` Similar owned items: ${verdict.similarItems.map((piece) => piece.name).join(", ")}.` : ""}\n`
+    : "";
+  return `I'm considering this addition for my wardrobe:\n\n${item.name} by ${item.brand} from ${item.retailer}\nCategory: ${item.category}\nPrice: ${item.approximatePrice} (${item.priceTier})\nOccasions: ${item.occasionTags.join(", ")}\nStyle tags: ${item.styleTags.join(", ")}\n${verdictContext}\nMy Style DNA: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"} style personality.\n\nMy current closet includes:\n${closetSummary || "No closet items loaded yet."}\n\nGive me a clear verdict first: BUY, SKIP, or REPLACE. Then explain whether this fills a real gap, duplicates something I already own, or upgrades an existing piece. Be honest and protective of my money.`;
 }
 
 function buildLookPrompt(profile: StyleProfile, look: { title: string; occasion: string }, wardrobeItems: WardrobeItem[]) {
@@ -693,6 +781,8 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
                 const needCopy = CATEGORY_COPY[needCategory];
                 const fillsNeed = closetNeeds.includes(needCategory);
                 const matchReason = getMatchReason(item, profile, closetNeeds, selectedOccasion);
+                const verdict = getProductVerdict(item, wardrobeItems, closetNeeds);
+                const verdictStyle = getVerdictStyle(verdict.tone);
                 return (
                 <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                   className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
@@ -717,10 +807,16 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
                     </div>
                   </div>
                   <div className="p-3">
+                    <div className="inline-flex px-2 py-1 rounded-full mb-2" style={verdictStyle}>
+                      <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase" }}>{verdict.label}</span>
+                    </div>
                     <p style={{ color: "var(--cream)", fontSize: "12px", fontWeight: 500, marginBottom: 1 }}>{item.name}</p>
                     <p style={{ color: "var(--muted-foreground)", fontSize: "10px", marginBottom: 8 }}>{item.brand} · {item.retailer}</p>
                     <p style={{ color: "var(--lavender)", fontSize: "10px", lineHeight: 1.35, marginBottom: 10 }}>
                       {fillsNeed ? needCopy.reason : matchReason}
+                    </p>
+                    <p style={{ color: "var(--muted-foreground)", fontSize: "9px", lineHeight: 1.35, marginBottom: 10 }}>
+                      {verdict.reason}
                     </p>
                     <p style={{ color: "var(--muted-foreground)", fontSize: "9px", lineHeight: 1.35, marginBottom: 10 }}>
                       Pairs with {item.pairsWellWith.slice(0, 2).join(" + ")}
@@ -728,7 +824,7 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
                     <div className="flex items-center justify-between gap-2">
                       <span style={{ color: "var(--gold)", fontSize: "13px", fontWeight: 600 }}>{item.approximatePrice}</span>
                       <div className="flex gap-1.5">
-                        <button onClick={() => onAskIris?.(buildShoppingPrompt(profile, item, wardrobeItems))} className="px-2.5 py-1.5 rounded-lg transition-all"
+                        <button onClick={() => onAskIris?.(buildShoppingPrompt(profile, item, wardrobeItems, verdict))} className="px-2.5 py-1.5 rounded-lg transition-all"
                           style={{ background: "var(--surface-2)", color: "var(--muted-foreground)", border: "none", fontSize: "10px", fontWeight: 600, cursor: "pointer" }}>
                           Ask
                         </button>
