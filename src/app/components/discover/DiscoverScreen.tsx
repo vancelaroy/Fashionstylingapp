@@ -260,17 +260,17 @@ const PRICE_FILTERS: { label: string; value: "all" | PriceTier }[] = [
   { label: "Premium", value: "premium" },
 ];
 
-const PRODUCT_IMAGE_FALLBACKS: Record<string, string> = {
-  tops: "https://images.unsplash.com/photo-1532332248682-206cc786359f?w=500&h=620&fit=crop&auto=format",
-  bottoms: "https://images.unsplash.com/photo-1619603364937-8d7af41ef206?w=500&h=620&fit=crop&auto=format",
-  dresses: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&h=620&fit=crop&auto=format",
-  outerwear: "https://images.unsplash.com/photo-1666932521131-d990bd263a2c?w=500&h=620&fit=crop&auto=format",
-  suits: "https://images.unsplash.com/photo-1656695230389-01185e6fbff8?w=500&h=620&fit=crop&auto=format",
-  shoes: "https://images.unsplash.com/photo-1619603364904-c0498317e145?w=500&h=620&fit=crop&auto=format",
-  bags: "https://images.unsplash.com/photo-1589363358751-ab05797e5629?w=500&h=620&fit=crop&auto=format",
-  accessories: "https://images.unsplash.com/photo-1550995694-3f5f4a7e1bd2?w=500&h=620&fit=crop&auto=format",
-  glasses: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=500&h=620&fit=crop&auto=format",
-  fragrance: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=500&h=620&fit=crop&auto=format",
+const PRODUCT_CATEGORY_LABELS: Record<string, { label: string; icon: string }> = {
+  tops: { label: "Top", icon: "Shirt" },
+  bottoms: { label: "Bottom", icon: "Trouser" },
+  dresses: { label: "Dress", icon: "Dress" },
+  outerwear: { label: "Layer", icon: "Coat" },
+  suits: { label: "Suiting", icon: "Suit" },
+  shoes: { label: "Shoe", icon: "Shoe" },
+  bags: { label: "Bag", icon: "Bag" },
+  accessories: { label: "Accessory", icon: "Detail" },
+  glasses: { label: "Frame", icon: "Frame" },
+  fragrance: { label: "Scent", icon: "Scent" },
 };
 
 const CATEGORY_COPY: Record<string, { label: string; reason: string; prompt: string }> = {
@@ -343,10 +343,6 @@ function normalizeTag(value: string) {
   return value.toLowerCase().trim();
 }
 
-function getProductImage(item: CatalogProduct) {
-  return item.imageUrl || PRODUCT_IMAGE_FALLBACKS[item.category] || PRODUCT_IMAGE_FALLBACKS.accessories;
-}
-
 function genderMatches(profileGender: string | undefined, productGender: ProductGender) {
   if (productGender === "unisex") return true;
   if (profileGender === "man") return productGender === "men";
@@ -405,6 +401,59 @@ function buildShoppingPrompt(profile: StyleProfile, item: CatalogProduct, wardro
 function buildLookPrompt(profile: StyleProfile, look: { title: string; occasion: string }, wardrobeItems: WardrobeItem[]) {
   const closetSummary = wardrobeItems.slice(0, 20).map((piece) => `${piece.name} (${piece.category}, ${piece.color}${piece.fit ? `, ${piece.fit}` : ""})`).join("\n");
   return `Build me a version of "${look.title}" for ${look.occasion} using my real closet first.\n\nMy Style DNA: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"}.\n\nMy closet:\n${closetSummary || "No closet items loaded yet."}\n\nUse what I own, then tell me only the missing piece if something would make the look stronger.`;
+}
+
+function ProductVisual({ item }: { item: CatalogProduct }) {
+  const meta = PRODUCT_CATEGORY_LABELS[item.category] || { label: item.category, icon: "Piece" };
+
+  if (item.imageUrl) {
+    return <img src={item.imageUrl} alt={item.name} className="w-full object-cover" style={{ height: 190 }} />;
+  }
+
+  return (
+    <div
+      className="relative w-full overflow-hidden"
+      style={{
+        height: 190,
+        background: "linear-gradient(135deg, rgba(199,179,139,0.16), rgba(143,136,168,0.13) 48%, rgba(22,22,22,0.92))",
+      }}
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+          backgroundSize: "18px 18px",
+          opacity: 0.55,
+        }}
+      />
+      <div className="absolute inset-0 flex flex-col justify-between p-3">
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <p style={{ color: "var(--gold)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 700 }}>
+              Catalog pick
+            </p>
+            <p style={{ color: "var(--cream)", fontSize: 11, marginTop: 3, textTransform: "capitalize" }}>
+              {meta.label}
+            </p>
+          </div>
+          <div
+            className="rounded-full flex items-center justify-center"
+            style={{ width: 44, height: 44, background: "rgba(14,13,12,0.52)", border: "1px solid rgba(199,179,139,0.28)" }}
+          >
+            <span style={{ color: "var(--gold)", fontSize: 10, fontWeight: 700 }}>{meta.icon}</span>
+          </div>
+        </div>
+        <div>
+          <p style={{ color: "var(--cream)", fontSize: 17, lineHeight: 1.15, fontFamily: "var(--font-display)", marginBottom: 5 }}>
+            {item.retailer}
+          </p>
+          <p style={{ color: "var(--muted-foreground)", fontSize: 10, lineHeight: 1.35 }}>
+            Product image pending. Iris is ranking this from the curated starter catalog.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: DiscoverScreenProps) {
@@ -648,7 +697,7 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
                 <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                   className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                   <div className="relative">
-                    <img src={getProductImage(item)} alt={item.name} className="w-full object-cover" style={{ height: 190 }} />
+                    <ProductVisual item={item} />
                     <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(14,13,12,0.7) 0%, transparent 60%)" }} />
                     <div className="absolute top-2 left-2 px-2 py-1 rounded-full" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)" }}>
                       <span style={{ color: "var(--gold)", fontSize: "10px", fontWeight: 600 }}>{fillsNeed ? "Closet need" : `${Math.min(99, score)}% ✦`}</span>
