@@ -1,8 +1,12 @@
-import { useState } from "react";
-import { Heart, ShoppingBag, Star, ChevronRight, Glasses, Scissors, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Heart, ShoppingBag, Star, ChevronRight, Glasses, Scissors, Sparkles, Shirt, Plus, Wand2 } from "lucide-react";
 import { motion } from "motion/react";
 import { ScentScreen } from "./ScentScreen";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
+import type { WardrobeItem } from "../wardrobe/WardrobeUpload";
+import { projectId } from "/utils/supabase/info";
+
+const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 
 // ── Product data — gender split ───────────────────────────────────────────────
 
@@ -214,21 +218,117 @@ const STYLISTS = [
 
 interface DiscoverScreenProps {
   profile: StyleProfile;
+  accessToken?: string | null;
+  onAskIris?: (prompt: string) => void;
+  onOpenWardrobe?: () => void;
 }
 
 const DISCOVER_TABS = ["For You", "Get The Look", "Glasses", "Stylists & Tailors", "Scent"];
 
-export function DiscoverScreen({ profile }: DiscoverScreenProps) {
+const CATEGORY_COPY: Record<string, { label: string; reason: string; prompt: string }> = {
+  tops: {
+    label: "Top",
+    reason: "More tops create the most new outfit combinations.",
+    prompt: "Help me choose one versatile top that fits my Style DNA and works with my current closet.",
+  },
+  bottoms: {
+    label: "Bottom",
+    reason: "A strong bottom unlocks repeatable casual, work, and evening looks.",
+    prompt: "Help me choose one versatile bottom that would unlock more outfits in my closet.",
+  },
+  outerwear: {
+    label: "Layer",
+    reason: "Outerwear makes simple outfits look intentional fast.",
+    prompt: "Help me choose one outerwear layer that would make my closet feel more polished.",
+  },
+  shoes: {
+    label: "Shoe",
+    reason: "Shoes change the read of everything else you own.",
+    prompt: "Help me choose one shoe that would complete the most outfits in my closet.",
+  },
+  bags: {
+    label: "Bag",
+    reason: "A finishing piece makes outfits feel complete instead of accidental.",
+    prompt: "Help me choose one bag that works with my wardrobe and daily life.",
+  },
+  accessories: {
+    label: "Accessory",
+    reason: "Small details add personality without requiring a whole new outfit.",
+    prompt: "Help me choose one accessory that would make my current wardrobe feel more styled.",
+  },
+};
+
+function getWardrobeCounts(items: WardrobeItem[]) {
+  return {
+    tops: items.filter((item) => item.category === "tops" || item.category === "dresses").length,
+    bottoms: items.filter((item) => item.category === "bottoms").length,
+    outerwear: items.filter((item) => item.category === "outerwear" || item.category === "suits").length,
+    shoes: items.filter((item) => item.category === "shoes").length,
+    bags: items.filter((item) => item.category === "bags").length,
+    accessories: items.filter((item) => item.category === "accessories").length,
+  };
+}
+
+function getClosetNeeds(items: WardrobeItem[]) {
+  const counts = getWardrobeCounts(items);
+  return [
+    counts.shoes === 0 ? "shoes" : null,
+    counts.bottoms === 0 ? "bottoms" : null,
+    counts.outerwear === 0 ? "outerwear" : null,
+    counts.bags === 0 ? "bags" : null,
+    counts.accessories === 0 ? "accessories" : null,
+    counts.tops < 2 ? "tops" : null,
+  ].filter(Boolean) as string[];
+}
+
+function getProductNeedCategory(category: string) {
+  const value = category.toLowerCase();
+  if (value.includes("top") || value.includes("shirt")) return "tops";
+  if (value.includes("bottom") || value.includes("trouser") || value.includes("pant")) return "bottoms";
+  if (value.includes("outer") || value.includes("coat") || value.includes("suiting")) return "outerwear";
+  if (value.includes("shoe")) return "shoes";
+  if (value.includes("bag")) return "bags";
+  return "accessories";
+}
+
+function buildShoppingPrompt(profile: StyleProfile, item: { name: string; brand: string; category: string; price: string }, wardrobeItems: WardrobeItem[]) {
+  const closetSummary = wardrobeItems.slice(0, 18).map((piece) => `${piece.name} (${piece.category}, ${piece.color}${piece.fit ? `, ${piece.fit}` : ""})`).join("\n");
+  return `I'm considering this addition for my wardrobe:\n\n${item.name} by ${item.brand}\nCategory: ${item.category}\nPrice: ${item.price}\n\nMy Style DNA: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"} style personality.\n\nMy current closet includes:\n${closetSummary || "No closet items loaded yet."}\n\nTell me if this is worth adding, what it would pair with, when I would wear it, and whether there is a smarter alternative.`;
+}
+
+function buildLookPrompt(profile: StyleProfile, look: { title: string; occasion: string }, wardrobeItems: WardrobeItem[]) {
+  const closetSummary = wardrobeItems.slice(0, 20).map((piece) => `${piece.name} (${piece.category}, ${piece.color}${piece.fit ? `, ${piece.fit}` : ""})`).join("\n");
+  return `Build me a version of "${look.title}" for ${look.occasion} using my real closet first.\n\nMy Style DNA: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"}.\n\nMy closet:\n${closetSummary || "No closet items loaded yet."}\n\nUse what I own, then tell me only the missing piece if something would make the look stronger.`;
+}
+
+export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe }: DiscoverScreenProps) {
   const [activeTab, setActiveTab] = useState("For You");
   const [wishlist, setWishlist] = useState<number[]>([]);
-  const [cart, setCart] = useState<number[]>([]);
   const [expandedLook, setExpandedLook] = useState<number | null>(1);
   const [stylistFilter, setStylistFilter] = useState<"all" | "stylist" | "tailor">("all");
+  const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([]);
+  const [loadingWardrobe, setLoadingWardrobe] = useState(true);
+
+  useEffect(() => {
+    if (!accessToken) {
+      setLoadingWardrobe(false);
+      return;
+    }
+
+    setLoadingWardrobe(true);
+    fetch(`${SERVER}/wardrobe/items`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (Array.isArray(data.items)) setWardrobeItems(data.items);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingWardrobe(false));
+  }, [accessToken]);
 
   const toggleWishlist = (id: number) =>
     setWishlist((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
-  const toggleCart = (id: number) =>
-    setCart((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
 
   const shopItems = profile.gender === "man" ? SHOP_MEN
     : profile.gender === "nonbinary" ? SHOP_NB
@@ -243,6 +343,15 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
 
   const filteredStylists = stylistFilter === "all" ? STYLISTS
     : STYLISTS.filter((s) => s.type === stylistFilter);
+
+  const closetNeeds = useMemo(() => getClosetNeeds(wardrobeItems), [wardrobeItems]);
+  const discoveryItems = useMemo(() => {
+    return [...shopItems].sort((a, b) => {
+      const aNeed = closetNeeds.includes(getProductNeedCategory(a.category)) ? 1 : 0;
+      const bNeed = closetNeeds.includes(getProductNeedCategory(b.category)) ? 1 : 0;
+      return bNeed - aNeed || b.match - a.match;
+    });
+  }, [shopItems, closetNeeds]);
 
   const genderLabel = profile.gender === "man" ? "men's"
     : profile.gender === "nonbinary" ? "unisex"
@@ -263,9 +372,9 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
             <button className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "var(--surface)", border: "none", cursor: "pointer" }}>
               <ShoppingBag size={18} style={{ color: "var(--cream)" }} />
             </button>
-            {cart.length > 0 && (
+            {wishlist.length > 0 && (
               <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "var(--gold)" }}>
-                <span style={{ fontSize: "9px", color: "var(--charcoal)", fontWeight: 700 }}>{cart.length}</span>
+                <span style={{ fontSize: "9px", color: "var(--charcoal)", fontWeight: 700 }}>{wishlist.length}</span>
               </div>
             )}
           </div>
@@ -297,24 +406,102 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
         {/* ── For You ── */}
         {activeTab === "For You" && (
           <div className="px-6">
-            <div className="rounded-2xl p-4 mb-5 flex items-center gap-3" style={{ background: "rgba(199,179,139,0.08)", border: "1px solid rgba(199,179,139,0.2)" }}>
-              <span style={{ fontSize: "18px" }}>✦</span>
+            <div className="rounded-2xl p-4 mb-4 flex items-start gap-3" style={{ background: "rgba(199,179,139,0.08)", border: "1px solid rgba(199,179,139,0.2)" }}>
+              <Wand2 size={18} style={{ color: "var(--gold)", marginTop: 2 }} />
               <div className="flex-1">
-                <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 500 }}>Curated from your Style DNA</p>
-                <p style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>
-                  Matching your {profile.colorSeason || "autumn"} palette · {genderLabel} sizing
+                <p style={{ color: "var(--cream)", fontSize: "13px", fontWeight: 600 }}>Closet-aware discovery</p>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "11px", lineHeight: 1.5, marginTop: 3 }}>
+                  Ideas are ranked by your Style DNA and what would make your real closet more useful.
                 </p>
               </div>
             </div>
+
+            <div className="grid grid-cols-3 gap-2 mb-5">
+              {[
+                { label: "Pieces", value: loadingWardrobe ? "..." : wardrobeItems.length, icon: Shirt },
+                { label: "Needs", value: loadingWardrobe ? "..." : closetNeeds.length, icon: Sparkles },
+                { label: "Saved", value: wishlist.length, icon: Heart },
+              ].map(({ label, value, icon: Icon }) => (
+                <div key={label} className="rounded-2xl p-3" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+                  <Icon size={14} style={{ color: "var(--gold)", marginBottom: 8 }} />
+                  <p style={{ color: "var(--cream)", fontSize: "18px", fontWeight: 700, lineHeight: 1 }}>{value}</p>
+                  <p style={{ color: "var(--muted-foreground)", fontSize: "10px", marginTop: 4 }}>{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase" }}>
+                    Next best additions
+                  </p>
+                  <h2 style={{ color: "var(--cream)", fontSize: "18px", fontFamily: "var(--font-display)", fontWeight: 400 }}>
+                    What would unlock more outfits
+                  </h2>
+                </div>
+                <button onClick={onOpenWardrobe} className="px-3 py-2 rounded-full flex items-center gap-1"
+                  style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--gold)", fontSize: 11 }}>
+                  <Plus size={12} /> Closet
+                </button>
+              </div>
+
+              {loadingWardrobe ? (
+                <div className="rounded-2xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+                  <p style={{ color: "var(--muted-foreground)", fontSize: 13 }}>Reading your closet...</p>
+                </div>
+              ) : closetNeeds.length > 0 ? (
+                <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                  {closetNeeds.slice(0, 5).map((need) => {
+                    const copy = CATEGORY_COPY[need];
+                    return (
+                      <button key={need} onClick={() => onAskIris?.(`${copy.prompt}\n\nUse my saved closet and Style DNA. Keep the recommendation practical and avoid suggesting duplicates.`)}
+                        className="shrink-0 rounded-2xl p-4 text-left"
+                        style={{ width: 220, background: "var(--surface)", border: "1px solid rgba(199,179,139,0.24)", cursor: "pointer" }}>
+                        <p style={{ color: "var(--gold)", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
+                          {copy.label} need
+                        </p>
+                        <p style={{ color: "var(--cream)", fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
+                          Add one strong {copy.label.toLowerCase()}
+                        </p>
+                        <p style={{ color: "var(--muted-foreground)", fontSize: 12, lineHeight: 1.45 }}>
+                          {copy.reason}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-2xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+                  <p style={{ color: "var(--cream)", fontSize: 13, fontWeight: 600 }}>Your closet has range.</p>
+                  <p style={{ color: "var(--muted-foreground)", fontSize: 12, lineHeight: 1.5, marginTop: 5 }}>
+                    Discovery will focus on upgrades, replacements, and pieces that sharpen your existing style instead of filling basic gaps.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-end justify-between mb-3">
+              <div>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase" }}>Smart shopping ideas</p>
+                <h2 style={{ color: "var(--cream)", fontSize: "18px", fontFamily: "var(--font-display)", fontWeight: 400 }}>Ask before you buy</h2>
+              </div>
+              <p style={{ color: "var(--muted-foreground)", fontSize: 10 }}>{genderLabel} edit</p>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
-              {shopItems.map((item, i) => (
+              {discoveryItems.map((item, i) => {
+                const needCategory = getProductNeedCategory(item.category);
+                const needCopy = CATEGORY_COPY[needCategory];
+                const fillsNeed = closetNeeds.includes(needCategory);
+                return (
                 <motion.div key={item.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                   className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                   <div className="relative">
                     <img src={item.image} alt={item.name} className="w-full object-cover" style={{ height: 190 }} />
                     <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(14,13,12,0.7) 0%, transparent 60%)" }} />
                     <div className="absolute top-2 left-2 px-2 py-1 rounded-full" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)" }}>
-                      <span style={{ color: "var(--gold)", fontSize: "10px", fontWeight: 600 }}>{item.match}% ✦</span>
+                      <span style={{ color: "var(--gold)", fontSize: "10px", fontWeight: 600 }}>{fillsNeed ? "Closet need" : `${item.match}% ✦`}</span>
                     </div>
                     <button onClick={() => toggleWishlist(item.id)} className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "rgba(14,13,12,0.75)", backdropFilter: "blur(6px)", border: "none", cursor: "pointer" }}>
                       <Heart size={12} style={{ color: wishlist.includes(item.id) ? "#8F88A8" : "var(--cream)" }} fill={wishlist.includes(item.id) ? "#8F88A8" : "none"} />
@@ -323,16 +510,19 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
                   <div className="p-3">
                     <p style={{ color: "var(--cream)", fontSize: "12px", fontWeight: 500, marginBottom: 1 }}>{item.name}</p>
                     <p style={{ color: "var(--muted-foreground)", fontSize: "10px", marginBottom: 8 }}>{item.brand} · {item.category}</p>
+                    <p style={{ color: "var(--lavender)", fontSize: "10px", lineHeight: 1.35, marginBottom: 10 }}>
+                      {fillsNeed ? needCopy.reason : `Fits your ${profile.colorSeason || "style"} palette and ${profile.stylePersonality?.[0] || "core"} direction.`}
+                    </p>
                     <div className="flex items-center justify-between">
                       <span style={{ color: "var(--gold)", fontSize: "13px", fontWeight: 600 }}>{item.price}</span>
-                      <button onClick={() => toggleCart(item.id)} className="px-3 py-1.5 rounded-lg transition-all"
-                        style={{ background: cart.includes(item.id) ? "var(--gold)" : "var(--surface-2)", color: cart.includes(item.id) ? "var(--charcoal)" : "var(--muted-foreground)", border: "none", fontSize: "10px", fontWeight: 600, cursor: "pointer" }}>
-                        {cart.includes(item.id) ? "Added ✓" : "Add"}
+                      <button onClick={() => onAskIris?.(buildShoppingPrompt(profile, item, wardrobeItems))} className="px-3 py-1.5 rounded-lg transition-all"
+                        style={{ background: "var(--surface-2)", color: "var(--muted-foreground)", border: "none", fontSize: "10px", fontWeight: 600, cursor: "pointer" }}>
+                        Ask Iris
                       </button>
                     </div>
                   </div>
                 </motion.div>
-              ))}
+              );})}
             </div>
           </div>
         )}
@@ -343,7 +533,7 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
             <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: "rgba(143,163,177,0.08)", border: "1px solid rgba(143,163,177,0.2)" }}>
               <Sparkles size={16} style={{ color: "var(--slate)" }} />
               <p style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.5 }}>
-                Complete looks broken down piece by piece — with every item shoppable.
+                Outfit formulas you can recreate from your closet first, then improve only where something is missing.
               </p>
             </div>
 
@@ -391,9 +581,11 @@ export function DiscoverScreen({ profile }: DiscoverScreenProps) {
                         </div>
                       ))}
                     </div>
-                    <button className="w-full mt-4 py-3 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
+                    <button
+                      onClick={() => onAskIris?.(buildLookPrompt(profile, look, wardrobeItems))}
+                      className="w-full mt-4 py-3 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
                       style={{ background: "var(--gold)", color: "var(--charcoal)", fontWeight: 600, fontSize: "13px", border: "none", cursor: "pointer" }}>
-                      Shop Complete Look <ChevronRight size={14} />
+                      Build from my closet <ChevronRight size={14} />
                     </button>
                   </div>
                 )}
