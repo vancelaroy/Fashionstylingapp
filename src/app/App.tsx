@@ -25,6 +25,18 @@ const DEFAULT_PROFILE: StyleProfile = {
 
 type AppState = "loading" | "auth" | "onboarding" | "app";
 
+function getUserStorageKey(accessToken: string | null) {
+  if (!accessToken) return "irys.savedOutfits.v1.guest";
+  try {
+    const payload = accessToken.split(".")[1];
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(window.atob(normalized.padEnd(normalized.length + (4 - normalized.length % 4) % 4, "=")));
+    return decoded?.sub ? `irys.savedOutfits.v1.${decoded.sub}` : "irys.savedOutfits.v1.guest";
+  } catch {
+    return "irys.savedOutfits.v1.guest";
+  }
+}
+
 export default function App() {
   /* MARKER-MAKE-KIT-INVOKED */
   const [appState, setAppState] = useState<AppState>("loading");
@@ -35,6 +47,7 @@ export default function App() {
   const [irisItemPrompt, setIrisItemPrompt] = useState<string | null>(null);
   const [pendingOutfitItemIds, setPendingOutfitItemIds] = useState<string[] | null>(null);
   const isAuthCallback = typeof window !== "undefined" && window.location.pathname === "/auth/callback";
+  const savedOutfitsKey = getUserStorageKey(accessToken);
 
   // Guarantee the splash shows for at least 2s — gives the logo animation time to play
   useEffect(() => {
@@ -258,6 +271,7 @@ export default function App() {
             <HomeScreen
               profile={profile}
               accessToken={accessToken}
+              savedOutfitsKey={savedOutfitsKey}
               onAskIris={handleAskIrisAboutItem}
               onOpenWardrobe={() => setActiveTab("wardrobe")}
               onEditLook={handleEditDailyLook}
@@ -266,6 +280,7 @@ export default function App() {
           {activeTab === "wardrobe" && (
             <WardrobeScreen
               accessToken={accessToken}
+              savedOutfitsKey={savedOutfitsKey}
               onAskIris={handleAskIrisAboutItem}
               pendingOutfitItemIds={pendingOutfitItemIds}
               onPendingOutfitConsumed={() => setPendingOutfitItemIds(null)}
