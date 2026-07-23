@@ -10,6 +10,7 @@ const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 interface HomeScreenProps {
   profile: StyleProfile;
   accessToken?: string | null;
+  savedOutfitsKey: string;
   onAskIris?: (prompt: string) => void;
   onOpenWardrobe?: () => void;
   onEditLook?: (itemIds: string[]) => void;
@@ -154,9 +155,9 @@ function buildSlotItemIds(items: WardrobeItem[]) {
   }, {});
 }
 
-function readSavedOutfits(): SavedOutfit[] {
+function readSavedOutfits(savedOutfitsKey: string): SavedOutfit[] {
   try {
-    const saved = window.localStorage.getItem("irys.savedOutfits.v1");
+    const saved = window.localStorage.getItem(savedOutfitsKey);
     return saved ? JSON.parse(saved) : [];
   } catch {
     return [];
@@ -176,11 +177,12 @@ function LoadingBlock({ className = "", style }: { className?: string; style?: C
   );
 }
 
-export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, onEditLook }: HomeScreenProps) {
+export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, onOpenWardrobe, onEditLook }: HomeScreenProps) {
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savedLooksCount, setSavedLooksCount] = useState(() => readSavedOutfits().length);
+  const [savedLooksCount, setSavedLooksCount] = useState(() => readSavedOutfits(savedOutfitsKey).length);
   const [savedTodayLook, setSavedTodayLook] = useState(false);
+  const [dailyLookNotice, setDailyLookNotice] = useState("");
   const [selectedOccasion, setSelectedOccasion] = useState("");
   const [occasionDetails, setOccasionDetails] = useState("");
   const [weatherCity, setWeatherCity] = useState(() => readWeatherContext().city);
@@ -218,6 +220,12 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, on
   }, [accessToken]);
 
   useEffect(() => {
+    setSavedLooksCount(readSavedOutfits(savedOutfitsKey).length);
+    setSavedTodayLook(false);
+    setDailyLookNotice("");
+  }, [savedOutfitsKey]);
+
+  useEffect(() => {
     window.localStorage.setItem("irys.weather.city", weatherCity);
     window.localStorage.setItem("irys.weather.temp", weatherTemp);
     window.localStorage.setItem("irys.weather.condition", weatherCondition);
@@ -228,6 +236,7 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, on
     window.localStorage.setItem(`irys.dailyLookVariant.${localDayKey()}`, String(nextVariant));
     setDailyVariant(nextVariant);
     setSavedTodayLook(false);
+    setDailyLookNotice("");
   };
 
   const dailyLook = useMemo(() => buildDailyLook(wardrobeItems, dailySeed, dailyVariant), [wardrobeItems, dailySeed, dailyVariant]);
@@ -241,20 +250,29 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, on
     if (dailyLook.length === 0) return;
     const slotItemIds = buildSlotItemIds(dailyLook);
     const signature = JSON.stringify(slotItemIds);
-    const current = readSavedOutfits();
+    const current = readSavedOutfits(savedOutfitsKey);
     const alreadySaved = current.some((outfit) => JSON.stringify(outfit.slotItemIds) === signature);
+    const savedName = `Today's Edit ${new Date().toLocaleDateString([], { month: "short", day: "numeric" })}`;
     const next = alreadySaved ? current : [
       {
         id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        name: `Today's Edit ${new Date().toLocaleDateString([], { month: "short", day: "numeric" })}`,
+        name: savedName,
         slotItemIds,
         createdAt: new Date().toISOString(),
       },
       ...current,
     ];
-    window.localStorage.setItem("irys.savedOutfits.v1", JSON.stringify(next));
+    window.localStorage.setItem(savedOutfitsKey, JSON.stringify(next));
     setSavedLooksCount(next.length);
     setSavedTodayLook(true);
+    setDailyLookNotice(alreadySaved ? "Already saved in Outfits." : `Saved to Outfits as ${savedName}.`);
+    window.setTimeout(() => setDailyLookNotice(""), 3600);
+  };
+
+  const editTodayLook = () => {
+    if (dailyLookIds.length === 0) return;
+    setDailyLookNotice("Opening this look in Outfit Builder.");
+    onEditLook?.(dailyLookIds);
   };
 
   return (
@@ -366,13 +384,22 @@ export function HomeScreen({ profile, accessToken, onAskIris, onOpenWardrobe, on
                   </button>
                   <button onClick={saveTodayLook} className="py-3 rounded-xl flex items-center justify-center gap-1.5"
                     style={{ background: savedTodayLook ? "rgba(199,179,139,0.16)" : "var(--surface-2)", color: savedTodayLook ? "var(--gold)" : "var(--cream)", border: "1px solid var(--border)", fontWeight: 600, fontSize: "11px", cursor: "pointer" }}>
-                    <Heart size={13} /> {savedTodayLook ? "Saved" : "Save"}
+                    <Heart size={13} /> {savedTodayLook ? "Saved" : "Save look"}
                   </button>
-                  <button onClick={() => onEditLook?.(dailyLookIds)} className="py-3 rounded-xl flex items-center justify-center gap-1.5"
+                  <button onClick={editTodayLook} className="py-3 rounded-xl flex items-center justify-center gap-1.5"
                     style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontWeight: 600, fontSize: "11px", cursor: "pointer" }}>
                     Edit look <ArrowRight size={14} />
                   </button>
                 </div>
+                {dailyLookNotice && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{ color: "var(--gold)", fontSize: "10px", lineHeight: 1.4, marginTop: 10, textAlign: "center" }}
+                  >
+                    {dailyLookNotice}
+                  </motion.p>
+                )}
               </div>
             </>
           ) : (
