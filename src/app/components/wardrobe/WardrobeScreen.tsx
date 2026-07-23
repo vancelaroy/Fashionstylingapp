@@ -77,12 +77,13 @@ async function compressDetailPhoto(file: File): Promise<string> {
 
 interface WardrobeScreenProps {
   accessToken?: string | null;
+  savedOutfitsKey: string;
   onAskIris?: (prompt: string) => void;
   pendingOutfitItemIds?: string[] | null;
   onPendingOutfitConsumed?: () => void;
 }
 
-export function WardrobeScreen({ accessToken, onAskIris, pendingOutfitItemIds, onPendingOutfitConsumed }: WardrobeScreenProps) {
+export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendingOutfitItemIds, onPendingOutfitConsumed }: WardrobeScreenProps) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState<"closet" | "items" | "outfits">("closet");
@@ -265,6 +266,7 @@ export function WardrobeScreen({ accessToken, onAskIris, pendingOutfitItemIds, o
         {view === "closet" && (loading ? <WardrobeLoadingState /> : (
           <VirtualCloset
             items={myItems}
+            savedOutfitsKey={savedOutfitsKey}
             initialView="builder"
             onAddPiece={() => setShowUpload(true)}
             pendingItemIds={pendingOutfitItemIds}
@@ -359,7 +361,7 @@ export function WardrobeScreen({ accessToken, onAskIris, pendingOutfitItemIds, o
         )}
 
         {/* ── Outfits ── */}
-        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
+        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} savedOutfitsKey={savedOutfitsKey} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
       </div>
     </div>
   );

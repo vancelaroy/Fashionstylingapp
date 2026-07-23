@@ -22,6 +22,7 @@ interface OutfitSuggestion {
 
 interface VirtualClosetProps {
   items: WardrobeItem[];
+  savedOutfitsKey: string;
   initialView?: "builder" | "saved";
   onAddPiece?: () => void;
   pendingItemIds?: string[] | null;
@@ -125,30 +126,38 @@ function getOutfitItemCount(slots: OutfitSlots) {
   return Object.values(slots).filter(Boolean).length;
 }
 
-export function VirtualCloset({ items, initialView = "builder", onAddPiece, pendingItemIds, onPendingItemIdsConsumed }: VirtualClosetProps) {
+function readSavedOutfits(savedOutfitsKey: string): SavedOutfit[] {
+  try {
+    const saved = window.localStorage.getItem(savedOutfitsKey);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function VirtualCloset({ items, savedOutfitsKey, initialView = "builder", onAddPiece, pendingItemIds, onPendingItemIdsConsumed }: VirtualClosetProps) {
   const [outfit, setOutfit] = useState<OutfitSlots>(EMPTY_SLOTS);
   const [activeSlot, setActiveSlot] = useState<OutfitSlotKey | null>(null);
-  const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>([]);
+  const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>(() => readSavedOutfits(savedOutfitsKey));
+  const [loadedSavedOutfitsKey, setLoadedSavedOutfitsKey] = useState(savedOutfitsKey);
   const [outfitName, setOutfitName] = useState("");
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [view, setView] = useState<"builder" | "saved">(initialView);
+  const [loadedFromToday, setLoadedFromToday] = useState(false);
 
   useEffect(() => {
     setView(initialView);
   }, [initialView]);
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("irys.savedOutfits.v1");
-      if (saved) setSavedOutfits(JSON.parse(saved));
-    } catch {
-      setSavedOutfits([]);
-    }
-  }, []);
+    setSavedOutfits(readSavedOutfits(savedOutfitsKey));
+    setLoadedSavedOutfitsKey(savedOutfitsKey);
+  }, [savedOutfitsKey]);
 
   useEffect(() => {
-    window.localStorage.setItem("irys.savedOutfits.v1", JSON.stringify(savedOutfits));
-  }, [savedOutfits]);
+    if (loadedSavedOutfitsKey !== savedOutfitsKey) return;
+    window.localStorage.setItem(savedOutfitsKey, JSON.stringify(savedOutfits));
+  }, [loadedSavedOutfitsKey, savedOutfits, savedOutfitsKey]);
 
   useEffect(() => {
     if (!pendingItemIds || pendingItemIds.length === 0 || items.length === 0) return;
@@ -159,6 +168,9 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece, pend
     setOutfit(buildSlotsFromItems(selectedItems));
     setActiveSlot(null);
     setView("builder");
+    setOutfitName(`Today's Edit ${new Date().toLocaleDateString([], { month: "short", day: "numeric" })}`);
+    setLoadedFromToday(true);
+    window.setTimeout(() => setLoadedFromToday(false), 5200);
     onPendingItemIdsConsumed?.();
   }, [items, onPendingItemIdsConsumed, pendingItemIds]);
 
@@ -305,6 +317,25 @@ export function VirtualCloset({ items, initialView = "builder", onAddPiece, pend
           </div>
 
           <div className="px-6 mb-4">
+            <AnimatePresence>
+              {loadedFromToday && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  className="rounded-2xl p-3 mb-3"
+                  style={{ background: "rgba(199,179,139,0.12)", border: "1px solid rgba(199,179,139,0.32)" }}
+                >
+                  <p style={{ color: "var(--gold)", fontSize: "11px", fontWeight: 800, marginBottom: 3 }}>
+                    Loaded from Wear This Today
+                  </p>
+                  <p style={{ color: "var(--muted-foreground)", fontSize: "10px", lineHeight: 1.45 }}>
+                    Adjust any slot, then save it to keep this combo in your outfits.
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div className="rounded-2xl p-4 relative"
               style={{ background: "var(--surface)", border: `1px solid ${hasAnyItem ? "rgba(199,179,139,0.3)" : "var(--border)"}` }}>
               <div className="flex items-center justify-between mb-3">
