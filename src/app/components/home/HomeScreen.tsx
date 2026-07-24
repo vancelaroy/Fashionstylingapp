@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { motion } from "motion/react";
-import { ArrowRight, Camera, CheckCircle2, CloudSun, Heart, MapPin, RefreshCw, Shirt, Sparkles, Sun, Thermometer, Wand2 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { ArrowRight, Camera, CheckCircle2, CloudSun, Heart, MapPin, RefreshCw, Shirt, Sparkles, Sun, Thermometer, Wand2, X } from "lucide-react";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import type { WardrobeItem } from "../wardrobe/WardrobeUpload";
 import { projectId } from "/utils/supabase/info";
@@ -52,6 +52,10 @@ function isPersistentImage(src: string | undefined): src is string {
 
 function localDayKey() {
   return new Date().toLocaleDateString("en-CA");
+}
+
+function defaultDailyLookName() {
+  return `Today's Edit ${new Date().toLocaleDateString([], { month: "short", day: "numeric" })}`;
 }
 
 function readWeatherContext(): WeatherContext {
@@ -183,6 +187,8 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
   const [savedLooksCount, setSavedLooksCount] = useState(() => readSavedOutfits(savedOutfitsKey).length);
   const [savedTodayLook, setSavedTodayLook] = useState(false);
   const [dailyLookNotice, setDailyLookNotice] = useState("");
+  const [showSaveLookModal, setShowSaveLookModal] = useState(false);
+  const [saveLookName, setSaveLookName] = useState(defaultDailyLookName);
   const [selectedOccasion, setSelectedOccasion] = useState("");
   const [occasionDetails, setOccasionDetails] = useState("");
   const [weatherCity, setWeatherCity] = useState(() => readWeatherContext().city);
@@ -237,6 +243,8 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
     setDailyVariant(nextVariant);
     setSavedTodayLook(false);
     setDailyLookNotice("");
+    setShowSaveLookModal(false);
+    setSaveLookName(defaultDailyLookName());
   };
 
   const dailyLook = useMemo(() => buildDailyLook(wardrobeItems, dailySeed, dailyVariant), [wardrobeItems, dailySeed, dailyVariant]);
@@ -246,13 +254,24 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
   const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";
   const color = SEASON_COLORS[(profile.colorSeason || "autumn").toLowerCase()] ?? SEASON_COLORS.autumn;
 
+  const openSaveTodayLook = () => {
+    if (dailyLook.length === 0) return;
+    if (savedTodayLook) {
+      setDailyLookNotice("Already saved in Outfits.");
+      window.setTimeout(() => setDailyLookNotice(""), 3000);
+      return;
+    }
+    setSaveLookName(defaultDailyLookName());
+    setShowSaveLookModal(true);
+  };
+
   const saveTodayLook = () => {
     if (dailyLook.length === 0) return;
     const slotItemIds = buildSlotItemIds(dailyLook);
     const signature = JSON.stringify(slotItemIds);
     const current = readSavedOutfits(savedOutfitsKey);
     const alreadySaved = current.some((outfit) => JSON.stringify(outfit.slotItemIds) === signature);
-    const savedName = `Today's Edit ${new Date().toLocaleDateString([], { month: "short", day: "numeric" })}`;
+    const savedName = saveLookName.trim() || defaultDailyLookName();
     const next = alreadySaved ? current : [
       {
         id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -265,6 +284,7 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
     window.localStorage.setItem(savedOutfitsKey, JSON.stringify(next));
     setSavedLooksCount(next.length);
     setSavedTodayLook(true);
+    setShowSaveLookModal(false);
     setDailyLookNotice(alreadySaved ? "Already saved in Outfits." : `Saved to Outfits as ${savedName}.`);
     window.setTimeout(() => setDailyLookNotice(""), 3600);
   };
@@ -382,7 +402,7 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
                     style={{ background: "var(--gold)", color: "var(--charcoal)", border: "none", fontWeight: 700, fontSize: "11px", cursor: "pointer" }}>
                     <Sparkles size={14} /> Ask Iris
                   </button>
-                  <button onClick={saveTodayLook} className="py-3 rounded-xl flex items-center justify-center gap-1.5"
+                  <button onClick={openSaveTodayLook} className="py-3 rounded-xl flex items-center justify-center gap-1.5"
                     style={{ background: savedTodayLook ? "rgba(199,179,139,0.16)" : "var(--surface-2)", color: savedTodayLook ? "var(--gold)" : "var(--cream)", border: "1px solid var(--border)", fontWeight: 600, fontSize: "11px", cursor: "pointer" }}>
                     <Heart size={13} /> {savedTodayLook ? "Saved" : "Save look"}
                   </button>
@@ -418,6 +438,66 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
           )}
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {showSaveLookModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-start justify-center px-5"
+            style={{ background: "rgba(0,0,0,0.72)", paddingTop: "max(68px, env(safe-area-inset-top))" }}
+            onClick={() => setShowSaveLookModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.98 }}
+              transition={{ type: "spring", damping: 26, stiffness: 320 }}
+              className="w-full rounded-3xl p-5"
+              style={{ background: "var(--surface)", border: "1px solid var(--border)", maxWidth: 390 }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 4 }}>
+                    Save today's look
+                  </p>
+                  <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "22px", fontWeight: 400 }}>
+                    Name this look
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowSaveLookModal(false)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ background: "var(--surface-2)", border: "none", cursor: "pointer" }}
+                >
+                  <X size={14} style={{ color: "var(--muted-foreground)" }} />
+                </button>
+              </div>
+              <input
+                type="text"
+                value={saveLookName}
+                onChange={(event) => setSaveLookName(event.target.value)}
+                placeholder="e.g. Airport Day Fit"
+                autoFocus
+                enterKeyHint="done"
+                onKeyDown={(event) => { if (event.key === "Enter") saveTodayLook(); }}
+                className="w-full px-4 py-3 rounded-xl outline-none mb-3"
+                style={{ background: "var(--surface-2)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "15px", fontFamily: "var(--font-body)" }}
+              />
+              <button
+                onClick={saveTodayLook}
+                disabled={!saveLookName.trim()}
+                className="w-full py-3.5 rounded-xl"
+                style={{ background: saveLookName.trim() ? "var(--gold)" : "var(--surface-2)", color: saveLookName.trim() ? "var(--charcoal)" : "var(--muted-foreground)", fontWeight: 700, fontSize: "14px", border: "none", cursor: saveLookName.trim() ? "pointer" : "not-allowed" }}
+              >
+                Save Look
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="px-6 mb-5">
         <motion.div
