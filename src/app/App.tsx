@@ -166,6 +166,11 @@ export default function App() {
     setAppState("app");
   };
 
+  const handleProfileUpdate = (updatedProfile: StyleProfile) => {
+    setProfile(updatedProfile);
+    if (accessToken) saveProfile(accessToken, updatedProfile);
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     // onAuthStateChange SIGNED_OUT handles state cleanup
@@ -305,6 +310,7 @@ export default function App() {
           {activeTab === "profile" && (
             <ProfileScreen
               profile={profile}
+              onProfileUpdate={handleProfileUpdate}
               onReset={handleReset}
               onPreview={handlePreview}
               onSignOut={handleSignOut}
