@@ -38,6 +38,12 @@ const STYLE_INSIGHTS = [
 export function ProfileScreen({ profile, onProfileUpdate, onReset, onPreview, onSignOut, isLoggedIn }: ProfileScreenProps) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showCaseStudy, setShowCaseStudy] = useState(false);
+  const [isEditingRetailMeasurements, setIsEditingRetailMeasurements] = useState(false);
+  const [measurementDraft, setMeasurementDraft] = useState<StyleProfile["measurements"]>(profile.measurements || {});
+
+  useEffect(() => {
+    setMeasurementDraft(profile.measurements || {});
+  }, [profile.measurements]);
 
   if (showCaseStudy) {
     return <CaseStudyScreen onBack={() => setShowCaseStudy(false)} />;
@@ -45,6 +51,26 @@ export function ProfileScreen({ profile, onProfileUpdate, onReset, onPreview, on
 
   const colorData = COLOR_SEASON_DATA[profile.colorSeason?.toLowerCase()] || COLOR_SEASON_DATA.autumn;
   const glassesData = FACE_GLASSES[profile.faceShape?.toLowerCase()] || FACE_GLASSES.oval;
+  const retailMeasurementFields = profile.gender === "man"
+    ? [
+        { key: "height", label: "Height", placeholder: "5'11 / 179cm" },
+        { key: "waist", label: "Waist", placeholder: "28" },
+        { key: "hips", label: "Hips", placeholder: "29" },
+        { key: "coatSize", label: "Coat Size", placeholder: "36", highlight: true },
+        { key: "shirtSize", label: "Shirt", placeholder: "S" },
+        { key: "shoeSize", label: "Shoes", placeholder: "10.5 US / 43-44.5 EU" },
+      ]
+    : [
+        { key: "height", label: "Height", placeholder: "5'6" },
+        { key: "bust", label: profile.gender === "nonbinary" ? "Chest / Bust" : "Bust", placeholder: "36" },
+        { key: "waist", label: "Waist", placeholder: "28" },
+        { key: "hips", label: "Hips", placeholder: "38" },
+      ];
+
+  const saveRetailMeasurements = () => {
+    onProfileUpdate?.({ ...profile, measurements: { ...(profile.measurements || {}), ...measurementDraft } });
+    setIsEditingRetailMeasurements(false);
+  };
 
   const seasonDisplay = profile.colorSeason
     ? profile.colorSeason.charAt(0).toUpperCase() + profile.colorSeason.slice(1)
@@ -213,35 +239,59 @@ export function ProfileScreen({ profile, onProfileUpdate, onReset, onPreview, on
         >
           <div className="pt-4">
             {/* Core measurements grid */}
-            <p style={{ color: "var(--muted-foreground)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
-              Everyday Retail Sizing
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <p style={{ color: "var(--muted-foreground)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                Everyday Retail Sizing
+              </p>
+              {onProfileUpdate && (
+                <button
+                  onClick={isEditingRetailMeasurements ? saveRetailMeasurements : () => setIsEditingRetailMeasurements(true)}
+                  className="px-3 py-1.5 rounded-full transition-all active:scale-95"
+                  style={{
+                    background: isEditingRetailMeasurements ? "var(--gold)" : "rgba(199,179,139,0.08)",
+                    border: isEditingRetailMeasurements ? "none" : "1px solid rgba(199,179,139,0.2)",
+                    color: isEditingRetailMeasurements ? "var(--charcoal)" : "var(--gold)",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {isEditingRetailMeasurements ? "Save" : "Edit"}
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-3 mb-5">
-            {(profile.gender === "man"
-              ? [
-                  { label: "Height", value: profile.measurements?.height || "—" },
-                  { label: "Waist", value: profile.measurements?.waist || "—" },
-                  { label: "Hips", value: profile.measurements?.hips || "—" },
-                  { label: "Coat Size", value: profile.measurements?.coatSize || "—", highlight: true },
-                  { label: "Shirt", value: profile.measurements?.shirtSize || "—" },
-                  { label: "Shoes", value: profile.measurements?.shoeSize || "—" },
-                ]
-              : [
-                  { label: "Height", value: profile.measurements?.height || "—" },
-                  { label: "Bust", value: profile.measurements?.bust || "—" },
-                  { label: "Waist", value: profile.measurements?.waist || "—" },
-                  { label: "Hips", value: profile.measurements?.hips || "—" },
-                ]
-            ).map(({ label, value, highlight }) => (
+            {retailMeasurementFields.map(({ key, label, placeholder, highlight }) => {
+              const value = profile.measurements?.[key] || "—";
+              return (
               <div
                 key={label}
                 className="rounded-xl p-3"
                 style={{ background: highlight ? "rgba(199,179,139,0.08)" : "var(--surface-2)", border: highlight ? "1px solid rgba(199,179,139,0.2)" : "none" }}
               >
                 <p style={{ color: "var(--muted-foreground)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{label}</p>
-                <p style={{ color: value === "—" ? "var(--muted-foreground)" : "var(--gold)", fontSize: "16px", fontFamily: "var(--font-display)" }}>{value}</p>
+                {isEditingRetailMeasurements ? (
+                  <input
+                    type="text"
+                    value={measurementDraft?.[key] || ""}
+                    onChange={(e) => setMeasurementDraft((draft) => ({ ...(draft || {}), [key]: e.target.value }))}
+                    placeholder={placeholder}
+                    className="w-full outline-none"
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "var(--cream)",
+                      fontSize: "16px",
+                      fontFamily: "var(--font-display)",
+                    }}
+                    onFocus={(e) => e.currentTarget.select()}
+                  />
+                ) : (
+                  <p style={{ color: value === "—" ? "var(--muted-foreground)" : "var(--gold)", fontSize: "16px", fontFamily: "var(--font-display)" }}>{value}</p>
+                )}
               </div>
-            ))}
+            );
+            })}
             </div>
 
             {/* Detailed tailoring section — men only */}
