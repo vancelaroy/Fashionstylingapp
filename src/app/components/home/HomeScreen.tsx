@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, Camera, CheckCircle2, CloudSun, Heart, MapPin, RefreshCw, Shirt, Sparkles, Sun, Thermometer, Wand2, X } from "lucide-react";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import type { WardrobeItem } from "../wardrobe/WardrobeUpload";
+import { loadSavedOutfits, persistSavedOutfits, readLocalSavedOutfits, type SavedOutfit, type OutfitSlotKey } from "../../lib/savedOutfits";
 import { projectId } from "/utils/supabase/info";
 
 const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
@@ -14,15 +15,6 @@ interface HomeScreenProps {
   onAskIris?: (prompt: string) => void;
   onOpenWardrobe?: () => void;
   onEditLook?: (itemIds: string[]) => void;
-}
-
-type OutfitSlotKey = "top" | "bottom" | "outer" | "shoes" | "bag" | "accessory";
-
-interface SavedOutfit {
-  id: string;
-  name: string;
-  slotItemIds: Partial<Record<OutfitSlotKey, string>>;
-  createdAt: string;
 }
 
 const CATEGORY_EMOJI: Record<string, string> = {
@@ -159,15 +151,6 @@ function buildSlotItemIds(items: WardrobeItem[]) {
   }, {});
 }
 
-function readSavedOutfits(savedOutfitsKey: string): SavedOutfit[] {
-  try {
-    const saved = window.localStorage.getItem(savedOutfitsKey);
-    return saved ? JSON.parse(saved) : [];
-  } catch {
-    return [];
-  }
-}
-
 function LoadingBlock({ className = "", style }: { className?: string; style?: CSSProperties }) {
   return (
     <div className={`overflow-hidden relative ${className}`} style={{ background: "var(--surface-2)", ...style }}>
@@ -184,7 +167,7 @@ function LoadingBlock({ className = "", style }: { className?: string; style?: C
 export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, onOpenWardrobe, onEditLook }: HomeScreenProps) {
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savedLooksCount, setSavedLooksCount] = useState(() => readSavedOutfits(savedOutfitsKey).length);
+  const [savedLooksCount, setSavedLooksCount] = useState(() => readLocalSavedOutfits(savedOutfitsKey).length);
   const [savedTodayLook, setSavedTodayLook] = useState(false);
   const [dailyLookNotice, setDailyLookNotice] = useState("");
   const [showSaveLookModal, setShowSaveLookModal] = useState(false);
@@ -226,10 +209,27 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
   }, [accessToken]);
 
   useEffect(() => {
-    setSavedLooksCount(readSavedOutfits(savedOutfitsKey).length);
+    let isActive = true;
+    setSavedLooksCount(readLocalSavedOutfits(savedOutfitsKey).length);
+    loadSavedOutfits(accessToken, savedOutfitsKey).then((outfits) => {
+      if (isActive) setSavedLooksCount(outfits.length);
+    });
     setSavedTodayLook(false);
     setDailyLookNotice("");
-  }, [savedOutfitsKey]);
+
+    const handleSavedOutfitsChanged = (event: Event) => {
+      const detail = (event as CustomEvent<{ savedOutfitsKey?: string }>).detail;
+      if (detail?.savedOutfitsKey === savedOutfitsKey) {
+        setSavedLooksCount(readLocalSavedOutfits(savedOutfitsKey).length);
+      }
+    };
+
+    window.addEventListener("irys:savedOutfitsChanged", handleSavedOutfitsChanged);
+    return () => {
+      isActive = false;
+      window.removeEventListener("irys:savedOutfitsChanged", handleSavedOutfitsChanged);
+    };
+  }, [accessToken, savedOutfitsKey]);
 
   useEffect(() => {
     window.localStorage.setItem("irys.weather.city", weatherCity);
@@ -265,11 +265,11 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
     setShowSaveLookModal(true);
   };
 
-  const saveTodayLook = () => {
+  const saveTodayLook = async () => {
     if (dailyLook.length === 0) return;
     const slotItemIds = buildSlotItemIds(dailyLook);
     const signature = JSON.stringify(slotItemIds);
-    const current = readSavedOutfits(savedOutfitsKey);
+    const current = await loadSavedOutfits(accessToken, savedOutfitsKey);
     const alreadySaved = current.some((outfit) => JSON.stringify(outfit.slotItemIds) === signature);
     const savedName = saveLookName.trim() || defaultDailyLookName();
     const next = alreadySaved ? current : [
@@ -281,7 +281,7 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
       },
       ...current,
     ];
-    window.localStorage.setItem(savedOutfitsKey, JSON.stringify(next));
+    await persistSavedOutfits(accessToken, savedOutfitsKey, next);
     setSavedLooksCount(next.length);
     setSavedTodayLook(true);
     setShowSaveLookModal(false);
