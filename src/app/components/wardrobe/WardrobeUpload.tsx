@@ -37,6 +37,35 @@ const OCCASION_LABELS: Record<string, string> = {
   formal: "Formal", sport: "Sport", weekend: "Weekend",
 };
 
+const SEASON_OPTIONS = ["spring", "summer", "fall", "winter", "year-round"];
+const SEASON_LABELS: Record<string, string> = {
+  spring: "Spring",
+  summer: "Summer",
+  fall: "Fall",
+  autumn: "Fall",
+  winter: "Winter",
+  "year-round": "Year-round",
+};
+
+function normalizeSeasons(seasons?: string[]) {
+  const normalized = (seasons ?? [])
+    .map((season) => season.trim().toLowerCase())
+    .map((season) => season === "autumn" ? "fall" : season)
+    .filter((season) => SEASON_OPTIONS.includes(season));
+
+  if (normalized.length === 0 || normalized.includes("year-round")) return ["year-round"];
+  return Array.from(new Set(normalized));
+}
+
+function toggleSeason(current: string[], season: string) {
+  if (season === "year-round") return ["year-round"];
+  const withoutYearRound = current.filter((value) => value !== "year-round");
+  const next = withoutYearRound.includes(season)
+    ? withoutYearRound.filter((value) => value !== season)
+    : [...withoutYearRound, season];
+  return next.length > 0 ? next : ["year-round"];
+}
+
 // Compress image to max 800px wide, JPEG quality 0.8. The dataUrl is what
 // persists in the saved closet; object URLs are preview-only and expire.
 async function compressImage(file: File): Promise<{ base64: string; dataUrl: string; mediaType: string }> {
@@ -68,6 +97,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
   const [analysisResult, setAnalysisResult] = useState<Partial<WardrobeItem> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
+  const [selectedSeasons, setSelectedSeasons] = useState<string[]>(["year-round"]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
@@ -99,7 +129,9 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
       const data = await res.json();
       if (!res.ok || !data.item) throw new Error(data.error ?? "Analysis failed");
 
-      setAnalysisResult(data.item);
+      const seasons = normalizeSeasons(data.item.seasons);
+      setAnalysisResult({ ...data.item, seasons });
+      setSelectedSeasons(seasons);
       setEditName(data.item.name ?? "");
       setStage("result");
     } catch (err) {
@@ -124,7 +156,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
       secondaryColor: analysisResult.secondaryColor,
       fit: analysisResult.fit,
       occasions: analysisResult.occasions || [],
-      seasons: analysisResult.seasons || [],
+      seasons: selectedSeasons,
       styleNote: analysisResult.styleNote || "",
       brand: analysisResult.brand,
       addedAt: new Date().toISOString(),
@@ -207,7 +239,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
               </div>
 
               <p style={{ color: "var(--muted-foreground)", fontSize: "11px", textAlign: "center", marginTop: 20, lineHeight: 1.6 }}>
-                Lay the item flat on a clean surface for best results. Iris can identify color, category, and occasion from a clear photo.
+                Lay the item flat on a clean surface for best results. Iris can identify color, category, occasion, and season from a clear photo.
               </p>
             </motion.div>
           )}
@@ -282,7 +314,34 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
               <div className="grid grid-cols-2 gap-3">
                 <Detail label="Color" value={`${analysisResult.color}${analysisResult.secondaryColor ? ` · ${analysisResult.secondaryColor}` : ""}`} />
                 {analysisResult.brand && <Detail label="Brand" value={analysisResult.brand} />}
-                <Detail label="Seasons" value={(analysisResult.seasons ?? []).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(", ")} />
+              </div>
+
+              <div>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 8 }}>Seasons</p>
+                <div className="flex gap-2 flex-wrap">
+                  {SEASON_OPTIONS.map((season) => {
+                    const selected = selectedSeasons.includes(season);
+                    return (
+                      <button
+                        key={season}
+                        onClick={() => setSelectedSeasons((current) => toggleSeason(current, season))}
+                        className="px-3 py-1.5 rounded-full transition-all"
+                        style={{
+                          background: selected ? "var(--gold)" : "var(--surface)",
+                          color: selected ? "#161616" : "var(--cream)",
+                          fontSize: "12px",
+                          border: `1px solid ${selected ? "var(--gold)" : "var(--border)"}`,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {SEASON_LABELS[season]}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "11px", lineHeight: 1.5, marginTop: 8 }}>
+                  This helps Iris keep winter coats out of summer outfits.
+                </p>
               </div>
 
               {/* Occasion tags */}

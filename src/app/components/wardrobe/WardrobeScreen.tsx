@@ -10,6 +10,15 @@ const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 const CATEGORIES = ["All", "Tops", "Bottoms", "Dresses", "Outerwear", "Shoes", "Accessories", "Bags", "Suits"];
 const CATEGORY_VALUES = ["tops", "bottoms", "dresses", "outerwear", "shoes", "accessories", "bags", "suits"];
 const FIT_VALUES = ["Slim", "Tailored", "Regular", "Relaxed", "Oversized", "Cropped", "Structured", "Flowy", "Not specified"];
+const SEASON_OPTIONS = ["spring", "summer", "fall", "winter", "year-round"];
+const SEASON_LABELS: Record<string, string> = {
+  spring: "Spring",
+  summer: "Summer",
+  fall: "Fall",
+  autumn: "Fall",
+  winter: "Winter",
+  "year-round": "Year-round",
+};
 
 const CATEGORY_EMOJI: Record<string, string> = {
   tops: "👕", bottoms: "👖", outerwear: "🧥", shoes: "👟",
@@ -18,6 +27,33 @@ const CATEGORY_EMOJI: Record<string, string> = {
 
 function isPersistentImage(src: string | undefined): src is string {
   return !!src && !src.startsWith("blob:");
+}
+
+function normalizeSeasons(seasons?: string[]) {
+  const normalized = (seasons ?? [])
+    .map((season) => season.trim().toLowerCase())
+    .map((season) => season === "autumn" ? "fall" : season)
+    .filter((season) => SEASON_OPTIONS.includes(season));
+
+  if (normalized.length === 0 || normalized.includes("year-round")) return ["year-round"];
+  return Array.from(new Set(normalized));
+}
+
+function formatSeason(season: string) {
+  return SEASON_LABELS[season] ?? season;
+}
+
+function formatSeasons(seasons?: string[]) {
+  return normalizeSeasons(seasons).map(formatSeason).join(", ");
+}
+
+function toggleSeason(current: string[], season: string) {
+  if (season === "year-round") return ["year-round"];
+  const withoutYearRound = current.filter((value) => value !== "year-round");
+  const next = withoutYearRound.includes(season)
+    ? withoutYearRound.filter((value) => value !== season)
+    : [...withoutYearRound, season];
+  return next.length > 0 ? next : ["year-round"];
 }
 
 function WardrobeLoadingState() {
@@ -326,9 +362,14 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
                       </div>
                       <div className="absolute bottom-2 left-2 right-2">
                         <div className="flex gap-1 flex-wrap">
-                          {item.occasions.slice(0, 2).map((o) => (
+                          {(item.occasions ?? []).slice(0, 2).map((o) => (
                             <span key={o} style={{ fontSize: "9px", color: "var(--cream)", background: "rgba(255,255,255,0.15)", padding: "1px 6px", borderRadius: 99, backdropFilter: "blur(4px)", textTransform: "capitalize" }}>
                               {o}
+                            </span>
+                          ))}
+                          {normalizeSeasons(item.seasons).slice(0, 1).map((season) => (
+                            <span key={season} style={{ fontSize: "9px", color: "var(--gold)", background: "rgba(199,179,139,0.18)", padding: "1px 6px", borderRadius: 99, backdropFilter: "blur(4px)" }}>
+                              {formatSeason(season)}
                             </span>
                           ))}
                         </div>
@@ -369,14 +410,15 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
 }
 
 function buildIrisItemPrompt(item: WardrobeItem): string {
+  const seasons = normalizeSeasons(item.seasons);
   const details = [
     `Name: ${item.name}`,
     item.brand ? `Brand: ${item.brand}` : null,
     `Category: ${item.category}`,
     `Color: ${item.secondaryColor ? `${item.color} and ${item.secondaryColor}` : item.color}`,
     item.fit ? `Fit: ${item.fit}` : null,
-    item.occasions.length > 0 ? `Occasions: ${item.occasions.join(", ")}` : null,
-    item.seasons.length > 0 ? `Seasons: ${item.seasons.join(", ")}` : null,
+    (item.occasions ?? []).length > 0 ? `Occasions: ${item.occasions.join(", ")}` : null,
+    seasons.length > 0 ? `Seasons: ${seasons.map(formatSeason).join(", ")}` : null,
     item.styleNote ? `Current styling note: ${item.styleNote}` : null,
   ].filter(Boolean).join("\n");
 
@@ -393,6 +435,8 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
   const [draft, setDraft] = useState<WardrobeItem>({
     ...item,
     photos: item.photos && item.photos.length > 0 ? item.photos : [item.image].filter(Boolean),
+    occasions: item.occasions ?? [],
+    seasons: normalizeSeasons(item.seasons),
   });
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -425,6 +469,8 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
       brand: draft.brand?.trim() || null,
       fit: draft.fit?.trim() || undefined,
       color: draft.color.trim() || "Unknown",
+      occasions: draft.occasions ?? [],
+      seasons: normalizeSeasons(draft.seasons),
       styleNote: draft.styleNote.trim(),
     };
   };
@@ -524,7 +570,7 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
               </div>
 
               <EditTagField label="Occasions" values={draft.occasions} onChange={(values) => updateDraft({ occasions: values })} placeholder="casual, work, evening" />
-              <EditTagField label="Seasons" values={draft.seasons} onChange={(values) => updateDraft({ seasons: values })} placeholder="spring, summer, fall" />
+              <EditSeasonField values={normalizeSeasons(draft.seasons)} onChange={(values) => updateDraft({ seasons: values })} />
 
               <div>
                 <label style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
@@ -551,8 +597,8 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
                 <ReadOnlyField label="Color" value={draft.color} />
                 <ReadOnlyField label="Second Color" value={draft.secondaryColor || "None"} />
               </div>
-              <ReadOnlyField label="Occasions" value={draft.occasions.length > 0 ? draft.occasions.join(", ") : "Not specified"} />
-              <ReadOnlyField label="Seasons" value={draft.seasons.length > 0 ? draft.seasons.join(", ") : "Not specified"} />
+              <ReadOnlyField label="Occasions" value={(draft.occasions ?? []).length > 0 ? draft.occasions.join(", ") : "Not specified"} />
+              <ReadOnlyField label="Seasons" value={formatSeasons(draft.seasons)} />
               <ReadOnlyField label="Iris Styling Note" value={draft.styleNote || "No note yet"} multiline />
             </>
           )}
@@ -689,5 +735,43 @@ function EditTagField({ label, values, onChange, placeholder }: {
       placeholder={placeholder}
       onChange={(value) => onChange(value.split(",").map((v) => v.trim().toLowerCase()).filter(Boolean))}
     />
+  );
+}
+
+function EditSeasonField({ values, onChange }: {
+  values: string[];
+  onChange: (values: string[]) => void;
+}) {
+  return (
+    <div>
+      <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 8 }}>
+        Seasons
+      </p>
+      <div className="flex gap-2 flex-wrap">
+        {SEASON_OPTIONS.map((season) => {
+          const selected = values.includes(season);
+          return (
+            <button
+              key={season}
+              onClick={() => onChange(toggleSeason(values, season))}
+              className="px-3 py-1.5 rounded-full transition-all"
+              style={{
+                background: selected ? "var(--gold)" : "var(--surface-2)",
+                color: selected ? "#161616" : "var(--cream)",
+                border: `1px solid ${selected ? "var(--gold)" : "var(--border)"}`,
+                fontSize: "12px",
+                fontWeight: selected ? 700 : 500,
+                cursor: "pointer",
+              }}
+            >
+              {formatSeason(season)}
+            </button>
+          );
+        })}
+      </div>
+      <p style={{ color: "var(--muted-foreground)", fontSize: "11px", lineHeight: 1.5, marginTop: 8 }}>
+        Use Year-round for basics. Use seasons for pieces Iris should rotate in only part of the year.
+      </p>
+    </div>
   );
 }
