@@ -266,6 +266,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
         {view === "closet" && (loading ? <WardrobeLoadingState /> : (
           <VirtualCloset
             items={myItems}
+            accessToken={accessToken}
             savedOutfitsKey={savedOutfitsKey}
             initialView="builder"
             onAddPiece={() => setShowUpload(true)}
@@ -361,7 +362,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
         )}
 
         {/* ── Outfits ── */}
-        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} savedOutfitsKey={savedOutfitsKey} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
+        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} accessToken={accessToken} savedOutfitsKey={savedOutfitsKey} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
       </div>
     </div>
   );

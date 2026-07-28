@@ -2,17 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Plus, Sparkles, RotateCcw, Share2, Heart, Camera, X, Trash2 } from "lucide-react";
 import type { WardrobeItem } from "./WardrobeUpload";
-
-type OutfitSlotKey = "top" | "bottom" | "outer" | "shoes" | "bag" | "accessory";
+import { loadSavedOutfits, persistSavedOutfits, readLocalSavedOutfits, type SavedOutfit, type OutfitSlotKey } from "../../lib/savedOutfits";
 
 type OutfitSlots = Record<OutfitSlotKey, WardrobeItem | null>;
-
-interface SavedOutfit {
-  id: string;
-  name: string;
-  slotItemIds: Partial<Record<OutfitSlotKey, string>>;
-  createdAt: string;
-}
 
 interface OutfitSuggestion {
   name: string;
@@ -22,6 +14,7 @@ interface OutfitSuggestion {
 
 interface VirtualClosetProps {
   items: WardrobeItem[];
+  accessToken?: string | null;
   savedOutfitsKey: string;
   initialView?: "builder" | "saved";
   onAddPiece?: () => void;
@@ -126,20 +119,10 @@ function getOutfitItemCount(slots: OutfitSlots) {
   return Object.values(slots).filter(Boolean).length;
 }
 
-function readSavedOutfits(savedOutfitsKey: string): SavedOutfit[] {
-  try {
-    const saved = window.localStorage.getItem(savedOutfitsKey);
-    return saved ? JSON.parse(saved) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function VirtualCloset({ items, savedOutfitsKey, initialView = "builder", onAddPiece, pendingItemIds, onPendingItemIdsConsumed }: VirtualClosetProps) {
+export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView = "builder", onAddPiece, pendingItemIds, onPendingItemIdsConsumed }: VirtualClosetProps) {
   const [outfit, setOutfit] = useState<OutfitSlots>(EMPTY_SLOTS);
   const [activeSlot, setActiveSlot] = useState<OutfitSlotKey | null>(null);
-  const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>(() => readSavedOutfits(savedOutfitsKey));
-  const [loadedSavedOutfitsKey, setLoadedSavedOutfitsKey] = useState(savedOutfitsKey);
+  const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>(() => readLocalSavedOutfits(savedOutfitsKey));
   const [outfitName, setOutfitName] = useState("");
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [view, setView] = useState<"builder" | "saved">(initialView);
@@ -150,14 +133,13 @@ export function VirtualCloset({ items, savedOutfitsKey, initialView = "builder",
   }, [initialView]);
 
   useEffect(() => {
-    setSavedOutfits(readSavedOutfits(savedOutfitsKey));
-    setLoadedSavedOutfitsKey(savedOutfitsKey);
-  }, [savedOutfitsKey]);
-
-  useEffect(() => {
-    if (loadedSavedOutfitsKey !== savedOutfitsKey) return;
-    window.localStorage.setItem(savedOutfitsKey, JSON.stringify(savedOutfits));
-  }, [loadedSavedOutfitsKey, savedOutfits, savedOutfitsKey]);
+    let isActive = true;
+    setSavedOutfits(readLocalSavedOutfits(savedOutfitsKey));
+    loadSavedOutfits(accessToken, savedOutfitsKey).then((outfits) => {
+      if (isActive) setSavedOutfits(outfits);
+    });
+    return () => { isActive = false; };
+  }, [accessToken, savedOutfitsKey]);
 
   useEffect(() => {
     if (!pendingItemIds || pendingItemIds.length === 0 || items.length === 0) return;
@@ -225,7 +207,7 @@ export function VirtualCloset({ items, savedOutfitsKey, initialView = "builder",
     setView("builder");
   };
 
-  const saveOutfit = () => {
+  const saveOutfit = async () => {
     if (!outfitName.trim() || !hasAnyItem) return;
 
     const slotItemIds = Object.fromEntries(
@@ -234,17 +216,21 @@ export function VirtualCloset({ items, savedOutfitsKey, initialView = "builder",
         .map(([key, item]) => [key, item!.id])
     ) as SavedOutfit["slotItemIds"];
 
-    setSavedOutfits((current) => [
+    const next = [
       { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, name: outfitName.trim(), slotItemIds, createdAt: new Date().toISOString() },
-      ...current,
-    ]);
+      ...savedOutfits,
+    ];
+    setSavedOutfits(next);
+    await persistSavedOutfits(accessToken, savedOutfitsKey, next);
     setOutfitName("");
     setShowSaveModal(false);
     setView("saved");
   };
 
-  const deleteSavedOutfit = (id: string) => {
-    setSavedOutfits((current) => current.filter((outfit) => outfit.id !== id));
+  const deleteSavedOutfit = async (id: string) => {
+    const next = savedOutfits.filter((outfit) => outfit.id !== id);
+    setSavedOutfits(next);
+    await persistSavedOutfits(accessToken, savedOutfitsKey, next);
   };
 
   const loadSavedOutfit = (saved: SavedOutfit) => {
