@@ -10,6 +10,7 @@ const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 const CATEGORIES = ["All", "Tops", "Bottoms", "Dresses", "Outerwear", "Shoes", "Accessories", "Bags", "Suits"];
 const CATEGORY_VALUES = ["tops", "bottoms", "dresses", "outerwear", "shoes", "accessories", "bags", "suits"];
 const FIT_VALUES = ["Slim", "Tailored", "Regular", "Relaxed", "Oversized", "Cropped", "Structured", "Flowy", "Not specified"];
+const SEASON_FILTERS = ["all", "spring", "summer", "fall", "winter", "year-round"];
 const SEASON_OPTIONS = ["spring", "summer", "fall", "winter", "year-round"];
 const SEASON_LABELS: Record<string, string> = {
   spring: "Spring",
@@ -121,6 +122,7 @@ interface WardrobeScreenProps {
 
 export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendingOutfitItemIds, onPendingOutfitConsumed }: WardrobeScreenProps) {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeSeason, setActiveSeason] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState<"closet" | "items" | "outfits">("closet");
   const [showUpload, setShowUpload] = useState(false);
@@ -188,7 +190,8 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
     const cat = activeCategory.toLowerCase();
     const matchesCategory = activeCategory === "All" || item.category === cat;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const matchesSeason = activeSeason === "all" || normalizeSeasons(item.seasons).includes(activeSeason);
+    return matchesCategory && matchesSearch && matchesSeason;
   });
 
   return (
@@ -291,6 +294,40 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
                 </button>
               ))}
             </div>
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-2">
+                <p style={{ color: "var(--muted-foreground)", fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase" }}>
+                  Season
+                </p>
+                {activeSeason !== "all" && (
+                  <button
+                    onClick={() => setActiveSeason("all")}
+                    style={{ background: "transparent", border: "none", color: "var(--gold)", fontSize: "10px", cursor: "pointer", padding: 0 }}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                {SEASON_FILTERS.map((season) => (
+                  <button
+                    key={season}
+                    onClick={() => setActiveSeason(season)}
+                    className="shrink-0 px-3 py-1.5 rounded-full transition-all"
+                    style={{
+                      background: activeSeason === season ? "rgba(199,179,139,0.22)" : "var(--surface)",
+                      color: activeSeason === season ? "var(--gold)" : "var(--muted-foreground)",
+                      border: `1px solid ${activeSeason === season ? "rgba(199,179,139,0.5)" : "var(--border)"}`,
+                      fontSize: "11px",
+                      fontWeight: activeSeason === season ? 700 : 400,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {season === "all" ? "All seasons" : formatSeason(season)}
+                  </button>
+                ))}
+              </div>
+            </div>
           </>
         )}
       </div>
@@ -339,6 +376,28 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
                   style={{ background: "var(--gold)", color: "#161616", fontWeight: 600, fontSize: "14px", border: "none", cursor: "pointer" }}
                 >
                   <Camera size={16} /> Add Your First Piece
+                </button>
+              </motion.div>
+            ) : filteredItems.length === 0 ? (
+              <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center py-14 gap-4 text-center">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.1)", border: "1px solid var(--border)" }}>
+                  <Search size={22} style={{ color: "var(--gold)" }} />
+                </div>
+                <div>
+                  <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "21px", fontWeight: 400, letterSpacing: "-0.01em" }}>
+                    No pieces found
+                  </h3>
+                  <p style={{ color: "var(--muted-foreground)", fontSize: "13px", marginTop: 6, lineHeight: 1.6, maxWidth: 280, margin: "6px auto 0" }}>
+                    Try another category, search term, or season filter.
+                  </p>
+                </div>
+                <button
+                  onClick={() => { setActiveCategory("All"); setActiveSeason("all"); setSearchQuery(""); }}
+                  className="px-5 py-3 rounded-2xl transition-all active:scale-95"
+                  style={{ background: "var(--surface)", color: "var(--cream)", border: "1px solid var(--border)", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}
+                >
+                  Reset filters
                 </button>
               </motion.div>
             ) : (
