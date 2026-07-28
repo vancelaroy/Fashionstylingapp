@@ -31,6 +31,15 @@ const SEASON_COLORS: Record<string, { name: string; hex: string; pairsWith: stri
 
 const DAILY_OCCASIONS = ["Work", "Date", "Errands", "Travel", "Dinner", "Interview", "Event"];
 const WEATHER_CONDITIONS = ["Hot", "Humid", "Mild", "Cold", "Rain", "Wind", "Overcast"];
+const CLOSET_SEASONS = ["spring", "summer", "fall", "winter", "year-round"];
+const SEASON_LABELS: Record<string, string> = {
+  spring: "Spring",
+  summer: "Summer",
+  fall: "Fall",
+  autumn: "Fall",
+  winter: "Winter",
+  "year-round": "Year-round",
+};
 
 interface WeatherContext {
   city: string;
@@ -67,24 +76,66 @@ function seededIndex(seed: number, length: number, offset = 0) {
   return Math.abs((seed * 9301 + 49297 + offset * 233) % length);
 }
 
-function pickDaily(items: WardrobeItem[], categories: string[], seed: number, variant: number, used: string[] = [], offset = 0) {
-  const options = items.filter((item) => categories.includes(item.category) && !used.includes(item.id));
-  const base = seededIndex(seed, options.length, offset);
-  return options[(base + variant) % options.length] ?? null;
+function normalizeSeasons(seasons?: string[]) {
+  const normalized = (seasons ?? [])
+    .map((season) => season.trim().toLowerCase())
+    .map((season) => season === "autumn" ? "fall" : season)
+    .filter((season) => CLOSET_SEASONS.includes(season));
+
+  if (normalized.length === 0 || normalized.includes("year-round")) return ["year-round"];
+  return Array.from(new Set(normalized));
 }
 
-function buildDailyLook(items: WardrobeItem[], seed: number, variant: number) {
-  const top = pickDaily(items, ["tops", "dresses"], seed, variant, [], 1);
+function formatSeason(season: string) {
+  return SEASON_LABELS[season] ?? season;
+}
+
+function getCalendarSeason() {
+  const month = new Date().getMonth();
+  if (month <= 1 || month === 11) return "winter";
+  if (month <= 4) return "spring";
+  if (month <= 7) return "summer";
+  return "fall";
+}
+
+function inferClosetSeason(weather: WeatherContext) {
+  const condition = weather.condition.toLowerCase();
+  const temp = Number(weather.temp);
+  if (!Number.isNaN(temp)) {
+    if (temp >= 74) return "summer";
+    if (temp <= 44) return "winter";
+    if (temp <= 60) return "fall";
+  }
+  if (condition === "hot" || condition === "humid") return "summer";
+  if (condition === "cold") return "winter";
+  return getCalendarSeason();
+}
+
+function isItemInSeason(item: WardrobeItem, season: string) {
+  const seasons = normalizeSeasons(item.seasons);
+  return seasons.includes("year-round") || seasons.includes(season);
+}
+
+function pickDaily(items: WardrobeItem[], categories: string[], seed: number, variant: number, used: string[] = [], offset = 0, season = getCalendarSeason(), strictSeason = false) {
+  const options = items.filter((item) => categories.includes(item.category) && !used.includes(item.id));
+  const seasonalOptions = options.filter((item) => isItemInSeason(item, season));
+  const pool = seasonalOptions.length > 0 ? seasonalOptions : strictSeason ? [] : options;
+  const base = seededIndex(seed, pool.length, offset);
+  return pool[(base + variant) % pool.length] ?? null;
+}
+
+function buildDailyLook(items: WardrobeItem[], seed: number, variant: number, season: string) {
+  const top = pickDaily(items, ["tops", "dresses"], seed, variant, [], 1, season);
   const used = top ? [top.id] : [];
-  const bottom = top?.category === "dresses" ? null : pickDaily(items, ["bottoms"], seed, variant + 1, used, 2);
+  const bottom = top?.category === "dresses" ? null : pickDaily(items, ["bottoms"], seed, variant + 1, used, 2, season);
   if (bottom) used.push(bottom.id);
-  const outer = pickDaily(items, ["outerwear", "suits"], seed, variant + 2, used, 3);
+  const outer = pickDaily(items, ["outerwear", "suits"], seed, variant + 2, used, 3, season, true);
   if (outer) used.push(outer.id);
-  const shoes = pickDaily(items, ["shoes"], seed, variant + 3, used, 4);
+  const shoes = pickDaily(items, ["shoes"], seed, variant + 3, used, 4, season);
   if (shoes) used.push(shoes.id);
-  const bag = pickDaily(items, ["bags"], seed, variant + 4, used, 5);
+  const bag = pickDaily(items, ["bags"], seed, variant + 4, used, 5, season);
   if (bag) used.push(bag.id);
-  const accessory = pickDaily(items, ["accessories"], seed, variant + 5, used, 6);
+  const accessory = pickDaily(items, ["accessories"], seed, variant + 5, used, 6, season);
 
   return [top, bottom, outer, shoes, bag, accessory].filter(Boolean) as WardrobeItem[];
 }
@@ -111,12 +162,12 @@ function buildGapList(items: WardrobeItem[]) {
 }
 
 function buildAskIrisPrompt(profile: StyleProfile, look: WardrobeItem[]) {
-  const pieces = look.map((item) => `${item.name}${item.brand ? ` by ${item.brand}` : ""} (${item.category}, ${item.color}${item.fit ? `, ${item.fit} fit` : ""})`).join("\n");
+  const pieces = look.map((item) => `${item.name}${item.brand ? ` by ${item.brand}` : ""} (${item.category}, ${item.color}${item.fit ? `, ${item.fit} fit` : ""}, seasons: ${normalizeSeasons(item.seasons).map(formatSeason).join(", ")})`).join("\n");
   return `Help me get dressed today using my wardrobe and Style DNA.\n\nMy suggested pieces are:\n${pieces || "I do not have a complete closet look selected yet."}\n\nMy style profile: ${profile.colorSeason || "unknown"} color season, ${profile.bodyType || "unknown"} body type, ${profile.stylePersonality?.join(", ") || "classic"} style personality.\n\nPlease tell me what to wear today, why it works, what to add or swap, and one confidence note.`;
 }
 
 function buildDailyContextPrompt(profile: StyleProfile, look: WardrobeItem[], occasion: string, details: string, weather: WeatherContext) {
-  const pieces = look.map((item) => `${item.name}${item.brand ? ` by ${item.brand}` : ""} (${item.category}, ${item.color}${item.fit ? `, ${item.fit} fit` : ""})`).join("\n");
+  const pieces = look.map((item) => `${item.name}${item.brand ? ` by ${item.brand}` : ""} (${item.category}, ${item.color}${item.fit ? `, ${item.fit} fit` : ""}, seasons: ${normalizeSeasons(item.seasons).map(formatSeason).join(", ")})`).join("\n");
   const weatherLine = [
     weather.city.trim() ? `Location: ${weather.city.trim()}` : null,
     weather.temp.trim() ? `Temperature: ${weather.temp.trim()}F` : null,
@@ -247,7 +298,13 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
     setSaveLookName(defaultDailyLookName());
   };
 
-  const dailyLook = useMemo(() => buildDailyLook(wardrobeItems, dailySeed, dailyVariant), [wardrobeItems, dailySeed, dailyVariant]);
+  const weatherContext = useMemo(() => ({
+    city: weatherCity,
+    temp: weatherTemp,
+    condition: weatherCondition,
+  }), [weatherCity, weatherTemp, weatherCondition]);
+  const closetSeason = useMemo(() => inferClosetSeason(weatherContext), [weatherContext]);
+  const dailyLook = useMemo(() => buildDailyLook(wardrobeItems, dailySeed, dailyVariant, closetSeason), [wardrobeItems, dailySeed, dailyVariant, closetSeason]);
   const dailyLookIds = useMemo(() => dailyLook.map((item) => item.id), [dailyLook]);
   const { counts, gaps } = useMemo(() => buildGapList(wardrobeItems), [wardrobeItems]);
   const now = new Date();
@@ -395,7 +452,7 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
               </div>
               <div className="p-4">
                 <p style={{ color: "var(--lavender)", fontSize: "12px", lineHeight: 1.55, marginBottom: 13 }}>
-                  Iris pulled together {dailyLook.length} piece{dailyLook.length === 1 ? "" : "s"} from what you own. Use this as your starting point, then ask Iris for swaps if the day changes.
+                  Iris pulled together {dailyLook.length} piece{dailyLook.length === 1 ? "" : "s"} from what you own, filtered for {formatSeason(closetSeason)} rotation. Use this as your starting point, then ask Iris for swaps if the day changes.
                 </p>
                 <div className="grid grid-cols-3 gap-2">
                   <button onClick={() => onAskIris?.(buildAskIrisPrompt(profile, dailyLook))} className="py-3 rounded-xl flex items-center justify-center gap-2"
@@ -592,11 +649,7 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
               style={{ background: "var(--surface)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: "12px", fontFamily: "var(--font-body)", minWidth: 0 }}
             />
             <button
-              onClick={() => onAskIris?.(buildDailyContextPrompt(profile, dailyLook, selectedOccasion, occasionDetails, {
-                city: weatherCity,
-                temp: weatherTemp,
-                condition: weatherCondition,
-              }))}
+              onClick={() => onAskIris?.(buildDailyContextPrompt(profile, dailyLook, selectedOccasion, occasionDetails, weatherContext))}
               className="px-3 py-3 rounded-xl flex items-center justify-center transition-all active:scale-95"
               style={{ background: "var(--gold)", color: "var(--charcoal)", border: "none", fontWeight: 800, fontSize: 11, cursor: "pointer", whiteSpace: "nowrap" }}
             >
