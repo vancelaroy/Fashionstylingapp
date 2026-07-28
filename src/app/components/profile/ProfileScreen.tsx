@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Settings, Edit3, Share2, ChevronRight, Star, Palette, Ruler, Glasses, Sparkles, BookOpen, LogOut, Eye } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
@@ -6,6 +6,7 @@ import { CaseStudyScreen } from "../case-study/CaseStudyScreen";
 
 interface ProfileScreenProps {
   profile: StyleProfile;
+  onProfileUpdate?: (profile: StyleProfile) => void;
   onReset: () => void;
   onPreview?: () => void;
   onSignOut?: () => void;
@@ -34,7 +35,7 @@ const STYLE_INSIGHTS = [
   { label: "Style Consistency", value: "92%", icon: Sparkles, color: "var(--rose)", desc: "Strong personal aesthetic" },
 ];
 
-export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLoggedIn }: ProfileScreenProps) {
+export function ProfileScreen({ profile, onProfileUpdate, onReset, onPreview, onSignOut, isLoggedIn }: ProfileScreenProps) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showCaseStudy, setShowCaseStudy] = useState(false);
 
@@ -219,9 +220,11 @@ export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLogged
             {(profile.gender === "man"
               ? [
                   { label: "Height", value: profile.measurements?.height || "—" },
-                  { label: "Chest", value: profile.measurements?.bust || "—" },
                   { label: "Waist", value: profile.measurements?.waist || "—" },
-                  { label: "Inseam", value: (profile.measurements as any)?.inseam || "—", highlight: true },
+                  { label: "Hips", value: profile.measurements?.hips || "—" },
+                  { label: "Coat Size", value: profile.measurements?.coatSize || "—", highlight: true },
+                  { label: "Shirt", value: profile.measurements?.shirtSize || "—" },
+                  { label: "Shoes", value: profile.measurements?.shoeSize || "—" },
                 ]
               : [
                   { label: "Height", value: profile.measurements?.height || "—" },
@@ -243,7 +246,10 @@ export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLogged
 
             {/* Detailed tailoring section — men only */}
             {profile.gender === "man" && (
-              <DetailedMeasurements />
+              <DetailedMeasurements
+                measurements={profile.measurements || {}}
+                onSave={(measurements) => onProfileUpdate?.({ ...profile, measurements })}
+              />
             )}
           </div>
         </ProfileSection>
@@ -295,20 +301,36 @@ export function ProfileScreen({ profile, onReset, onPreview, onSignOut, isLogged
   );
 }
 
-const TAILORING_FIELDS = [
-  { key: "neck", label: "Neck", placeholder: "e.g. 15\" or 38cm", tip: "Collar size — found on shirt labels" },
-  { key: "shoulder", label: "Shoulder Width", placeholder: "e.g. 18\" or 46cm", tip: "Seam to seam across the back" },
-  { key: "sleeve", label: "Sleeve Length", placeholder: "e.g. 33\" or 84cm", tip: "Shoulder seam to wrist, arm slightly bent" },
-  { key: "seat", label: "Seat", placeholder: "e.g. 38\" or 96cm", tip: "Fullest part of the seat — used by tailors & suit trousers" },
-  { key: "thigh", label: "Thigh", placeholder: "e.g. 24\" or 61cm", tip: "Around the fullest part of the upper leg" },
+const TAILORING_FIELDS: Array<{ key: string; label: string; placeholder: string; tip: string }> = [
+  { key: "bust", label: "Chest", placeholder: "e.g. 38", tip: "Useful for shirts, knits, jackets, and suit sizing" },
+  { key: "neck", label: "Neck", placeholder: "e.g. 15.5", tip: "Collar size found on dress shirt labels" },
+  { key: "sleeve", label: "Sleeve", placeholder: "e.g. 33", tip: "Dress shirt sleeve size" },
+  { key: "overArm", label: "Over Arm", placeholder: "e.g. 43", tip: "Helps estimate jacket fit when sizing suiting" },
+  { key: "coatInseam", label: "Coat Length", placeholder: "e.g. 17.5", tip: "Jacket or coat length measurement" },
+  { key: "inseam", label: "Trouser Inseam", placeholder: "e.g. 30", tip: "Inside leg length for trousers and denim" },
+  { key: "outseam", label: "Outseam", placeholder: "e.g. 41", tip: "Outside leg length for tailoring and trouser alterations" },
+  { key: "shoulder", label: "Shoulder Width", placeholder: "e.g. 18 or 46cm", tip: "Across the back from shoulder point to shoulder point" },
+  { key: "seat", label: "Seat", placeholder: "e.g. 38", tip: "Fullest part of the seat, used by tailors and suit trousers" },
+  { key: "thigh", label: "Thigh", placeholder: "e.g. 24", tip: "Around the fullest part of the upper leg" },
 ];
 
-function DetailedMeasurements() {
+function DetailedMeasurements({
+  measurements,
+  onSave,
+}: {
+  measurements: StyleProfile["measurements"];
+  onSave: (measurements: StyleProfile["measurements"]) => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<StyleProfile["measurements"]>(measurements);
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    setValues(measurements);
+  }, [measurements]);
+
   const handleSave = () => {
+    onSave(values);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -342,7 +364,7 @@ function DetailedMeasurements() {
           >
             <div className="pt-3 flex flex-col gap-3">
               <p style={{ color: "var(--muted-foreground)", fontSize: "11px", lineHeight: 1.5 }}>
-                These unlock highly accurate suit, shirt, and trouser recommendations — from made-to-measure tailors and premium retailers. Add as many or as few as you like.
+                These unlock stronger suit, shirt, trouser, shoe, and alteration recommendations — the numbers a stylist or tailor would ask for first. Add as many or as few as you like.
               </p>
               {TAILORING_FIELDS.map(({ key, label, placeholder, tip }) => (
                 <div key={key}>
