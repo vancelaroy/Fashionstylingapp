@@ -12,7 +12,14 @@ export interface StyleProfile {
   faceShape: string;
   colorSeason: string;
   stylePersonality: string[];
-  measurements: { height: string; bust: string; waist: string; hips: string; inseam?: string };
+  measurements: {
+    height?: string;
+    bust?: string;
+    waist?: string;
+    hips?: string;
+    inseam?: string;
+    [key: string]: string | undefined;
+  };
   // Discovery fields
   lifestyle?: string;
   activities?: string[];
@@ -219,7 +226,21 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     activities: [],
     stylePersonality: [],
     styleGoals: [],
-    measurements: { height: "", bust: "", waist: "", hips: "", inseam: "" },
+    measurements: {
+      height: "",
+      bust: "",
+      waist: "",
+      hips: "",
+      inseam: "",
+      overArm: "",
+      coatInseam: "",
+      outseam: "",
+      coatSize: "",
+      shirtSize: "",
+      neck: "",
+      sleeve: "",
+      shoeSize: "",
+    },
   });
 
   const step = STEP_ORDER[stepIndex];
@@ -246,7 +267,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       faceShape: profile.faceShape || "Oval",
       colorSeason: profile.colorSeason || "Autumn",
       stylePersonality: profile.stylePersonality?.length ? profile.stylePersonality : [profile.currentStyle ?? "Classic"],
-      measurements: profile.measurements || { height: "", bust: "", waist: "", hips: "" },
+      measurements: profile.measurements || { height: "", bust: "", waist: "", hips: "", inseam: "" },
       lifestyle: profile.lifestyle,
       activities: profile.activities,
       dressingFrequency: profile.dressingFrequency,
@@ -734,29 +755,36 @@ function ColorSeasonScreen({ selected, onSelect, onBack }: { selected?: string; 
 
 function MeasurementsScreen({ gender, measurements, onChange, onNext, onBack }: {
   gender: string;
-  measurements: { height: string; bust: string; waist: string; hips: string; inseam?: string };
-  onChange: (m: { height: string; bust: string; waist: string; hips: string; inseam?: string }) => void;
+  measurements: StyleProfile["measurements"];
+  onChange: (m: StyleProfile["measurements"]) => void;
   onNext: () => void; onBack: () => void;
 }) {
   const fields = gender === "man"
     ? [
-        { key: "height" as const, label: "Height", placeholder: "e.g. 6'1\" or 185cm" },
-        { key: "bust" as const, label: "Chest", placeholder: "e.g. 40\" or 101cm" },
-        { key: "waist" as const, label: "Waist", placeholder: "e.g. 32\" or 81cm" },
-        { key: "inseam" as const, label: "Inseam", placeholder: "e.g. 32\" or 81cm" },
+        { key: "height", label: "Height", placeholder: "e.g. 5'11\" / 179cm" },
+        { key: "hips", label: "Hips", placeholder: "e.g. 29" },
+        { key: "waist", label: "Waist", placeholder: "e.g. 28" },
+        { key: "overArm", label: "Over Arm", placeholder: "e.g. 43" },
+        { key: "coatInseam", label: "Coat Length", placeholder: "e.g. 17.5" },
+        { key: "outseam", label: "Outseam", placeholder: "e.g. 41" },
+        { key: "coatSize", label: "Coat Size", placeholder: "e.g. 36" },
+        { key: "shirtSize", label: "Shirt", placeholder: "e.g. S" },
+        { key: "neck", label: "Neck", placeholder: "e.g. 15.5" },
+        { key: "sleeve", label: "Sleeve", placeholder: "e.g. 33" },
+        { key: "shoeSize", label: "Shoes", placeholder: "e.g. 10.5 US / 43-44.5 EU" },
       ]
     : gender === "nonbinary"
     ? [
-        { key: "height" as const, label: "Height", placeholder: "e.g. 5'9\" or 175cm" },
-        { key: "bust" as const, label: "Chest / Bust", placeholder: "e.g. 36\" or 91cm" },
-        { key: "waist" as const, label: "Waist", placeholder: "e.g. 30\" or 76cm" },
-        { key: "inseam" as const, label: "Inseam", placeholder: "e.g. 30\" or 76cm" },
+        { key: "height", label: "Height", placeholder: "e.g. 5'9\" or 175cm" },
+        { key: "bust", label: "Chest / Bust", placeholder: "e.g. 36\" or 91cm" },
+        { key: "waist", label: "Waist", placeholder: "e.g. 30\" or 76cm" },
+        { key: "inseam", label: "Inseam", placeholder: "e.g. 30\" or 76cm" },
       ]
     : [
-        { key: "height" as const, label: "Height", placeholder: "e.g. 5'6\" or 168cm" },
-        { key: "bust" as const, label: "Bust", placeholder: "e.g. 36\" or 91cm" },
-        { key: "waist" as const, label: "Waist", placeholder: "e.g. 28\" or 71cm" },
-        { key: "hips" as const, label: "Hips", placeholder: "e.g. 38\" or 96cm" },
+        { key: "height", label: "Height", placeholder: "e.g. 5'6\" or 168cm" },
+        { key: "bust", label: "Bust", placeholder: "e.g. 36\" or 91cm" },
+        { key: "waist", label: "Waist", placeholder: "e.g. 28\" or 71cm" },
+        { key: "hips", label: "Hips", placeholder: "e.g. 38\" or 96cm" },
       ];
 
   return (
