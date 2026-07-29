@@ -61,10 +61,12 @@ export function ProfileScreen({ profile, onProfileUpdate, onReset, onPreview, on
         { key: "shoeSize", label: "Shoes", placeholder: "10.5 US / 43-44.5 EU" },
       ]
     : [
-        { key: "height", label: "Height", placeholder: "5'6" },
-        { key: "bust", label: profile.gender === "nonbinary" ? "Chest / Bust" : "Bust", placeholder: "36" },
-        { key: "waist", label: "Waist", placeholder: "28" },
-        { key: "hips", label: "Hips", placeholder: "38" },
+        { key: "height", label: "Height", placeholder: `5'7 / 170cm` },
+        { key: "bust", label: profile.gender === "nonbinary" ? "Chest / Bust" : "Bust", placeholder: "30 A / 76cm" },
+        { key: "waist", label: "Waist", placeholder: "22 / 56cm" },
+        { key: "hips", label: "Hips", placeholder: "32 / 81cm" },
+        { key: "dressSize", label: "Dress", placeholder: "0-2 US", highlight: true },
+        { key: "shoeSize", label: "Shoes", placeholder: "7 US" },
       ];
 
   const saveRetailMeasurements = () => {
@@ -294,11 +296,21 @@ export function ProfileScreen({ profile, onProfileUpdate, onReset, onPreview, on
             })}
             </div>
 
-            {/* Detailed tailoring section — men only */}
-            {profile.gender === "man" && (
+            {profile.gender === "man" ? (
               <DetailedMeasurements
                 measurements={profile.measurements || {}}
                 onSave={(measurements) => onProfileUpdate?.({ ...profile, measurements })}
+                fields={TAILORING_FIELDS_MEN}
+                title="Detailed Tailoring Measurements"
+                description="These unlock stronger suit, shirt, trouser, shoe, and alteration recommendations — the numbers a stylist or tailor would ask for first. Add as many or as few as you like."
+              />
+            ) : (
+              <DetailedMeasurements
+                measurements={profile.measurements || {}}
+                onSave={(measurements) => onProfileUpdate?.({ ...profile, measurements })}
+                fields={TAILORING_FIELDS_WOMEN}
+                title={profile.gender === "nonbinary" ? "Detailed Fit Measurements" : "Detailed Womenswear Measurements"}
+                description="These unlock stronger dress, denim, jacket, tailoring, and alteration recommendations — especially when fit varies between brands. Add only what feels useful."
               />
             )}
           </div>
@@ -351,7 +363,7 @@ export function ProfileScreen({ profile, onProfileUpdate, onReset, onPreview, on
   );
 }
 
-const TAILORING_FIELDS: Array<{ key: string; label: string; placeholder: string; tip: string }> = [
+const TAILORING_FIELDS_MEN: Array<{ key: string; label: string; placeholder: string; tip: string }> = [
   { key: "bust", label: "Chest", placeholder: "e.g. 38", tip: "Useful for shirts, knits, jackets, and suit sizing" },
   { key: "neck", label: "Neck", placeholder: "e.g. 15.5", tip: "Collar size found on dress shirt labels" },
   { key: "sleeve", label: "Sleeve", placeholder: "e.g. 33", tip: "Dress shirt sleeve size" },
@@ -364,12 +376,27 @@ const TAILORING_FIELDS: Array<{ key: string; label: string; placeholder: string;
   { key: "thigh", label: "Thigh", placeholder: "e.g. 24", tip: "Around the fullest part of the upper leg" },
 ];
 
+const TAILORING_FIELDS_WOMEN: Array<{ key: string; label: string; placeholder: string; tip: string }> = [
+  { key: "underbust", label: "Underbust", placeholder: "e.g. 28 or 71cm", tip: "Helpful for bra, bodice, corset, and swim sizing" },
+  { key: "shoulder", label: "Shoulder Width", placeholder: "e.g. 15 or 38cm", tip: "Across the back for blazers, coats, and structured tops" },
+  { key: "sleeve", label: "Sleeve", placeholder: "e.g. 31", tip: "Useful for jackets, coats, and long-sleeve tops" },
+  { key: "inseam", label: "Inseam", placeholder: "e.g. 29", tip: "Inside leg length for denim, trousers, and jumpsuits" },
+  { key: "outseam", label: "Outseam", placeholder: "e.g. 39", tip: "Outside leg length for tailoring and alterations" },
+  { key: "torso", label: "Torso Length", placeholder: "e.g. 24", tip: "Helpful for dresses, bodysuits, jumpsuits, and one-piece swim" },
+];
+
 function DetailedMeasurements({
   measurements,
   onSave,
+  fields,
+  title,
+  description,
 }: {
   measurements: StyleProfile["measurements"];
   onSave: (measurements: StyleProfile["measurements"]) => void;
+  fields: Array<{ key: string; label: string; placeholder: string; tip: string }>;
+  title: string;
+  description: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [values, setValues] = useState<StyleProfile["measurements"]>(measurements);
@@ -395,7 +422,7 @@ function DetailedMeasurements({
         <div className="flex items-center gap-2">
           <Ruler size={13} style={{ color: "var(--gold)" }} />
           <span style={{ color: "var(--cream)", fontSize: "12px", fontWeight: 500 }}>
-            Detailed Tailoring Measurements
+            {title}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -414,9 +441,9 @@ function DetailedMeasurements({
           >
             <div className="pt-3 flex flex-col gap-3">
               <p style={{ color: "var(--muted-foreground)", fontSize: "11px", lineHeight: 1.5 }}>
-                These unlock stronger suit, shirt, trouser, shoe, and alteration recommendations — the numbers a stylist or tailor would ask for first. Add as many or as few as you like.
+                {description}
               </p>
-              {TAILORING_FIELDS.map(({ key, label, placeholder, tip }) => (
+              {fields.map(({ key, label, placeholder, tip }) => (
                 <div key={key}>
                   <label style={{ color: "var(--muted-foreground)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
                     {label}
