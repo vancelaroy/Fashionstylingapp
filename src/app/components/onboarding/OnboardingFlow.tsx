@@ -236,10 +236,14 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       coatInseam: "",
       outseam: "",
       coatSize: "",
+      dressSize: "",
       shirtSize: "",
       neck: "",
       sleeve: "",
       shoeSize: "",
+      underbust: "",
+      shoulder: "",
+      torso: "",
     },
   });
 
@@ -781,10 +785,12 @@ function MeasurementsScreen({ gender, measurements, onChange, onNext, onBack }: 
         { key: "inseam", label: "Inseam", placeholder: "e.g. 30\" or 76cm" },
       ]
     : [
-        { key: "height", label: "Height", placeholder: "e.g. 5'6\" or 168cm" },
-        { key: "bust", label: "Bust", placeholder: "e.g. 36\" or 91cm" },
-        { key: "waist", label: "Waist", placeholder: "e.g. 28\" or 71cm" },
-        { key: "hips", label: "Hips", placeholder: "e.g. 38\" or 96cm" },
+        { key: "height", label: "Height", placeholder: "e.g. 5'7\" / 170cm" },
+        { key: "bust", label: "Bust", placeholder: "e.g. 30\" A / 76cm" },
+        { key: "waist", label: "Waist", placeholder: "e.g. 22\" / 56cm" },
+        { key: "hips", label: "Hips", placeholder: "e.g. 32\" / 81cm" },
+        { key: "dressSize", label: "Dress", placeholder: "e.g. 0-2 US" },
+        { key: "shoeSize", label: "Shoe", placeholder: "e.g. 7 US" },
       ];
 
   return (
