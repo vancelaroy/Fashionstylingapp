@@ -3,14 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Plus, Sparkles, RotateCcw, Share2, Heart, Camera, X, Trash2 } from "lucide-react";
 import type { WardrobeItem } from "./WardrobeUpload";
 import { loadSavedOutfits, persistSavedOutfits, readLocalSavedOutfits, type SavedOutfit, type OutfitSlotKey } from "../../lib/savedOutfits";
-
-type OutfitSlots = Record<OutfitSlotKey, WardrobeItem | null>;
-
-interface OutfitSuggestion {
-  name: string;
-  note: string;
-  slots: OutfitSlots;
-}
+import { buildConceptOutfitSuggestion, getRecentOutfitItemIds, type OutfitSuggestion, type OutfitSlots } from "../../lib/outfitIntelligence";
 
 interface VirtualClosetProps {
   items: WardrobeItem[];
@@ -57,42 +50,6 @@ function getSlotForCategory(category: string): OutfitSlotKey | null {
   if (category === "bags") return "bag";
   if (category === "accessories") return "accessory";
   return null;
-}
-
-function scoreItemForOccasion(item: WardrobeItem, occasion: string) {
-  const text = `${item.name} ${item.brand ?? ""} ${item.category} ${item.color} ${item.fit ?? ""} ${item.occasions.join(" ")} ${item.styleNote}`.toLowerCase();
-  let score = 0;
-  if (text.includes(occasion)) score += 5;
-  if (occasion === "work" && /blazer|suit|tailored|structured|trouser|dress shirt|polo/.test(text)) score += 3;
-  if (occasion === "weekend" && /casual|relaxed|denim|tee|t-shirt|sneaker|bucket|canvas/.test(text)) score += 3;
-  if (occasion === "evening" && /evening|formal|dress|silk|black|heel|blazer|leather/.test(text)) score += 3;
-  return score;
-}
-
-function pickForOccasion(items: WardrobeItem[], categories: string[], occasion: string, rejectIds: string[] = []) {
-  const candidates = items
-    .filter((item) => categories.includes(item.category) && !rejectIds.includes(item.id))
-    .map((item) => ({ item, score: scoreItemForOccasion(item, occasion) }))
-    .sort((a, b) => b.score - a.score);
-
-  return candidates[0]?.item ?? null;
-}
-
-function buildSuggestion(items: WardrobeItem[], name: string, occasion: string, note: string): OutfitSuggestion {
-  const top = pickForOccasion(items, ["tops", "dresses"], occasion);
-  const used = top ? [top.id] : [];
-  const isDress = top?.category === "dresses";
-  const bottom = isDress ? null : pickForOccasion(items, ["bottoms"], occasion, used);
-  if (bottom) used.push(bottom.id);
-  const outer = pickForOccasion(items, ["outerwear", "suits"], occasion, used);
-  if (outer) used.push(outer.id);
-  const shoes = pickForOccasion(items, ["shoes"], occasion, used);
-  if (shoes) used.push(shoes.id);
-  const bag = pickForOccasion(items, ["bags"], occasion, used);
-  if (bag) used.push(bag.id);
-  const accessory = pickForOccasion(items, ["accessories"], occasion, used);
-
-  return { name, note, slots: { top, bottom, outer, shoes, bag, accessory } };
 }
 
 function getSavedOutfitSlots(saved: SavedOutfit, items: WardrobeItem[]): OutfitSlots {
@@ -158,12 +115,13 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
 
   const suggestions = useMemo(() => {
     if (items.length === 0) return [];
+    const recentItemIds = getRecentOutfitItemIds(savedOutfits);
     return [
-      buildSuggestion(items, "The Power Edit", "work", "Sharp, pulled together, and easy to wear."),
-      buildSuggestion(items, "Weekend Soft", "weekend", "Relaxed pieces with enough polish to leave the house confidently."),
-      buildSuggestion(items, "Evening Clean", "evening", "A simple after-dark formula using what is already in your closet."),
+      buildConceptOutfitSuggestion(items, "power-edit", { recentItemIds }),
+      buildConceptOutfitSuggestion(items, "weekend-soft", { recentItemIds }),
+      buildConceptOutfitSuggestion(items, "evening-clean", { recentItemIds }),
     ].filter((suggestion) => getOutfitItemCount(suggestion.slots) > 0);
-  }, [items]);
+  }, [items, savedOutfits]);
 
   const activeSlotConfig = activeSlot ? OUTFIT_SLOTS.find((slot) => slot.key === activeSlot) : null;
   const availableItems = activeSlotConfig
