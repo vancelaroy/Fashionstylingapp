@@ -280,6 +280,43 @@ const PRODUCT_CATEGORY_LABELS: Record<string, { label: string; icon: string }> =
   fragrance: { label: "Scent", icon: "Scent" },
 };
 
+const CATEGORY_VISUALS: Record<string, { accent: string; soft: string; title: string }> = {
+  tops: { accent: "#C7B38B", soft: "#EEE5CF", title: "Layering Top" },
+  bottoms: { accent: "#8FA3B1", soft: "#DCE4E8", title: "Anchor Bottom" },
+  dresses: { accent: "#BCA6B5", soft: "#F0E4EC", title: "One-Piece Look" },
+  outerwear: { accent: "#7B6A58", soft: "#E9DED0", title: "Final Layer" },
+  suits: { accent: "#5F6871", soft: "#E4E8EB", title: "Sharp Tailoring" },
+  shoes: { accent: "#A07155", soft: "#EFE2D8", title: "Finishing Shoe" },
+  bags: { accent: "#9B7653", soft: "#ECDDCB", title: "Carry Piece" },
+  accessories: { accent: "#C8A95D", soft: "#F2E8C9", title: "Detail Move" },
+  glasses: { accent: "#7B8794", soft: "#E3E8ED", title: "Frame Shape" },
+  fragrance: { accent: "#8F88A8", soft: "#E7E3F1", title: "Scent Profile" },
+};
+
+const COLOR_SWATCHES: Record<string, string> = {
+  black: "#1B1B1B",
+  white: "#F5F2EA",
+  cream: "#E6D8BC",
+  ivory: "#EFE7D7",
+  navy: "#1D2F50",
+  blue: "#426A9E",
+  gray: "#777879",
+  grey: "#777879",
+  charcoal: "#343434",
+  brown: "#6F4E37",
+  camel: "#B88A5A",
+  tan: "#C5A276",
+  beige: "#CDBE9A",
+  olive: "#596145",
+  green: "#49684A",
+  burgundy: "#6D2932",
+  red: "#8F2E32",
+  pink: "#D3A1AD",
+  gold: "#C7A95E",
+  silver: "#C8CDD0",
+  purple: "#7E699C",
+};
+
 const CATEGORY_COPY: Record<string, { label: string; reason: string; prompt: string }> = {
   tops: {
     label: "Top",
@@ -478,6 +515,69 @@ function getVerdictStyle(tone: ProductVerdict["tone"]) {
   return { background: "rgba(199,179,139,0.24)", color: "var(--gold)", border: "1px solid rgba(199,179,139,0.36)" };
 }
 
+function getSwatchColor(color: string) {
+  return COLOR_SWATCHES[normalizeTag(color)] || "#8F88A8";
+}
+
+function ProductShape({ category, accent }: { category: string; accent: string }) {
+  const common = { background: "rgba(255,255,255,0.88)", border: `1px solid ${accent}` };
+
+  if (category === "shoes") {
+    return (
+      <div className="relative" style={{ width: 92, height: 58 }}>
+        <div className="absolute" style={{ ...common, width: 58, height: 22, borderRadius: "40px 18px 16px 10px", left: 4, bottom: 11, transform: "rotate(-8deg)" }} />
+        <div className="absolute" style={{ ...common, width: 58, height: 22, borderRadius: "40px 18px 16px 10px", right: 2, bottom: 5, transform: "rotate(8deg)" }} />
+      </div>
+    );
+  }
+
+  if (category === "bags") {
+    return (
+      <div className="relative" style={{ width: 82, height: 72 }}>
+        <div className="absolute" style={{ border: `2px solid ${accent}`, borderBottom: 0, width: 34, height: 24, borderRadius: "18px 18px 0 0", left: 24, top: 4 }} />
+        <div className="absolute" style={{ ...common, width: 70, height: 46, borderRadius: 14, left: 6, bottom: 4 }} />
+      </div>
+    );
+  }
+
+  if (category === "accessories" || category === "glasses" || category === "fragrance") {
+    return (
+      <div className="relative" style={{ width: 86, height: 76 }}>
+        <div className="absolute" style={{ ...common, width: 42, height: 42, borderRadius: 999, left: 8, top: 14 }} />
+        <div className="absolute" style={{ ...common, width: 42, height: 42, borderRadius: 999, right: 8, top: 14 }} />
+        <div className="absolute" style={{ background: accent, width: 24, height: 2, left: 31, top: 35 }} />
+      </div>
+    );
+  }
+
+  if (category === "bottoms") {
+    return (
+      <div className="relative" style={{ width: 76, height: 100 }}>
+        <div className="absolute" style={{ ...common, width: 64, height: 18, borderRadius: 8, left: 6, top: 6 }} />
+        <div className="absolute" style={{ ...common, width: 27, height: 76, borderRadius: "0 0 16px 16px", left: 10, top: 20 }} />
+        <div className="absolute" style={{ ...common, width: 27, height: 76, borderRadius: "0 0 16px 16px", right: 10, top: 20 }} />
+      </div>
+    );
+  }
+
+  if (category === "dresses") {
+    return (
+      <div className="relative" style={{ width: 92, height: 104 }}>
+        <div className="absolute" style={{ ...common, width: 38, height: 36, borderRadius: "18px 18px 8px 8px", left: 27, top: 6 }} />
+        <div className="absolute" style={{ ...common, width: 74, height: 62, borderRadius: "22px 22px 14px 14px", left: 9, bottom: 4, transform: "skewX(-7deg)" }} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative" style={{ width: 92, height: 92 }}>
+      <div className="absolute" style={{ ...common, width: 58, height: 76, borderRadius: "18px 18px 12px 12px", left: 17, top: 8 }} />
+      <div className="absolute" style={{ ...common, width: 28, height: 48, borderRadius: "18px 10px 12px 12px", left: 0, top: 18, transform: "rotate(13deg)" }} />
+      <div className="absolute" style={{ ...common, width: 28, height: 48, borderRadius: "10px 18px 12px 12px", right: 0, top: 18, transform: "rotate(-13deg)" }} />
+    </div>
+  );
+}
+
 function buildShoppingPrompt(profile: StyleProfile, item: CatalogProduct, wardrobeItems: WardrobeItem[], verdict?: ProductVerdict) {
   const closetSummary = wardrobeItems.slice(0, 18).map((piece) => `${piece.name} (${piece.category}, ${piece.color}${piece.fit ? `, ${piece.fit}` : ""})`).join("\n");
   const verdictContext = verdict
@@ -493,6 +593,8 @@ function buildLookPrompt(profile: StyleProfile, look: { title: string; occasion:
 
 function ProductVisual({ item }: { item: CatalogProduct }) {
   const meta = PRODUCT_CATEGORY_LABELS[item.category] || { label: item.category, icon: "Piece" };
+  const visual = CATEGORY_VISUALS[item.category] || CATEGORY_VISUALS.accessories;
+  const swatches = item.colorTags.slice(0, 4);
 
   if (item.imageUrl) {
     return <img src={item.imageUrl} alt={item.name} className="w-full object-cover" style={{ height: 190 }} />;
@@ -503,40 +605,53 @@ function ProductVisual({ item }: { item: CatalogProduct }) {
       className="relative w-full overflow-hidden"
       style={{
         height: 190,
-        background: "linear-gradient(135deg, rgba(199,179,139,0.16), rgba(143,136,168,0.13) 48%, rgba(22,22,22,0.92))",
+        background: `linear-gradient(135deg, ${visual.soft} 0%, #F7F3EA 46%, rgba(22,22,22,0.95) 100%)`,
       }}
     >
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
-          backgroundSize: "18px 18px",
-          opacity: 0.55,
+          backgroundImage: "radial-gradient(circle at 18% 18%, rgba(14,13,12,0.08), transparent 22%), radial-gradient(circle at 82% 32%, rgba(143,136,168,0.12), transparent 26%)",
+          opacity: 0.9,
         }}
       />
+      <div className="absolute left-1/2 top-16 -translate-x-1/2 -translate-y-1/2">
+        <ProductShape category={item.category} accent={visual.accent} />
+      </div>
+      <div className="absolute inset-x-0 bottom-0" style={{ height: 84, background: "linear-gradient(to top, rgba(14,13,12,0.95), rgba(14,13,12,0.58), transparent)" }} />
       <div className="absolute inset-0 flex flex-col justify-between p-3">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p style={{ color: "var(--gold)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 700 }}>
-              Catalog pick
+            <p style={{ color: "rgba(14,13,12,0.72)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 800 }}>
+              Iris catalog
             </p>
-            <p style={{ color: "var(--cream)", fontSize: 11, marginTop: 3, textTransform: "capitalize" }}>
-              {meta.label}
+            <p style={{ color: "rgba(14,13,12,0.88)", fontSize: 12, marginTop: 3, fontWeight: 700 }}>
+              {visual.title}
             </p>
           </div>
-          <div
-            className="rounded-full flex items-center justify-center"
-            style={{ width: 44, height: 44, background: "rgba(14,13,12,0.52)", border: "1px solid rgba(199,179,139,0.28)" }}
-          >
-            <span style={{ color: "var(--gold)", fontSize: 10, fontWeight: 700 }}>{meta.icon}</span>
+          <div className="flex gap-1.5">
+            {swatches.map((color) => (
+              <span
+                key={color}
+                title={color}
+                style={{
+                  width: 13,
+                  height: 13,
+                  borderRadius: 999,
+                  background: getSwatchColor(color),
+                  border: normalizeTag(color) === "white" || normalizeTag(color) === "cream" ? "1px solid rgba(14,13,12,0.22)" : "1px solid rgba(255,255,255,0.42)",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.16)",
+                }}
+              />
+            ))}
           </div>
         </div>
         <div>
-          <p style={{ color: "var(--cream)", fontSize: 17, lineHeight: 1.15, fontFamily: "var(--font-display)", marginBottom: 5 }}>
-            {item.retailer}
+          <p style={{ color: "var(--cream)", fontSize: 16, lineHeight: 1.15, fontFamily: "var(--font-display)", marginBottom: 5 }}>
+            {meta.label} from {item.retailer}
           </p>
-          <p style={{ color: "var(--muted-foreground)", fontSize: 10, lineHeight: 1.35 }}>
-            Product image pending. Iris is ranking this from the curated starter catalog.
+          <p style={{ color: "rgba(245,242,234,0.68)", fontSize: 10, lineHeight: 1.35 }}>
+            Curated starter pick, ready for live affiliate product photos later.
           </p>
         </div>
       </div>
