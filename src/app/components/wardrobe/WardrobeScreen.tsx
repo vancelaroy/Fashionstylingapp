@@ -57,6 +57,12 @@ function toggleSeason(current: string[], season: string) {
   return next.length > 0 ? next : ["year-round"];
 }
 
+function isImageFile(file: File) {
+  return file.type.startsWith("image/")
+    || file.type === ""
+    || /\.(avif|gif|heic|heif|jpeg|jpg|png|webp)$/i.test(file.name);
+}
+
 function WardrobeLoadingState() {
   return (
     <div className="px-6 py-12">
@@ -93,7 +99,7 @@ function WardrobeLoadingState() {
 }
 
 async function compressDetailPhoto(file: File): Promise<string> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
@@ -107,6 +113,10 @@ async function compressDetailPhoto(file: File): Promise<string> {
       const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
       URL.revokeObjectURL(url);
       resolve(dataUrl);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not read image file"));
     };
     img.src = url;
   });
@@ -514,7 +524,7 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
   };
 
   const addPhoto = async (file: File) => {
-    if (!file.type.startsWith("image/")) return;
+    if (!isImageFile(file)) return;
     const dataUrl = await compressDetailPhoto(file);
     const nextPhotos = [...photos, dataUrl].slice(0, 6);
     updateDraft({ photos: nextPhotos, image: draft.image || dataUrl });
@@ -614,7 +624,15 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
               style={{ width: 72, height: 72, border: "1px dashed var(--border)", background: "transparent", cursor: "pointer" }}>
               <ImagePlus size={18} style={{ color: "var(--gold)" }} />
               <span style={{ color: "var(--muted-foreground)", fontSize: 9 }}>Photo</span>
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) addPhoto(e.target.files[0]); }} />
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) addPhoto(e.target.files[0]);
+                  e.currentTarget.value = "";
+                }}
+              />
             </label>
           )}
         </div>

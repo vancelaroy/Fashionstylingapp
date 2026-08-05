@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Camera, Upload, X, Check, ChevronRight, Loader } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
@@ -66,10 +66,16 @@ function toggleSeason(current: string[], season: string) {
   return next.length > 0 ? next : ["year-round"];
 }
 
+function isImageFile(file: File) {
+  return file.type.startsWith("image/")
+    || file.type === ""
+    || /\.(avif|gif|heic|heif|jpeg|jpg|png|webp)$/i.test(file.name);
+}
+
 // Compress image to max 800px wide, JPEG quality 0.8. The dataUrl is what
 // persists in the saved closet; object URLs are preview-only and expire.
 async function compressImage(file: File): Promise<{ base64: string; dataUrl: string; mediaType: string }> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
@@ -83,6 +89,10 @@ async function compressImage(file: File): Promise<{ base64: string; dataUrl: str
       const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
       URL.revokeObjectURL(url);
       resolve({ base64: dataUrl.split(",")[1], dataUrl, mediaType: "image/jpeg" });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not read image file"));
     };
     img.src = url;
   });
@@ -105,8 +115,6 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
   const [selectedSeasons, setSelectedSeasons] = useState<string[]>(["year-round"]);
   const [queue, setQueue] = useState<UploadQueueItem[]>([]);
   const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const libraryInputRef = useRef<HTMLInputElement>(null);
 
   const resetAnalysis = () => {
     setPersistentImageDataUrl(null);
@@ -124,7 +132,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
   };
 
   const handleFiles = async (files: File[]) => {
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    const imageFiles = files.filter(isImageFile);
     if (imageFiles.length === 0) return;
 
     queue.forEach((item) => URL.revokeObjectURL(item.previewUrl));
@@ -251,31 +259,6 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
           {/* ── Idle: choose source ── */}
           {stage === "idle" && (
             <motion.div key="idle" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <input
-                ref={cameraInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files ?? []);
-                  if (files.length > 0) handleFiles(files);
-                  e.currentTarget.value = "";
-                }}
-              />
-              <input
-                ref={libraryInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files ?? []);
-                  if (files.length > 0) handleFiles(files);
-                  e.currentTarget.value = "";
-                }}
-              />
-
               <div
                 className="rounded-2xl p-6 mb-5 text-center"
                 style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
@@ -286,23 +269,43 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
               </div>
 
               <div className="flex flex-col gap-3">
-                <button
-                  onClick={() => cameraInputRef.current?.click()}
+                <label
                   className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95"
                   style={{ background: "var(--gold)", color: "#161616", fontWeight: 600, fontSize: "15px", border: "none", cursor: "pointer" }}
                 >
                   <Camera size={20} />
                   Take Photo
-                </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files ?? []);
+                      if (files.length > 0) handleFiles(files);
+                      e.currentTarget.value = "";
+                    }}
+                  />
+                </label>
 
-                <button
-                  onClick={() => libraryInputRef.current?.click()}
+                <label
                   className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95"
                   style={{ background: "var(--surface)", color: "var(--cream)", fontWeight: 500, fontSize: "15px", border: "1px solid var(--border)", cursor: "pointer" }}
                 >
                   <Upload size={20} />
                   Choose from Library
-                </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="sr-only"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files ?? []);
+                      if (files.length > 0) handleFiles(files);
+                      e.currentTarget.value = "";
+                    }}
+                  />
+                </label>
               </div>
 
               <p style={{ color: "var(--muted-foreground)", fontSize: "11px", textAlign: "center", marginTop: 20, lineHeight: 1.6 }}>
