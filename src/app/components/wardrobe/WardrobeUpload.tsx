@@ -105,7 +105,8 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
   const [selectedSeasons, setSelectedSeasons] = useState<string[]>(["year-round"]);
   const [queue, setQueue] = useState<UploadQueueItem[]>([]);
   const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const libraryInputRef = useRef<HTMLInputElement>(null);
 
   const resetAnalysis = () => {
     setPersistentImageDataUrl(null);
@@ -251,10 +252,21 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
           {stage === "idle" && (
             <motion.div key="idle" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <input
-                ref={fileInputRef}
+                ref={cameraInputRef}
                 type="file"
                 accept="image/*"
                 capture="environment"
+                className="hidden"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  if (files.length > 0) handleFiles(files);
+                  e.currentTarget.value = "";
+                }}
+              />
+              <input
+                ref={libraryInputRef}
+                type="file"
+                accept="image/*"
                 multiple
                 className="hidden"
                 onChange={(e) => {
@@ -275,14 +287,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
 
               <div className="flex flex-col gap-3">
                 <button
-                  onClick={() => {
-                    if (fileInputRef.current) {
-                      fileInputRef.current.multiple = false;
-                      fileInputRef.current.removeAttribute("capture");
-                      fileInputRef.current.setAttribute("capture", "environment");
-                      fileInputRef.current.click();
-                    }
-                  }}
+                  onClick={() => cameraInputRef.current?.click()}
                   className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95"
                   style={{ background: "var(--gold)", color: "#161616", fontWeight: 600, fontSize: "15px", border: "none", cursor: "pointer" }}
                 >
@@ -291,13 +296,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
                 </button>
 
                 <button
-                  onClick={() => {
-                    if (fileInputRef.current) {
-                      fileInputRef.current.multiple = true;
-                      fileInputRef.current.removeAttribute("capture");
-                      fileInputRef.current.click();
-                    }
-                  }}
+                  onClick={() => libraryInputRef.current?.click()}
                   className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95"
                   style={{ background: "var(--surface)", color: "var(--cream)", fontWeight: 500, fontSize: "15px", border: "1px solid var(--border)", cursor: "pointer" }}
                 >
