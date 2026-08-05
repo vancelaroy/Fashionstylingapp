@@ -23,7 +23,7 @@ export interface WardrobeItem {
 
 interface WardrobeUploadProps {
   accessToken?: string | null;
-  onItemAdded: (item: WardrobeItem, options?: { keepOpen?: boolean }) => void;
+  onItemAdded: (item: WardrobeItem, options?: { keepOpen?: boolean }) => boolean | Promise<boolean>;
   onClose: () => void;
 }
 
@@ -72,6 +72,28 @@ function isImageFile(file: File) {
     || /\.(avif|gif|heic|heif|jpeg|jpg|png|webp)$/i.test(file.name);
 }
 
+async function readFileAsDataUrl(file: File): Promise<{ base64: string; dataUrl: string; mediaType: string }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result ?? "");
+      const base64 = dataUrl.includes(",") ? dataUrl.split(",")[1] : "";
+      if (!base64) {
+        reject(new Error("Could not read image data"));
+        return;
+      }
+
+      resolve({
+        base64,
+        dataUrl,
+        mediaType: file.type || "image/jpeg",
+      });
+    };
+    reader.onerror = () => reject(new Error("Could not read image file"));
+    reader.readAsDataURL(file);
+  });
+}
+
 // Compress image to max 800px wide, JPEG quality 0.8. The dataUrl is what
 // persists in the saved closet; object URLs are preview-only and expire.
 async function compressImage(file: File): Promise<{ base64: string; dataUrl: string; mediaType: string }> {
@@ -98,7 +120,7 @@ async function compressImage(file: File): Promise<{ base64: string; dataUrl: str
   });
 }
 
-type Stage = "idle" | "preview" | "analyzing" | "result" | "saving";
+type Stage = "idle" | "preview" | "analyzing" | "result" | "saving" | "saved";
 type UploadQueueItem = {
   id: string;
   file: File;
@@ -115,6 +137,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
   const [selectedSeasons, setSelectedSeasons] = useState<string[]>(["year-round"]);
   const [queue, setQueue] = useState<UploadQueueItem[]>([]);
   const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
+  const [saveMessage, setSaveMessage] = useState("Saving to closet...");
 
   const resetAnalysis = () => {
     setPersistentImageDataUrl(null);
@@ -133,7 +156,11 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
 
   const handleFiles = async (files: File[]) => {
     const imageFiles = files.filter(isImageFile);
-    if (imageFiles.length === 0) return;
+    if (imageFiles.length === 0) {
+      setError("IRYS could not read those photos. Try one clear JPEG or PNG image.");
+      setStage("idle");
+      return;
+    }
 
     queue.forEach((item) => URL.revokeObjectURL(item.previewUrl));
 
@@ -152,7 +179,14 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
     setStage("analyzing");
     setError(null);
     try {
-      const { base64, dataUrl, mediaType } = await compressImage(file);
+      let imagePayload: { base64: string; dataUrl: string; mediaType: string };
+      try {
+        imagePayload = await compressImage(file);
+      } catch {
+        imagePayload = await readFileAsDataUrl(file);
+      }
+
+      const { base64, dataUrl, mediaType } = imagePayload;
       setPersistentImageDataUrl(dataUrl);
 
       const res = await fetch(`${SERVER}/wardrobe/analyze`, {
@@ -182,6 +216,8 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
   const handleSave = async () => {
     const savedImage = persistentImageDataUrl ?? imageDataUrl;
     if (!analysisResult || !savedImage) return;
+    setError(null);
+    setSaveMessage("Saving to closet...");
     setStage("saving");
 
     const newItem: WardrobeItem = {
@@ -201,8 +237,15 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
     };
 
     const hasNext = currentQueueIndex < queue.length - 1;
-    onItemAdded(newItem, { keepOpen: hasNext });
+    const saved = await onItemAdded(newItem, { keepOpen: hasNext });
+    if (!saved) {
+      setError("This piece was analyzed, but couldn't save. Try again before leaving this screen.");
+      setStage("result");
+      return;
+    }
 
+    setSaveMessage(hasNext ? "Saved. Preparing the next piece..." : "Upload complete.");
+    setStage("saved");
     if (hasNext) {
       setTimeout(() => {
         const nextIndex = currentQueueIndex + 1;
@@ -454,21 +497,30 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
           )}
 
           {/* ── Saving ── */}
-          {stage === "saving" && (
+          {(stage === "saving" || stage === "saved") && (
             <motion.div key="saving" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 gap-6">
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300 }}>
                 <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.15)", border: "2px solid var(--gold)" }}>
-                  <Check size={32} style={{ color: "var(--gold)" }} />
+                  {stage === "saving" ? (
+                    <Loader size={32} style={{ color: "var(--gold)", animation: "spin 1s linear infinite" }} />
+                  ) : (
+                    <Check size={32} style={{ color: "var(--gold)" }} />
+                  )}
                 </div>
               </motion.div>
               <div className="text-center">
                 <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "24px", fontWeight: 400, letterSpacing: "-0.02em" }}>
-                  {remainingAfterCurrent > 0 ? "Added. Next piece..." : "Added to your closet"}
+                  {stage === "saving" ? saveMessage : remainingAfterCurrent > 0 ? "Saved. Next piece..." : "Added to your closet"}
                 </h3>
                 <p style={{ color: "var(--muted-foreground)", fontSize: "13px", marginTop: 4 }}>
-                  {remainingAfterCurrent > 0 ? `${remainingAfterCurrent} more to review.` : "Iris now knows your wardrobe a little better."}
+                  {stage === "saving"
+                    ? "Please keep this screen open."
+                    : remainingAfterCurrent > 0
+                      ? `${remainingAfterCurrent} more to review.`
+                      : "Iris now knows your wardrobe a little better."}
                 </p>
               </div>
+              <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
             </motion.div>
           )}
 

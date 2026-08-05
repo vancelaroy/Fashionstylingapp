@@ -63,6 +63,22 @@ function isImageFile(file: File) {
     || /\.(avif|gif|heic|heif|jpeg|jpg|png|webp)$/i.test(file.name);
 }
 
+async function readDetailPhotoAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result ?? "");
+      if (!dataUrl) {
+        reject(new Error("Could not read image data"));
+        return;
+      }
+      resolve(dataUrl);
+    };
+    reader.onerror = () => reject(new Error("Could not read image file"));
+    reader.readAsDataURL(file);
+  });
+}
+
 function WardrobeLoadingState() {
   return (
     <div className="px-6 py-12">
@@ -168,23 +184,33 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
   }, [pendingOutfitItemIds]);
 
   const saveToServer = async (items: WardrobeItem[]) => {
-    if (!accessToken) return;
+    if (!accessToken) return true;
     try {
-      await fetch(`${SERVER}/wardrobe/items`, {
+      const res = await fetch(`${SERVER}/wardrobe/items`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify({ items }),
       });
-    } catch { /* silent fail */ }
+      return res.ok;
+    } catch {
+      return false;
+    }
   };
 
-  const handleItemAdded = (item: WardrobeItem, options?: { keepOpen?: boolean }) => {
+  const handleItemAdded = async (item: WardrobeItem, options?: { keepOpen?: boolean }) => {
+    const previous = myItemsRef.current;
     const updated = [item, ...myItemsRef.current];
     myItemsRef.current = updated;
     setMyItems(updated);
-    saveToServer(updated);
+    const saved = await saveToServer(updated);
+    if (!saved) {
+      myItemsRef.current = previous;
+      setMyItems(previous);
+      return false;
+    }
     // Brief delay then close so user sees the success state
-    if (!options?.keepOpen) setTimeout(() => setShowUpload(false), 1800);
+    if (!options?.keepOpen) setTimeout(() => setShowUpload(false), 1400);
+    return true;
   };
 
   const handleItemUpdated = (updatedItem: WardrobeItem) => {
@@ -525,7 +551,12 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
 
   const addPhoto = async (file: File) => {
     if (!isImageFile(file)) return;
-    const dataUrl = await compressDetailPhoto(file);
+    let dataUrl: string;
+    try {
+      dataUrl = await compressDetailPhoto(file);
+    } catch {
+      dataUrl = await readDetailPhotoAsDataUrl(file);
+    }
     const nextPhotos = [...photos, dataUrl].slice(0, 6);
     updateDraft({ photos: nextPhotos, image: draft.image || dataUrl });
   };
