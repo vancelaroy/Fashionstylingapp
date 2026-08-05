@@ -23,7 +23,7 @@ export interface WardrobeItem {
 
 interface WardrobeUploadProps {
   accessToken?: string | null;
-  onItemAdded: (item: WardrobeItem) => void;
+  onItemAdded: (item: WardrobeItem, options?: { keepOpen?: boolean }) => void;
   onClose: () => void;
 }
 
@@ -89,6 +89,11 @@ async function compressImage(file: File): Promise<{ base64: string; dataUrl: str
 }
 
 type Stage = "idle" | "preview" | "analyzing" | "result" | "saving";
+type UploadQueueItem = {
+  id: string;
+  file: File;
+  previewUrl: string;
+};
 
 export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUploadProps) {
   const [stage, setStage] = useState<Stage>("idle");
@@ -98,16 +103,40 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
   const [error, setError] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [selectedSeasons, setSelectedSeasons] = useState<string[]>(["year-round"]);
+  const [queue, setQueue] = useState<UploadQueueItem[]>([]);
+  const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = async (file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    const previewUrl = URL.createObjectURL(file);
-    setImageDataUrl(previewUrl);
-    setStage("preview");
+  const resetAnalysis = () => {
+    setPersistentImageDataUrl(null);
+    setAnalysisResult(null);
+    setError(null);
+    setEditName("");
+    setSelectedSeasons(["year-round"]);
+  };
 
-    // Analyze immediately after selection
-    setTimeout(() => analyzeImage(file), 200);
+  const analyzeQueuedFile = (item: UploadQueueItem) => {
+    setImageDataUrl(item.previewUrl);
+    resetAnalysis();
+    setStage("preview");
+    setTimeout(() => analyzeImage(item.file), 200);
+  };
+
+  const handleFiles = async (files: File[]) => {
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    if (imageFiles.length === 0) return;
+
+    queue.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+
+    const nextQueue = imageFiles.map((file) => ({
+      id: `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+
+    setQueue(nextQueue);
+    setCurrentQueueIndex(0);
+    analyzeQueuedFile(nextQueue[0]);
   };
 
   const analyzeImage = async (file: File) => {
@@ -162,8 +191,37 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
       addedAt: new Date().toISOString(),
     };
 
-    onItemAdded(newItem);
+    const hasNext = currentQueueIndex < queue.length - 1;
+    onItemAdded(newItem, { keepOpen: hasNext });
+
+    if (hasNext) {
+      setTimeout(() => {
+        const nextIndex = currentQueueIndex + 1;
+        setCurrentQueueIndex(nextIndex);
+        analyzeQueuedFile(queue[nextIndex]);
+      }, 900);
+    }
   };
+
+  const handleSkipCurrent = () => {
+    const hasNext = currentQueueIndex < queue.length - 1;
+    if (hasNext) {
+      const nextIndex = currentQueueIndex + 1;
+      setCurrentQueueIndex(nextIndex);
+      analyzeQueuedFile(queue[nextIndex]);
+      return;
+    }
+
+    queue.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+    setQueue([]);
+    setCurrentQueueIndex(0);
+    setImageDataUrl(null);
+    resetAnalysis();
+    setStage("idle");
+  };
+
+  const queueLabel = queue.length > 1 ? `Piece ${currentQueueIndex + 1} of ${queue.length}` : null;
+  const remainingAfterCurrent = Math.max(queue.length - currentQueueIndex - 1, 0);
 
   return (
     <div
@@ -177,6 +235,9 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
           <h2 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "26px", fontWeight: 400, letterSpacing: "-0.02em" }}>
             {stage === "analyzing" ? "Iris is looking..." : stage === "result" ? "Here's what I see" : "Show me a piece"}
           </h2>
+          {queueLabel && (
+            <p style={{ color: "var(--muted-foreground)", fontSize: "12px", marginTop: 4 }}>{queueLabel}</p>
+          )}
         </div>
         <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "var(--surface)", border: "none", cursor: "pointer" }}>
           <X size={16} style={{ color: "var(--muted-foreground)" }} />
@@ -194,8 +255,13 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
                 type="file"
                 accept="image/*"
                 capture="environment"
+                multiple
                 className="hidden"
-                onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  if (files.length > 0) handleFiles(files);
+                  e.currentTarget.value = "";
+                }}
               />
 
               <div
@@ -211,6 +277,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
                 <button
                   onClick={() => {
                     if (fileInputRef.current) {
+                      fileInputRef.current.multiple = false;
                       fileInputRef.current.removeAttribute("capture");
                       fileInputRef.current.setAttribute("capture", "environment");
                       fileInputRef.current.click();
@@ -226,6 +293,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
                 <button
                   onClick={() => {
                     if (fileInputRef.current) {
+                      fileInputRef.current.multiple = true;
                       fileInputRef.current.removeAttribute("capture");
                       fileInputRef.current.click();
                     }
@@ -239,7 +307,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
               </div>
 
               <p style={{ color: "var(--muted-foreground)", fontSize: "11px", textAlign: "center", marginTop: 20, lineHeight: 1.6 }}>
-                Lay the item flat on a clean surface for best results. Iris can identify color, category, occasion, and season from a clear photo.
+                Select one photo or several at once. Iris will review each piece one by one so you can confirm the details before saving.
               </p>
             </motion.div>
           )}
@@ -266,9 +334,11 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
               )}
 
               {stage === "preview" && (
-                <button onClick={() => setStage("idle")} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
+                <button onClick={handleSkipCurrent} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
                   <X size={14} style={{ color: "var(--muted-foreground)" }} />
-                  <span style={{ color: "var(--muted-foreground)", fontSize: "14px" }}>Try a different photo</span>
+                  <span style={{ color: "var(--muted-foreground)", fontSize: "14px" }}>
+                    {currentQueueIndex < queue.length - 1 ? "Skip this photo" : "Try a different photo"}
+                  </span>
                 </button>
               )}
             </motion.div>
@@ -365,15 +435,17 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
                 style={{ background: "var(--gold)", color: "#161616", fontWeight: 600, fontSize: "15px", border: "none", cursor: "pointer" }}
               >
                 <Check size={18} />
-                Add to My Closet
+                {currentQueueIndex < queue.length - 1 ? "Add and Continue" : "Add to My Closet"}
               </button>
 
               <button
-                onClick={() => { setStage("idle"); setImageDataUrl(null); setAnalysisResult(null); }}
+                onClick={handleSkipCurrent}
                 className="w-full py-3 rounded-2xl flex items-center justify-center gap-2"
                 style={{ background: "transparent", border: "1px solid var(--border)", cursor: "pointer" }}
               >
-                <span style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>Add another piece</span>
+                <span style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
+                  {currentQueueIndex < queue.length - 1 ? "Skip to next piece" : "Add another piece"}
+                </span>
                 <ChevronRight size={14} style={{ color: "var(--muted-foreground)" }} />
               </button>
             </motion.div>
@@ -388,8 +460,12 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
                 </div>
               </motion.div>
               <div className="text-center">
-                <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "24px", fontWeight: 400, letterSpacing: "-0.02em" }}>Added to your closet</h3>
-                <p style={{ color: "var(--muted-foreground)", fontSize: "13px", marginTop: 4 }}>Iris now knows your wardrobe a little better.</p>
+                <h3 style={{ fontFamily: "var(--font-display)", color: "var(--cream)", fontSize: "24px", fontWeight: 400, letterSpacing: "-0.02em" }}>
+                  {remainingAfterCurrent > 0 ? "Added. Next piece..." : "Added to your closet"}
+                </h3>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "13px", marginTop: 4 }}>
+                  {remainingAfterCurrent > 0 ? `${remainingAfterCurrent} more to review.` : "Iris now knows your wardrobe a little better."}
+                </p>
               </div>
             </motion.div>
           )}

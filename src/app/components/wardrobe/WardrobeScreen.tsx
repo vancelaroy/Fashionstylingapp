@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, Search, Camera, X, Trash2, Save, ImagePlus, Sparkles, Pencil } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { VirtualCloset } from "./VirtualCloset";
@@ -129,6 +129,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
   const [myItems, setMyItems] = useState<WardrobeItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const myItemsRef = useRef<WardrobeItem[]>([]);
 
   // Load wardrobe from server on mount
   useEffect(() => {
@@ -141,7 +142,10 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
     })
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data.items)) setMyItems(data.items);
+        if (Array.isArray(data.items)) {
+          myItemsRef.current = data.items;
+          setMyItems(data.items);
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -164,23 +168,26 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
     } catch { /* silent fail */ }
   };
 
-  const handleItemAdded = (item: WardrobeItem) => {
-    const updated = [item, ...myItems];
+  const handleItemAdded = (item: WardrobeItem, options?: { keepOpen?: boolean }) => {
+    const updated = [item, ...myItemsRef.current];
+    myItemsRef.current = updated;
     setMyItems(updated);
     saveToServer(updated);
     // Brief delay then close so user sees the success state
-    setTimeout(() => setShowUpload(false), 1800);
+    if (!options?.keepOpen) setTimeout(() => setShowUpload(false), 1800);
   };
 
   const handleItemUpdated = (updatedItem: WardrobeItem) => {
-    const updated = myItems.map((item) => item.id === updatedItem.id ? updatedItem : item);
+    const updated = myItemsRef.current.map((item) => item.id === updatedItem.id ? updatedItem : item);
+    myItemsRef.current = updated;
     setMyItems(updated);
     setSelectedItem(updatedItem);
     saveToServer(updated);
   };
 
   const handleItemDeleted = (itemId: string) => {
-    const updated = myItems.filter((item) => item.id !== itemId);
+    const updated = myItemsRef.current.filter((item) => item.id !== itemId);
+    myItemsRef.current = updated;
     setMyItems(updated);
     setSelectedItem(null);
     saveToServer(updated);
