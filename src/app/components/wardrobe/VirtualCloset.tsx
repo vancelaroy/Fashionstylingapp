@@ -4,6 +4,7 @@ import { Plus, Sparkles, RotateCcw, Share2, Heart, Camera, X, Trash2 } from "luc
 import type { WardrobeItem } from "./WardrobeUpload";
 import { loadSavedOutfits, persistSavedOutfits, readLocalSavedOutfits, type SavedOutfit, type OutfitSlotKey } from "../../lib/savedOutfits";
 import { buildConceptOutfitSuggestion, getRecentOutfitItemIds, type OutfitSuggestion, type OutfitSlots } from "../../lib/outfitIntelligence";
+import { getClosetMilestoneStatus } from "../../lib/closetMilestones";
 
 interface VirtualClosetProps {
   items: WardrobeItem[];
@@ -197,6 +198,7 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
   };
 
   if (items.length === 0) {
+    const closetProgress = getClosetMilestoneStatus(0);
     return (
       <div className="px-6 py-14 flex flex-col items-center justify-center gap-5 text-center">
         <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.1)", border: "1px solid var(--border)" }}>
@@ -207,7 +209,7 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
             Build your first look
           </h3>
           <p style={{ color: "var(--muted-foreground)", fontSize: "13px", marginTop: 8, lineHeight: 1.6 }}>
-            Add a few closet pieces first, then Iris can help you mix them into real outfits.
+            {closetProgress.emptyState}
           </p>
         </div>
         <button onClick={onAddPiece} className="px-6 py-3.5 rounded-2xl flex items-center gap-2 transition-all active:scale-95"

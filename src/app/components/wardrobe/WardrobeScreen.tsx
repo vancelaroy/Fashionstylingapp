@@ -3,6 +3,7 @@ import { Plus, Search, Camera, X, Trash2, Save, ImagePlus, Sparkles, Pencil } fr
 import { motion, AnimatePresence } from "motion/react";
 import { VirtualCloset } from "./VirtualCloset";
 import { WardrobeUpload, type WardrobeItem } from "./WardrobeUpload";
+import { getClosetMilestoneStatus } from "../../lib/closetMilestones";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 
 const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
@@ -149,31 +150,21 @@ function buildUploadRead(addedItems: WardrobeItem[], closetItems: WardrobeItem[]
     .filter((season) => season !== "year-round");
   const dominantSeason = mostCommon(seasonalOptions);
   const totalAfter = closetItems.length;
+  const milestone = getClosetMilestoneStatus(totalAfter);
   const pieceLabel = addedItems.length === 1 ? "piece" : "pieces";
   const categoryLabel = dominantCategory ? titleCase(dominantCategory) : "wardrobe";
   const occasionLabel = dominantOccasion ? titleCase(dominantOccasion) : "daily";
 
-  let nextStep = "Keep adding the pieces you actually wear so Iris can style from real options.";
-  if (totalAfter >= 30) {
-    nextStep = "Your closet has enough range for deeper reads: gaps, repeats, and stronger outfit rotation.";
-  } else if (totalAfter >= 20) {
-    nextStep = "You have enough range for outfit building. Next, Iris can start spotting gaps and repeats.";
-  } else if (totalAfter >= 10) {
-    nextStep = "Your closet is starting to give Iris real range. Add shoes, layers, or accessories next.";
-  } else if (totalAfter >= 5) {
-    nextStep = "You are close to stronger daily styling. Add a few bottoms, shoes, or outerwear pieces next.";
-  }
-
   return {
     title: addedItems.length === 1 ? "I added this piece to your closet." : `I added ${addedItems.length} pieces to your closet.`,
     body: `This strengthens your ${categoryLabel.toLowerCase()} range and gives Iris more ${occasionLabel.toLowerCase()} options to style from.`,
-    nextStep,
+    nextStep: milestone.uploadRead,
     chips: [
       `+${addedItems.length} ${pieceLabel}`,
       dominantCategory ? categoryLabel : null,
       dominantSeason ? formatSeason(dominantSeason) : null,
       dominantOccasion ? occasionLabel : null,
-      `${totalAfter} total`,
+      milestone.headline,
     ].filter(Boolean) as string[],
   };
 }
@@ -306,6 +297,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
     const matchesSeason = activeSeason === "all" || normalizeSeasons(item.seasons).includes(activeSeason);
     return matchesCategory && matchesSearch && matchesSeason;
   });
+  const closetProgress = getClosetMilestoneStatus(myItems.length);
 
   return (
     <div className="flex flex-col h-full" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
@@ -379,6 +371,41 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
             </button>
           ))}
         </div>
+
+        {!loading && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl p-4 mb-4"
+            style={{ background: "rgba(199,179,139,0.07)", border: "1px solid rgba(199,179,139,0.18)" }}
+          >
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <p style={{ color: "var(--gold)", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>
+                  Closet progress
+                </p>
+                <h3 style={{ color: "var(--cream)", fontSize: "14px", fontWeight: 700, lineHeight: 1.35 }}>
+                  {closetProgress.headline}
+                </h3>
+              </div>
+              <span className="px-2.5 py-1 rounded-full shrink-0" style={{ background: "rgba(199,179,139,0.12)", color: "var(--gold)", fontSize: "10px", fontWeight: 700 }}>
+                {closetProgress.progressLabel}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <motion.div
+                className="h-full rounded-full"
+                style={{ background: "var(--gold)" }}
+                initial={{ width: 0 }}
+                animate={{ width: `${closetProgress.progress}%` }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+              />
+            </div>
+            <p style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.5 }}>
+              {closetProgress.body}
+            </p>
+          </motion.div>
+        )}
 
         <AnimatePresence>
           {uploadRead && !loading && (
