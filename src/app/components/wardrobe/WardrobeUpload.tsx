@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Camera, Upload, X, Check, ChevronRight, Loader } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
@@ -24,6 +24,7 @@ export interface WardrobeItem {
 interface WardrobeUploadProps {
   accessToken?: string | null;
   onItemAdded: (item: WardrobeItem, options?: { keepOpen?: boolean }) => boolean | Promise<boolean>;
+  onUploadComplete?: (items: WardrobeItem[]) => void;
   onClose: () => void;
 }
 
@@ -127,7 +128,7 @@ type UploadQueueItem = {
   previewUrl: string;
 };
 
-export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUploadProps) {
+export function WardrobeUpload({ accessToken, onItemAdded, onUploadComplete, onClose }: WardrobeUploadProps) {
   const [stage, setStage] = useState<Stage>("idle");
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [persistentImageDataUrl, setPersistentImageDataUrl] = useState<string | null>(null);
@@ -138,6 +139,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
   const [queue, setQueue] = useState<UploadQueueItem[]>([]);
   const [currentQueueIndex, setCurrentQueueIndex] = useState(0);
   const [saveMessage, setSaveMessage] = useState("Saving to closet...");
+  const savedItemsRef = useRef<WardrobeItem[]>([]);
 
   const resetAnalysis = () => {
     setPersistentImageDataUrl(null);
@@ -170,6 +172,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
       previewUrl: URL.createObjectURL(file),
     }));
 
+    savedItemsRef.current = [];
     setQueue(nextQueue);
     setCurrentQueueIndex(0);
     analyzeQueuedFile(nextQueue[0]);
@@ -244,6 +247,7 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
       return;
     }
 
+    savedItemsRef.current = [...savedItemsRef.current, newItem];
     setSaveMessage(hasNext ? "Saved. Preparing the next piece..." : "Upload complete.");
     setStage("saved");
     if (hasNext) {
@@ -252,6 +256,10 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
         setCurrentQueueIndex(nextIndex);
         analyzeQueuedFile(queue[nextIndex]);
       }, 900);
+    } else {
+      setTimeout(() => {
+        onUploadComplete?.(savedItemsRef.current);
+      }, 950);
     }
   };
 

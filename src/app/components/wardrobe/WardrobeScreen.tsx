@@ -48,6 +48,24 @@ function formatSeasons(seasons?: string[]) {
   return normalizeSeasons(seasons).map(formatSeason).join(", ");
 }
 
+function titleCase(value: string) {
+  return value
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function mostCommon(values: string[]) {
+  const counts = values.reduce<Record<string, number>>((acc, value) => {
+    if (!value) return acc;
+    acc[value] = (acc[value] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+}
+
 function toggleSeason(current: string[], season: string) {
   if (season === "year-round") return ["year-round"];
   const withoutYearRound = current.filter((value) => value !== "year-round");
@@ -114,6 +132,52 @@ function WardrobeLoadingState() {
   );
 }
 
+type UploadRead = {
+  title: string;
+  body: string;
+  nextStep: string;
+  chips: string[];
+};
+
+function buildUploadRead(addedItems: WardrobeItem[], closetItems: WardrobeItem[]): UploadRead | null {
+  if (addedItems.length === 0) return null;
+
+  const dominantCategory = mostCommon(addedItems.map((item) => item.category));
+  const dominantOccasion = mostCommon(addedItems.flatMap((item) => item.occasions ?? []));
+  const seasonalOptions = addedItems
+    .flatMap((item) => normalizeSeasons(item.seasons))
+    .filter((season) => season !== "year-round");
+  const dominantSeason = mostCommon(seasonalOptions);
+  const totalAfter = closetItems.length;
+  const pieceLabel = addedItems.length === 1 ? "piece" : "pieces";
+  const categoryLabel = dominantCategory ? titleCase(dominantCategory) : "wardrobe";
+  const occasionLabel = dominantOccasion ? titleCase(dominantOccasion) : "daily";
+
+  let nextStep = "Keep adding the pieces you actually wear so Iris can style from real options.";
+  if (totalAfter >= 30) {
+    nextStep = "Your closet has enough range for deeper reads: gaps, repeats, and stronger outfit rotation.";
+  } else if (totalAfter >= 20) {
+    nextStep = "You have enough range for outfit building. Next, Iris can start spotting gaps and repeats.";
+  } else if (totalAfter >= 10) {
+    nextStep = "Your closet is starting to give Iris real range. Add shoes, layers, or accessories next.";
+  } else if (totalAfter >= 5) {
+    nextStep = "You are close to stronger daily styling. Add a few bottoms, shoes, or outerwear pieces next.";
+  }
+
+  return {
+    title: addedItems.length === 1 ? "I added this piece to your closet." : `I added ${addedItems.length} pieces to your closet.`,
+    body: `This strengthens your ${categoryLabel.toLowerCase()} range and gives Iris more ${occasionLabel.toLowerCase()} options to style from.`,
+    nextStep,
+    chips: [
+      `+${addedItems.length} ${pieceLabel}`,
+      dominantCategory ? categoryLabel : null,
+      dominantSeason ? formatSeason(dominantSeason) : null,
+      dominantOccasion ? occasionLabel : null,
+      `${totalAfter} total`,
+    ].filter(Boolean) as string[],
+  };
+}
+
 async function compressDetailPhoto(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -155,6 +219,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
   const [myItems, setMyItems] = useState<WardrobeItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uploadRead, setUploadRead] = useState<UploadRead | null>(null);
   const myItemsRef = useRef<WardrobeItem[]>([]);
 
   // Load wardrobe from server on mount
@@ -213,6 +278,11 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
     return true;
   };
 
+  const handleUploadComplete = (items: WardrobeItem[]) => {
+    const read = buildUploadRead(items, myItemsRef.current);
+    if (read) setUploadRead(read);
+  };
+
   const handleItemUpdated = (updatedItem: WardrobeItem) => {
     const updated = myItemsRef.current.map((item) => item.id === updatedItem.id ? updatedItem : item);
     myItemsRef.current = updated;
@@ -264,6 +334,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
             <WardrobeUpload
               accessToken={accessToken}
               onItemAdded={handleItemAdded}
+              onUploadComplete={handleUploadComplete}
               onClose={() => setShowUpload(false)}
             />
           </motion.div>
@@ -308,6 +379,58 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
             </button>
           ))}
         </div>
+
+        <AnimatePresence>
+          {uploadRead && !loading && (
+            <motion.div
+              key="upload-read"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="rounded-2xl p-4 mb-4"
+              style={{ background: "rgba(168,151,216,0.08)", border: "1px solid rgba(168,151,216,0.24)" }}
+            >
+              <div className="flex gap-3">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: "rgba(168,151,216,0.12)" }}>
+                  <Sparkles size={16} style={{ color: "var(--lavender)" }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p style={{ color: "var(--lavender)", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: 5 }}>
+                        Iris closet read
+                      </p>
+                      <h3 style={{ color: "var(--cream)", fontSize: "14px", fontWeight: 700, lineHeight: 1.35 }}>
+                        {uploadRead.title}
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => setUploadRead(null)}
+                      className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--border)", cursor: "pointer" }}
+                      aria-label="Dismiss closet read"
+                    >
+                      <X size={13} style={{ color: "var(--muted-foreground)" }} />
+                    </button>
+                  </div>
+                  <p style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.55, marginTop: 7 }}>
+                    {uploadRead.body}
+                  </p>
+                  <p style={{ color: "var(--cream)", fontSize: "12px", lineHeight: 1.55, marginTop: 7 }}>
+                    {uploadRead.nextStep}
+                  </p>
+                  <div className="flex gap-2 flex-wrap mt-3">
+                    {uploadRead.chips.map((chip) => (
+                      <span key={chip} className="px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.06)", color: "var(--gold)", fontSize: "10px", border: "1px solid rgba(199,179,139,0.18)" }}>
+                        {chip}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Search + filter for items view */}
         {view === "items" && (
