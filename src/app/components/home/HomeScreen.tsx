@@ -4,6 +4,8 @@ import { ArrowRight, Camera, CheckCircle2, CloudSun, Heart, MapPin, RefreshCw, S
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import type { WardrobeItem } from "../wardrobe/WardrobeUpload";
 import { loadSavedOutfits, persistSavedOutfits, readLocalSavedOutfits, type SavedOutfit, type OutfitSlotKey } from "../../lib/savedOutfits";
+import { buildDailyOutfit, getRecentOutfitItemIds } from "../../lib/outfitIntelligence";
+import { getClosetMilestoneStatus } from "../../lib/closetMilestones";
 import { projectId } from "/utils/supabase/info";
 
 const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
@@ -71,11 +73,6 @@ function readWeatherContext(): WeatherContext {
   }
 }
 
-function seededIndex(seed: number, length: number, offset = 0) {
-  if (length <= 0) return 0;
-  return Math.abs((seed * 9301 + 49297 + offset * 233) % length);
-}
-
 function normalizeSeasons(seasons?: string[]) {
   const normalized = (seasons ?? [])
     .map((season) => season.trim().toLowerCase())
@@ -109,35 +106,6 @@ function inferClosetSeason(weather: WeatherContext) {
   if (condition === "hot" || condition === "humid") return "summer";
   if (condition === "cold") return "winter";
   return getCalendarSeason();
-}
-
-function isItemInSeason(item: WardrobeItem, season: string) {
-  const seasons = normalizeSeasons(item.seasons);
-  return seasons.includes("year-round") || seasons.includes(season);
-}
-
-function pickDaily(items: WardrobeItem[], categories: string[], seed: number, variant: number, used: string[] = [], offset = 0, season = getCalendarSeason(), strictSeason = false) {
-  const options = items.filter((item) => categories.includes(item.category) && !used.includes(item.id));
-  const seasonalOptions = options.filter((item) => isItemInSeason(item, season));
-  const pool = seasonalOptions.length > 0 ? seasonalOptions : strictSeason ? [] : options;
-  const base = seededIndex(seed, pool.length, offset);
-  return pool[(base + variant) % pool.length] ?? null;
-}
-
-function buildDailyLook(items: WardrobeItem[], seed: number, variant: number, season: string) {
-  const top = pickDaily(items, ["tops", "dresses"], seed, variant, [], 1, season);
-  const used = top ? [top.id] : [];
-  const bottom = top?.category === "dresses" ? null : pickDaily(items, ["bottoms"], seed, variant + 1, used, 2, season);
-  if (bottom) used.push(bottom.id);
-  const outer = pickDaily(items, ["outerwear", "suits"], seed, variant + 2, used, 3, season, true);
-  if (outer) used.push(outer.id);
-  const shoes = pickDaily(items, ["shoes"], seed, variant + 3, used, 4, season);
-  if (shoes) used.push(shoes.id);
-  const bag = pickDaily(items, ["bags"], seed, variant + 4, used, 5, season);
-  if (bag) used.push(bag.id);
-  const accessory = pickDaily(items, ["accessories"], seed, variant + 5, used, 6, season);
-
-  return [top, bottom, outer, shoes, bag, accessory].filter(Boolean) as WardrobeItem[];
 }
 
 function buildGapList(items: WardrobeItem[]) {
@@ -218,6 +186,7 @@ function LoadingBlock({ className = "", style }: { className?: string; style?: C
 export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, onOpenWardrobe, onEditLook }: HomeScreenProps) {
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>(() => readLocalSavedOutfits(savedOutfitsKey));
   const [savedLooksCount, setSavedLooksCount] = useState(() => readLocalSavedOutfits(savedOutfitsKey).length);
   const [savedTodayLook, setSavedTodayLook] = useState(false);
   const [dailyLookNotice, setDailyLookNotice] = useState("");
@@ -261,9 +230,14 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
 
   useEffect(() => {
     let isActive = true;
-    setSavedLooksCount(readLocalSavedOutfits(savedOutfitsKey).length);
+    const localSavedOutfits = readLocalSavedOutfits(savedOutfitsKey);
+    setSavedOutfits(localSavedOutfits);
+    setSavedLooksCount(localSavedOutfits.length);
     loadSavedOutfits(accessToken, savedOutfitsKey).then((outfits) => {
-      if (isActive) setSavedLooksCount(outfits.length);
+      if (isActive) {
+        setSavedOutfits(outfits);
+        setSavedLooksCount(outfits.length);
+      }
     });
     setSavedTodayLook(false);
     setDailyLookNotice("");
@@ -271,7 +245,9 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
     const handleSavedOutfitsChanged = (event: Event) => {
       const detail = (event as CustomEvent<{ savedOutfitsKey?: string }>).detail;
       if (detail?.savedOutfitsKey === savedOutfitsKey) {
-        setSavedLooksCount(readLocalSavedOutfits(savedOutfitsKey).length);
+        const nextLocalSavedOutfits = readLocalSavedOutfits(savedOutfitsKey);
+        setSavedOutfits(nextLocalSavedOutfits);
+        setSavedLooksCount(nextLocalSavedOutfits.length);
       }
     };
 
@@ -304,9 +280,15 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
     condition: weatherCondition,
   }), [weatherCity, weatherTemp, weatherCondition]);
   const closetSeason = useMemo(() => inferClosetSeason(weatherContext), [weatherContext]);
-  const dailyLook = useMemo(() => buildDailyLook(wardrobeItems, dailySeed, dailyVariant, closetSeason), [wardrobeItems, dailySeed, dailyVariant, closetSeason]);
+  const recentOutfitItemIds = useMemo(() => getRecentOutfitItemIds(savedOutfits, 12), [savedOutfits]);
+  const dailyLook = useMemo(() => buildDailyOutfit(wardrobeItems, dailySeed, dailyVariant, closetSeason, {
+    recentItemIds: recentOutfitItemIds,
+    weatherTemp: weatherContext.temp,
+    weatherCondition: weatherContext.condition,
+  }), [wardrobeItems, dailySeed, dailyVariant, closetSeason, recentOutfitItemIds, weatherContext]);
   const dailyLookIds = useMemo(() => dailyLook.map((item) => item.id), [dailyLook]);
   const { counts, gaps } = useMemo(() => buildGapList(wardrobeItems), [wardrobeItems]);
+  const closetProgress = useMemo(() => getClosetMilestoneStatus(wardrobeItems.length), [wardrobeItems.length]);
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";
   const color = SEASON_COLORS[(profile.colorSeason || "autumn").toLowerCase()] ?? SEASON_COLORS.autumn;
@@ -339,6 +321,7 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
       ...current,
     ];
     await persistSavedOutfits(accessToken, savedOutfitsKey, next);
+    setSavedOutfits(next);
     setSavedLooksCount(next.length);
     setSavedTodayLook(true);
     setShowSaveLookModal(false);
@@ -412,6 +395,33 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
             </div>
           </div>
 
+          {!loading && (
+            <div className="px-4 pb-4">
+              <div className="rounded-xl p-3" style={{ background: "rgba(199,179,139,0.08)", border: "1px solid rgba(199,179,139,0.18)" }}>
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 700 }}>
+                    {closetProgress.headline}
+                  </p>
+                  <span style={{ color: "var(--muted-foreground)", fontSize: "10px", fontWeight: 700 }}>
+                    {closetProgress.progressLabel}
+                  </span>
+                </div>
+                <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: "rgba(255,255,255,0.08)" }}>
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: "var(--gold)" }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${closetProgress.progress}%` }}
+                    transition={{ duration: 0.45, ease: "easeOut" }}
+                  />
+                </div>
+                <p style={{ color: "var(--muted-foreground)", fontSize: "11px", lineHeight: 1.45 }}>
+                  {closetProgress.body}
+                </p>
+              </div>
+            </div>
+          )}
+
           {loading ? (
             <div className="p-4 pt-0">
               <div className="flex gap-2 mb-4 overflow-hidden">
@@ -484,7 +494,7 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
               <div className="rounded-xl p-4 mb-3 flex items-center gap-3" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
                 <Camera size={18} style={{ color: "var(--gold)" }} />
                 <p style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.5 }}>
-                  Add a few pieces and this space becomes a real daily outfit recommendation.
+                  {closetProgress.emptyState}
                 </p>
               </div>
               <button onClick={onOpenWardrobe} className="w-full py-3 rounded-xl flex items-center justify-center gap-2"
