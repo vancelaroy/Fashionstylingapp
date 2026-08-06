@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
-import { Camera, Upload, X, Check, ChevronRight, Loader } from "lucide-react";
+import { Camera, Upload, X, Check, ChevronRight, Loader, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
+import { CLOSET_MILESTONES, getClosetMilestoneStatus } from "../../lib/closetMilestones";
 
 const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 
@@ -23,6 +24,7 @@ export interface WardrobeItem {
 
 interface WardrobeUploadProps {
   accessToken?: string | null;
+  currentItemCount?: number;
   onItemAdded: (item: WardrobeItem, options?: { keepOpen?: boolean }) => boolean | Promise<boolean>;
   onUploadComplete?: (items: WardrobeItem[]) => void;
   onClose: () => void;
@@ -128,7 +130,7 @@ type UploadQueueItem = {
   previewUrl: string;
 };
 
-export function WardrobeUpload({ accessToken, onItemAdded, onUploadComplete, onClose }: WardrobeUploadProps) {
+export function WardrobeUpload({ accessToken, currentItemCount = 0, onItemAdded, onUploadComplete, onClose }: WardrobeUploadProps) {
   const [stage, setStage] = useState<Stage>("idle");
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [persistentImageDataUrl, setPersistentImageDataUrl] = useState<string | null>(null);
@@ -282,6 +284,10 @@ export function WardrobeUpload({ accessToken, onItemAdded, onUploadComplete, onC
 
   const queueLabel = queue.length > 1 ? `Piece ${currentQueueIndex + 1} of ${queue.length}` : null;
   const remainingAfterCurrent = Math.max(queue.length - currentQueueIndex - 1, 0);
+  const closetProgress = getClosetMilestoneStatus(currentItemCount);
+  const nextUnlockCopy = closetProgress.next
+    ? `${closetProgress.remaining} ${closetProgress.remaining === 1 ? "piece" : "pieces"} until ${closetProgress.next.title.toLowerCase()}.`
+    : "Every new piece sharpens Iris's reads.";
 
   return (
     <div
@@ -311,7 +317,77 @@ export function WardrobeUpload({ accessToken, onItemAdded, onUploadComplete, onC
           {stage === "idle" && (
             <motion.div key="idle" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <div
-                className="rounded-2xl p-6 mb-5 text-center"
+                className="rounded-2xl p-5 mb-4"
+                style={{ background: "rgba(199,179,139,0.08)", border: "1px solid rgba(199,179,139,0.22)" }}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                    style={{ background: "rgba(199,179,139,0.14)", border: "1px solid rgba(199,179,139,0.28)" }}
+                  >
+                    <Sparkles size={18} style={{ color: "var(--gold)" }} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 700 }}>
+                        Closet progress
+                      </p>
+                      <p style={{ color: "var(--muted-foreground)", fontSize: "12px", fontWeight: 700 }}>
+                        {closetProgress.progressLabel}
+                      </p>
+                    </div>
+                    <h3 style={{ color: "var(--cream)", fontSize: "17px", fontWeight: 700, marginTop: 8 }}>
+                      {closetProgress.headline}
+                    </h3>
+                    <p style={{ color: "var(--muted-foreground)", fontSize: "13px", lineHeight: 1.6, marginTop: 6 }}>
+                      {closetProgress.body}
+                    </p>
+                    <div className="h-2 rounded-full mt-4 overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${closetProgress.progress}%`, background: "var(--gold)" }}
+                      />
+                    </div>
+                    <p style={{ color: "var(--gold)", fontSize: "12px", lineHeight: 1.5, marginTop: 10 }}>
+                      {nextUnlockCopy}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="rounded-2xl p-4 mb-5"
+                style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+              >
+                <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 10 }}>
+                  What Iris unlocks
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {CLOSET_MILESTONES.map((milestone) => {
+                    const unlocked = currentItemCount >= milestone.count;
+                    return (
+                      <div
+                        key={milestone.id}
+                        className="rounded-xl px-3 py-3 flex items-center gap-2"
+                        style={{ background: unlocked ? "rgba(199,179,139,0.1)" : "rgba(255,255,255,0.04)", border: "1px solid var(--border)" }}
+                      >
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                          style={{ background: unlocked ? "var(--gold)" : "rgba(255,255,255,0.06)", color: unlocked ? "#161616" : "var(--muted-foreground)" }}
+                        >
+                          {unlocked ? <Check size={13} /> : <span style={{ fontSize: "10px", fontWeight: 700 }}>{milestone.count}</span>}
+                        </div>
+                        <span style={{ color: unlocked ? "var(--gold)" : "var(--cream)", fontSize: "12px", fontWeight: 600, lineHeight: 1.25 }}>
+                          {milestone.title}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div
+                className="rounded-2xl p-5 mb-5 text-center"
                 style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
               >
                 <p style={{ color: "var(--muted-foreground)", fontSize: "13px", lineHeight: 1.7 }}>

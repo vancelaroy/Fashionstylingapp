@@ -325,6 +325,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
           >
             <WardrobeUpload
               accessToken={accessToken}
+              currentItemCount={myItems.length}
               onItemAdded={handleItemAdded}
               onUploadComplete={handleUploadComplete}
               onClose={() => setShowUpload(false)}
