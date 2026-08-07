@@ -6,6 +6,7 @@ import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import type { WardrobeItem } from "../wardrobe/WardrobeUpload";
 import { projectId } from "/utils/supabase/info";
 import productCatalogSeed from "./productCatalog.json";
+import { analyzeWardrobeGaps, getWardrobeNeedCategories, type WardrobeGapCategory } from "../../lib/wardrobeGaps";
 
 const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 
@@ -317,7 +318,7 @@ const COLOR_SWATCHES: Record<string, string> = {
   purple: "#7E699C",
 };
 
-const CATEGORY_COPY: Record<string, { label: string; reason: string; prompt: string }> = {
+const CATEGORY_COPY: Record<WardrobeGapCategory, { label: string; reason: string; prompt: string }> = {
   tops: {
     label: "Top",
     reason: "More tops create the most new outfit combinations.",
@@ -350,30 +351,7 @@ const CATEGORY_COPY: Record<string, { label: string; reason: string; prompt: str
   },
 };
 
-function getWardrobeCounts(items: WardrobeItem[]) {
-  return {
-    tops: items.filter((item) => item.category === "tops" || item.category === "dresses").length,
-    bottoms: items.filter((item) => item.category === "bottoms").length,
-    outerwear: items.filter((item) => item.category === "outerwear" || item.category === "suits").length,
-    shoes: items.filter((item) => item.category === "shoes").length,
-    bags: items.filter((item) => item.category === "bags").length,
-    accessories: items.filter((item) => item.category === "accessories").length,
-  };
-}
-
-function getClosetNeeds(items: WardrobeItem[]) {
-  const counts = getWardrobeCounts(items);
-  return [
-    counts.shoes === 0 ? "shoes" : null,
-    counts.bottoms === 0 ? "bottoms" : null,
-    counts.outerwear === 0 ? "outerwear" : null,
-    counts.bags === 0 ? "bags" : null,
-    counts.accessories === 0 ? "accessories" : null,
-    counts.tops < 2 ? "tops" : null,
-  ].filter(Boolean) as string[];
-}
-
-function getProductNeedCategory(category: string) {
+function getProductNeedCategory(category: string): WardrobeGapCategory {
   const value = category.toLowerCase();
   if (value.includes("top") || value.includes("shirt")) return "tops";
   if (value.includes("bottom") || value.includes("trouser") || value.includes("pant")) return "bottoms";
@@ -397,7 +375,7 @@ function genderMatches(profileGender: string | undefined, productGender: Product
 function scoreProduct(
   product: CatalogProduct,
   profile: StyleProfile,
-  closetNeeds: string[],
+  closetNeeds: WardrobeGapCategory[],
   selectedOccasion: string,
 ) {
   const productNeedCategory = getProductNeedCategory(product.category);
@@ -418,7 +396,7 @@ function scoreProduct(
   return score;
 }
 
-function getMatchReason(product: CatalogProduct, profile: StyleProfile, closetNeeds: string[], selectedOccasion: string) {
+function getMatchReason(product: CatalogProduct, profile: StyleProfile, closetNeeds: WardrobeGapCategory[], selectedOccasion: string) {
   const productNeedCategory = getProductNeedCategory(product.category);
   const profileStyles = (profile.stylePersonality || []).map(normalizeTag);
   const styleHit = product.styleTags.find((tag) => profileStyles.includes(normalizeTag(tag)));
@@ -467,7 +445,7 @@ function getSimilarClosetItems(product: CatalogProduct, wardrobeItems: WardrobeI
     .slice(0, 3);
 }
 
-function getProductVerdict(product: CatalogProduct, wardrobeItems: WardrobeItem[], closetNeeds: string[]): ProductVerdict {
+function getProductVerdict(product: CatalogProduct, wardrobeItems: WardrobeItem[], closetNeeds: WardrobeGapCategory[]): ProductVerdict {
   const needCategory = getProductNeedCategory(product.category);
   const similarItems = getSimilarClosetItems(product, wardrobeItems);
 
@@ -700,7 +678,12 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
   const filteredStylists = stylistFilter === "all" ? STYLISTS
     : STYLISTS.filter((s) => s.type === stylistFilter);
 
-  const closetNeeds = useMemo(() => getClosetNeeds(wardrobeItems), [wardrobeItems]);
+  const closetInsights = useMemo(() => analyzeWardrobeGaps(wardrobeItems, {
+    styleTags: profile.stylePersonality,
+    max: 6,
+  }), [wardrobeItems, profile.stylePersonality]);
+
+  const closetNeeds = useMemo(() => getWardrobeNeedCategories(closetInsights), [closetInsights]);
   const discoveryItems = useMemo(() => {
     return PRODUCT_CATALOG
       .filter((product) => genderMatches(profile.gender, product.gender))
@@ -779,7 +762,7 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
             <div className="grid grid-cols-3 gap-2 mb-5">
               {[
                 { label: "Pieces", value: loadingWardrobe ? "..." : wardrobeItems.length, icon: Shirt },
-                { label: "Needs", value: loadingWardrobe ? "..." : closetNeeds.length, icon: Sparkles },
+                { label: "Needs", value: loadingWardrobe ? "..." : closetInsights.length, icon: Sparkles },
                 { label: "Saved", value: wishlist.length, icon: Heart },
               ].map(({ label, value, icon: Icon }) => (
                 <div key={label} className="rounded-2xl p-3" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
@@ -810,22 +793,24 @@ export function DiscoverScreen({ profile, accessToken, onAskIris, onOpenWardrobe
                 <div className="rounded-2xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                   <p style={{ color: "var(--muted-foreground)", fontSize: 13 }}>Reading your closet...</p>
                 </div>
-              ) : closetNeeds.length > 0 ? (
+              ) : closetInsights.length > 0 ? (
                 <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                  {closetNeeds.slice(0, 5).map((need) => {
-                    const copy = CATEGORY_COPY[need];
+                  {closetInsights.slice(0, 5).map((insight) => {
+                    const category = insight.category ?? "accessories";
+                    const copy = CATEGORY_COPY[category];
+                    const prompt = `${insight.prompt}\n\nUse my saved closet and Style DNA. Keep the recommendation practical, protect my budget, and avoid suggesting duplicates.`;
                     return (
-                      <button key={need} onClick={() => onAskIris?.(`${copy.prompt}\n\nUse my saved closet and Style DNA. Keep the recommendation practical and avoid suggesting duplicates.`)}
-                        className="shrink-0 rounded-2xl p-4 text-left"
+                      <button key={insight.id} onClick={() => onAskIris?.(prompt)}
+                        className="shrink-0 rounded-2xl p-4 text-left transition-all active:scale-[0.98]"
                         style={{ width: 220, background: "var(--surface)", border: "1px solid rgba(199,179,139,0.24)", cursor: "pointer" }}>
                         <p style={{ color: "var(--gold)", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
-                          {copy.label} need
+                          {copy.label} read
                         </p>
                         <p style={{ color: "var(--cream)", fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
-                          Add one strong {copy.label.toLowerCase()}
+                          {insight.title}
                         </p>
                         <p style={{ color: "var(--muted-foreground)", fontSize: 12, lineHeight: 1.45 }}>
-                          {copy.reason}
+                          {insight.body}
                         </p>
                       </button>
                     );
