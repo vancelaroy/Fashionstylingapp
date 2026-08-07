@@ -6,6 +6,7 @@ import type { WardrobeItem } from "../wardrobe/WardrobeUpload";
 import { loadSavedOutfits, persistSavedOutfits, readLocalSavedOutfits, type SavedOutfit, type OutfitSlotKey } from "../../lib/savedOutfits";
 import { buildDailyOutfit, getRecentOutfitItemIds } from "../../lib/outfitIntelligence";
 import { getClosetMilestoneStatus } from "../../lib/closetMilestones";
+import { analyzeWardrobeGaps } from "../../lib/wardrobeGaps";
 import { projectId } from "/utils/supabase/info";
 
 const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
@@ -106,27 +107,6 @@ function inferClosetSeason(weather: WeatherContext) {
   if (condition === "hot" || condition === "humid") return "summer";
   if (condition === "cold") return "winter";
   return getCalendarSeason();
-}
-
-function buildGapList(items: WardrobeItem[]) {
-  const counts = {
-    tops: items.filter((item) => item.category === "tops" || item.category === "dresses").length,
-    bottoms: items.filter((item) => item.category === "bottoms").length,
-    outerwear: items.filter((item) => item.category === "outerwear" || item.category === "suits").length,
-    shoes: items.filter((item) => item.category === "shoes").length,
-    bags: items.filter((item) => item.category === "bags").length,
-    accessories: items.filter((item) => item.category === "accessories").length,
-  };
-
-  const gaps = [
-    counts.shoes === 0 ? "Add one versatile shoe to complete more outfits." : null,
-    counts.bottoms === 0 ? "Add a bottom so Iris can build fuller looks." : null,
-    counts.outerwear === 0 ? "Add an outerwear layer for polished outfits." : null,
-    counts.bags === 0 ? "Add a bag to finish daytime and evening looks." : null,
-    counts.tops < 2 ? "Add another top to give Iris more combinations." : null,
-  ].filter(Boolean) as string[];
-
-  return { counts, gaps };
 }
 
 function buildAskIrisPrompt(profile: StyleProfile, look: WardrobeItem[]) {
@@ -287,7 +267,12 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
     weatherCondition: weatherContext.condition,
   }), [wardrobeItems, dailySeed, dailyVariant, closetSeason, recentOutfitItemIds, weatherContext]);
   const dailyLookIds = useMemo(() => dailyLook.map((item) => item.id), [dailyLook]);
-  const { counts, gaps } = useMemo(() => buildGapList(wardrobeItems), [wardrobeItems]);
+  const closetInsights = useMemo(() => analyzeWardrobeGaps(wardrobeItems, {
+    season: closetSeason,
+    styleTags: profile.stylePersonality,
+    max: 5,
+  }), [wardrobeItems, closetSeason, profile.stylePersonality]);
+  const topClosetInsights = closetInsights.slice(0, 3);
   const closetProgress = useMemo(() => getClosetMilestoneStatus(wardrobeItems.length), [wardrobeItems.length]);
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";
@@ -677,7 +662,7 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
         {[
           { label: "Pieces", value: wardrobeItems.length, icon: Shirt },
           { label: "Saved", value: savedLooksCount, icon: CheckCircle2 },
-          { label: "Needs", value: gaps.length, icon: Wand2 },
+          { label: "Needs", value: closetInsights.length, icon: Wand2 },
         ].map(({ label, value, icon: Icon }) => (
           <div key={label} className="rounded-2xl p-3" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
             <Icon size={15} style={{ color: "var(--gold)", marginBottom: 8 }} />
@@ -693,15 +678,18 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
             <div>
               <p style={{ color: "var(--muted-foreground)", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase" }}>Closet read</p>
               <h3 style={{ color: "var(--cream)", fontSize: "14px", fontWeight: 700, marginTop: 2 }}>
-                {gaps.length > 0 ? "Closet needs" : "What Iris notices"}
+                {topClosetInsights.length > 0 ? "What would unlock more" : "What Iris notices"}
               </h3>
             </div>
             <CloudSun size={17} style={{ color: "var(--gold)" }} />
           </div>
-          {gaps.length > 0 ? (
+          {topClosetInsights.length > 0 ? (
             <div className="flex flex-col gap-2">
-              {gaps.slice(0, 3).map((gap) => (
-                <p key={gap} style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.45 }}>✦ {gap}</p>
+              {topClosetInsights.map((insight) => (
+                <p key={insight.id} style={{ color: "var(--muted-foreground)", fontSize: "12px", lineHeight: 1.45 }}>
+                  <span style={{ color: "var(--cream)", fontWeight: 600 }}>{insight.title}.</span>{" "}
+                  {insight.body}
+                </p>
               ))}
             </div>
           ) : (
