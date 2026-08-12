@@ -23,7 +23,7 @@ export interface WardrobeItem {
 
 interface WardrobeUploadProps {
   accessToken?: string | null;
-  onItemAdded: (item: WardrobeItem) => void;
+  onItemAdded: (item: WardrobeItem) => Promise<void>;
   onClose: () => void;
 }
 
@@ -130,7 +130,12 @@ export function WardrobeUpload({ accessToken, onItemAdded, onClose }: WardrobeUp
       addedAt: new Date().toISOString(),
     };
 
-    onItemAdded(newItem);
+    try {
+      await onItemAdded(newItem);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "This item couldn't be saved. Please try again.");
+      setStage("result");
+    }
   };
 
   return (

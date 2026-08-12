@@ -91,6 +91,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
   const [myItems, setMyItems] = useState<WardrobeItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Load wardrobe from server on mount
   useEffect(() => {
@@ -98,14 +99,19 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
     if (!accessToken) { setLoading(false); return; }
 
     setLoading(true);
+    setLoadError(null);
     fetch(`${SERVER}/wardrobe/items`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((r) => r.json())
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error ?? "Failed to load wardrobe");
+        return data;
+      })
       .then((data) => {
         if (Array.isArray(data.items)) setMyItems(data.items);
       })
-      .catch(() => {})
+      .catch(() => setLoadError("Your wardrobe couldn't be loaded. Please try again."))
       .finally(() => setLoading(false));
   }, [accessToken]);
 
@@ -115,37 +121,36 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
     }
   }, [pendingOutfitItemIds]);
 
-  const saveToServer = async (items: WardrobeItem[]) => {
-    if (!accessToken) return;
-    try {
-      await fetch(`${SERVER}/wardrobe/items`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
-        body: JSON.stringify({ items }),
-      });
-    } catch { /* silent fail */ }
+  const mutateItem = async (method: "POST" | "PUT" | "DELETE", item?: WardrobeItem, itemId?: string) => {
+    if (!accessToken) throw new Error("Sign in to update your wardrobe.");
+    const path = method === "POST" ? "/wardrobe/items" : `/wardrobe/items/${encodeURIComponent(itemId ?? "")}`;
+    const response = await fetch(`${SERVER}${path}`, {
+      method,
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+      body: method === "DELETE" ? undefined : JSON.stringify({ item }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error ?? "Wardrobe update failed");
+    return data;
   };
 
-  const handleItemAdded = (item: WardrobeItem) => {
-    const updated = [item, ...myItems];
-    setMyItems(updated);
-    saveToServer(updated);
+  const handleItemAdded = async (item: WardrobeItem) => {
+    await mutateItem("POST", item);
+    setMyItems((current) => [item, ...current]);
     // Brief delay then close so user sees the success state
     setTimeout(() => setShowUpload(false), 1800);
   };
 
-  const handleItemUpdated = (updatedItem: WardrobeItem) => {
-    const updated = myItems.map((item) => item.id === updatedItem.id ? updatedItem : item);
-    setMyItems(updated);
+  const handleItemUpdated = async (updatedItem: WardrobeItem) => {
+    await mutateItem("PUT", updatedItem, updatedItem.id);
+    setMyItems((current) => current.map((item) => item.id === updatedItem.id ? updatedItem : item));
     setSelectedItem(updatedItem);
-    saveToServer(updated);
   };
 
-  const handleItemDeleted = (itemId: string) => {
-    const updated = myItems.filter((item) => item.id !== itemId);
-    setMyItems(updated);
+  const handleItemDeleted = async (itemId: string) => {
+    await mutateItem("DELETE", undefined, itemId);
+    setMyItems((current) => current.filter((item) => item.id !== itemId));
     setSelectedItem(null);
-    saveToServer(updated);
   };
 
   const filteredItems = myItems.filter((item) => {
@@ -259,6 +264,12 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
         )}
       </div>
 
+      {loadError && (
+        <div className="mx-6 mb-3 px-4 py-3 rounded-xl" role="alert" style={{ background: "rgba(192,57,43,0.14)", color: "#e8998f", border: "1px solid rgba(192,57,43,0.3)", fontSize: 12 }}>
+          {loadError}
+        </div>
+      )}
+
       {/* Content */}
       <div className={view === "items" ? "flex-1 overflow-y-auto pb-24" : "flex-1 overflow-hidden"}>
 
@@ -267,6 +278,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
           <VirtualCloset
             items={myItems}
             savedOutfitsKey={savedOutfitsKey}
+            accessToken={accessToken}
             initialView="builder"
             onAddPiece={() => setShowUpload(true)}
             pendingItemIds={pendingOutfitItemIds}
@@ -361,7 +373,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
         )}
 
         {/* ── Outfits ── */}
-        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} savedOutfitsKey={savedOutfitsKey} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
+        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} savedOutfitsKey={savedOutfitsKey} accessToken={accessToken} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
       </div>
     </div>
   );
@@ -385,8 +397,8 @@ function buildIrisItemPrompt(item: WardrobeItem): string {
 function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
   item: WardrobeItem;
   onClose: () => void;
-  onSave: (item: WardrobeItem) => void;
-  onDelete: (itemId: string) => void;
+  onSave: (item: WardrobeItem) => Promise<void>;
+  onDelete: (itemId: string) => Promise<void>;
   onAskIris?: (prompt: string) => void;
 }) {
   const [draft, setDraft] = useState<WardrobeItem>({
@@ -395,6 +407,8 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
   });
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
   const photos = (draft.photos && draft.photos.length > 0 ? draft.photos : [draft.image]).filter(Boolean);
 
@@ -428,16 +442,36 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
     };
   };
 
-  const saveDraft = () => {
-    onSave(getNormalizedDraft());
+  const runMutation = async (mutation: () => Promise<void>, closeAfter = true) => {
+    if (isSaving) return false;
+    setIsSaving(true);
+    setMutationError(null);
+    try {
+      await mutation();
+      if (closeAfter) onClose();
+      return true;
+    } catch (error) {
+      setMutationError(error instanceof Error ? error.message : "Wardrobe update failed. Please try again.");
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveDraft = async () => {
+    await runMutation(() => onSave(getNormalizedDraft()));
+  };
+
+  const askIrisAboutDraft = async () => {
+    const normalizedDraft = getNormalizedDraft();
+    const saved = await runMutation(() => onSave(normalizedDraft), false);
+    if (!saved) return;
+    onAskIris?.(buildIrisItemPrompt(normalizedDraft));
     onClose();
   };
 
-  const askIrisAboutDraft = () => {
-    const normalizedDraft = getNormalizedDraft();
-    onSave(normalizedDraft);
-    onAskIris?.(buildIrisItemPrompt(normalizedDraft));
-    onClose();
+  const deleteItem = async () => {
+    await runMutation(() => onDelete(item.id));
   };
 
   return (
@@ -559,19 +593,20 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 px-6 py-4 flex flex-col gap-3" style={{ background: "rgba(22,22,22,0.95)", borderTop: "1px solid var(--border)", backdropFilter: "blur(10px)" }}>
+        {mutationError && <p role="alert" style={{ color: "#e8998f", fontSize: 12, textAlign: "center" }}>{mutationError}</p>}
         {confirmDelete ? (
           <div className="flex gap-3">
-            <button onClick={() => setConfirmDelete(false)} className="flex-1 py-3.5 rounded-2xl" style={{ background: "var(--surface)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: 13 }}>
+            <button disabled={isSaving} onClick={() => setConfirmDelete(false)} className="flex-1 py-3.5 rounded-2xl" style={{ background: "var(--surface)", color: "var(--cream)", border: "1px solid var(--border)", fontSize: 13, opacity: isSaving ? 0.6 : 1 }}>
               Cancel
             </button>
-            <button onClick={() => onDelete(item.id)} className="flex-1 py-3.5 rounded-2xl" style={{ background: "rgba(192,57,43,0.18)", color: "#e07070", border: "1px solid rgba(192,57,43,0.35)", fontSize: 13, fontWeight: 600 }}>
-              Delete
+            <button disabled={isSaving} onClick={deleteItem} className="flex-1 py-3.5 rounded-2xl" style={{ background: "rgba(192,57,43,0.18)", color: "#e07070", border: "1px solid rgba(192,57,43,0.35)", fontSize: 13, fontWeight: 600, opacity: isSaving ? 0.6 : 1 }}>
+              {isSaving ? "Deleting..." : "Delete"}
             </button>
           </div>
         ) : isEditing ? (
           <>
             {onAskIris && (
-              <button onClick={askIrisAboutDraft} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "rgba(201,169,110,0.12)", color: "var(--gold)", border: "1px solid rgba(201,169,110,0.32)", fontWeight: 700, fontSize: 14 }}>
+              <button disabled={isSaving} onClick={askIrisAboutDraft} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "rgba(201,169,110,0.12)", color: "var(--gold)", border: "1px solid rgba(201,169,110,0.32)", fontWeight: 700, fontSize: 14, opacity: isSaving ? 0.6 : 1 }}>
                 <Sparkles size={16} /> Ask Iris about this item
               </button>
             )}
@@ -579,8 +614,8 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
               <button onClick={() => setConfirmDelete(true)} className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                 <Trash2 size={18} style={{ color: "#e07070" }} />
               </button>
-              <button onClick={saveDraft} className="flex-1 py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "var(--gold)", color: "#161616", border: "none", fontWeight: 700, fontSize: 14 }}>
-                <Save size={17} /> Save Changes
+              <button disabled={isSaving} onClick={saveDraft} className="flex-1 py-3.5 rounded-2xl flex items-center justify-center gap-2" style={{ background: "var(--gold)", color: "#161616", border: "none", fontWeight: 700, fontSize: 14, opacity: isSaving ? 0.7 : 1 }}>
+                <Save size={17} /> {isSaving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </>

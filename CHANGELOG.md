@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased - Phase 5: Wardrobe Persistence Hardening
+
+- Added authenticated item-level create, update, and delete wardrobe operations
+- Preserved the legacy bulk wardrobe save payload and existing stored array format
+- Wardrobe changes now appear locally only after the server confirms persistence
+- Added saving, deleting, load-error, and mutation-error feedback
+- Prevented duplicate mutation submissions while a request is in progress
+- Image data remains in the existing persisted thumbnail format; no storage migration is included
+- Saved outfits now sync per authenticated user, with one-time import from existing device-local outfits
+- Device-local saved outfits remain available as a fallback when server sync is unavailable
+
 ## v0.1.0 - Initial Production Release
 
 IRYS v0.1.0 is the first production release of the AI personal styling app.

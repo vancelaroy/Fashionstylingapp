@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Plus, Sparkles, RotateCcw, Share2, Heart, Camera, X, Trash2 } from "lucide-react";
 import type { WardrobeItem } from "./WardrobeUpload";
+import { projectId } from "/utils/supabase/info";
+
+const SERVER = `https://${projectId}.supabase.co/functions/v1/irys-api`;
 
 type OutfitSlotKey = "top" | "bottom" | "outer" | "shoes" | "bag" | "accessory";
 
@@ -23,6 +26,7 @@ interface OutfitSuggestion {
 interface VirtualClosetProps {
   items: WardrobeItem[];
   savedOutfitsKey: string;
+  accessToken?: string | null;
   initialView?: "builder" | "saved";
   onAddPiece?: () => void;
   pendingItemIds?: string[] | null;
@@ -135,11 +139,14 @@ function readSavedOutfits(savedOutfitsKey: string): SavedOutfit[] {
   }
 }
 
-export function VirtualCloset({ items, savedOutfitsKey, initialView = "builder", onAddPiece, pendingItemIds, onPendingItemIdsConsumed }: VirtualClosetProps) {
+export function VirtualCloset({ items, savedOutfitsKey, accessToken, initialView = "builder", onAddPiece, pendingItemIds, onPendingItemIdsConsumed }: VirtualClosetProps) {
   const [outfit, setOutfit] = useState<OutfitSlots>(EMPTY_SLOTS);
   const [activeSlot, setActiveSlot] = useState<OutfitSlotKey | null>(null);
   const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>(() => readSavedOutfits(savedOutfitsKey));
   const [loadedSavedOutfitsKey, setLoadedSavedOutfitsKey] = useState(savedOutfitsKey);
+  const [outfitSyncReady, setOutfitSyncReady] = useState(false);
+  const [outfitServerLoaded, setOutfitServerLoaded] = useState(false);
+  const [outfitSyncError, setOutfitSyncError] = useState<string | null>(null);
   const [outfitName, setOutfitName] = useState("");
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [view, setView] = useState<"builder" | "saved">(initialView);
@@ -150,14 +157,72 @@ export function VirtualCloset({ items, savedOutfitsKey, initialView = "builder",
   }, [initialView]);
 
   useEffect(() => {
-    setSavedOutfits(readSavedOutfits(savedOutfitsKey));
+    const localOutfits = readSavedOutfits(savedOutfitsKey);
+    setSavedOutfits(localOutfits);
     setLoadedSavedOutfitsKey(savedOutfitsKey);
-  }, [savedOutfitsKey]);
+    setOutfitSyncReady(false);
+    setOutfitServerLoaded(false);
+    setOutfitSyncError(null);
+
+    if (!accessToken) {
+      setOutfitSyncReady(true);
+      return;
+    }
+
+    let cancelled = false;
+    const loadSavedOutfits = async () => {
+      try {
+        const response = await fetch(`${SERVER}/outfits`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error ?? "Failed to load saved outfits");
+        if (cancelled) return;
+
+        const serverOutfits = Array.isArray(data.outfits) ? data.outfits : [];
+        if (serverOutfits.length > 0) {
+          setSavedOutfits(serverOutfits);
+        } else if (localOutfits.length > 0) {
+          const importResponse = await fetch(`${SERVER}/outfits`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+            body: JSON.stringify({ outfits: localOutfits }),
+          });
+          if (!importResponse.ok) throw new Error("Failed to import saved outfits");
+        }
+        if (!cancelled) setOutfitServerLoaded(true);
+      } catch {
+        if (!cancelled) setOutfitSyncError("Saved outfits are available on this device, but couldn't sync.");
+      } finally {
+        if (!cancelled) setOutfitSyncReady(true);
+      }
+    };
+    loadSavedOutfits();
+    return () => { cancelled = true; };
+  }, [accessToken, savedOutfitsKey]);
 
   useEffect(() => {
     if (loadedSavedOutfitsKey !== savedOutfitsKey) return;
     window.localStorage.setItem(savedOutfitsKey, JSON.stringify(savedOutfits));
   }, [loadedSavedOutfitsKey, savedOutfits, savedOutfitsKey]);
+
+  useEffect(() => {
+    if (!accessToken || !outfitSyncReady || !outfitServerLoaded || loadedSavedOutfitsKey !== savedOutfitsKey) return;
+    const timeout = window.setTimeout(async () => {
+      try {
+        const response = await fetch(`${SERVER}/outfits`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify({ outfits: savedOutfits }),
+        });
+        if (!response.ok) throw new Error("Sync failed");
+        setOutfitSyncError(null);
+      } catch {
+        setOutfitSyncError("Saved outfits are available on this device, but couldn't sync.");
+      }
+    }, 300);
+    return () => window.clearTimeout(timeout);
+  }, [accessToken, loadedSavedOutfitsKey, outfitServerLoaded, outfitSyncReady, savedOutfits, savedOutfitsKey]);
 
   useEffect(() => {
     if (!pendingItemIds || pendingItemIds.length === 0 || items.length === 0) return;
@@ -276,6 +341,11 @@ export function VirtualCloset({ items, savedOutfitsKey, initialView = "builder",
 
   return (
     <div className="flex flex-col h-full" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
+      {outfitSyncError && (
+        <p role="status" className="mx-6 mt-3 px-3 py-2 rounded-xl" style={{ color: "#e8998f", background: "rgba(192,57,43,0.12)", border: "1px solid rgba(192,57,43,0.25)", fontSize: 11 }}>
+          {outfitSyncError}
+        </p>
+      )}
       <div className="px-6 pt-5 pb-4">
         <div className="flex items-center justify-between mb-4">
           <div>
