@@ -316,11 +316,11 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
                   return (
                     <motion.button key={slot.key} whileTap={{ scale: 0.96 }} onClick={() => setActiveSlot(isActive ? null : slot.key)}
                       className="rounded-xl overflow-hidden relative flex flex-col items-center justify-center transition-all"
-                      style={{ background: item ? "transparent" : "var(--surface-2)", border: `1.5px solid ${isActive ? "var(--gold)" : item ? "rgba(199,179,139,0.25)" : "var(--border)"}`, height: 94, cursor: "pointer" }}>
+                      style={{ background: "var(--surface-2)", border: `1.5px solid ${isActive ? "var(--gold)" : item ? "rgba(199,179,139,0.25)" : "var(--border)"}`, aspectRatio: "3 / 4", cursor: "pointer" }}>
                       {item ? (
                         <>
                           {isPersistentImage(item.image) ? (
-                            <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" />
+                            <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-contain" />
                           ) : (
                             <span style={{ fontSize: "30px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
                           )}
@@ -363,9 +363,9 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
                   {availableItems.length > 0 ? availableItems.map((item) => (
                     <motion.button key={item.id} whileTap={{ scale: 0.95 }} onClick={() => selectItem(item)}
                       className="shrink-0 rounded-xl overflow-hidden relative"
-                      style={{ width: 96, height: 124, border: "1px solid var(--border)", cursor: "pointer", background: "var(--surface)" }}>
+                      style={{ width: 96, height: 128, border: "1px solid var(--border)", cursor: "pointer", background: "var(--surface)" }}>
                       {isPersistentImage(item.image) ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <span style={{ fontSize: "28px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
@@ -399,9 +399,9 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
                 <button key={item.id} onClick={() => addItemDirectly(item)}
                   className="rounded-xl p-2 flex items-center gap-2 text-left"
                   style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
-                  <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 flex items-center justify-center" style={{ background: "var(--surface-2)" }}>
+                  <div className="w-9 h-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center" style={{ background: "var(--surface-2)" }}>
                     {isPersistentImage(item.image) ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
                     ) : (
                       <span>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
                     )}
@@ -440,9 +440,9 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
                   <div key={saved.id} className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                     <button onClick={() => loadSavedOutfit(saved)} className="grid w-full" style={{ gridTemplateColumns: `repeat(${Math.max(savedItems.slice(0, 4).length, 1)}, 1fr)`, border: "none", padding: 0, cursor: "pointer", background: "transparent" }}>
                       {savedItems.slice(0, 4).map((item) => (
-                        <div key={item.id} className="relative flex items-center justify-center" style={{ height: 120, background: "var(--surface-2)" }}>
+                        <div key={item.id} className="relative flex items-center justify-center" style={{ aspectRatio: "3 / 4", background: "var(--surface-2)" }}>
                           {isPersistentImage(item.image) ? (
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
                           ) : (
                             <span style={{ fontSize: "28px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
                           )}

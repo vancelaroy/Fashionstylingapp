@@ -373,7 +373,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
           ))}
         </div>
 
-        {!loading && (
+        {!loading && view === "closet" && closetProgress.next !== null && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -601,11 +601,11 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
                     onClick={() => setSelectedItem(item)}
                     className="rounded-2xl overflow-hidden text-left"
                     style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer", padding: 0 }}>
-                    <div className="relative">
+                    <div className="relative" style={{ aspectRatio: "3 / 4", background: "var(--surface-2)" }}>
                       {isPersistentImage(item.image) ? (
-                        <img src={item.image} alt={item.name} className="w-full object-cover" style={{ height: 180 }} />
+                        <img src={item.image} alt={item.name} className="w-full h-full object-contain" loading="lazy" />
                       ) : (
-                        <div className="w-full flex items-center justify-center" style={{ height: 180, background: "rgba(199,179,139,0.08)" }}>
+                        <div className="w-full h-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.08)" }}>
                           <span style={{ fontSize: "32px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
                         </div>
                       )}
@@ -776,7 +776,7 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
       <div className="flex-1 overflow-y-auto px-6 py-5 pb-40">
         <div className="rounded-2xl overflow-hidden mb-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
           {isPersistentImage(draft.image) ? (
-            <img src={draft.image} alt={draft.name} className="w-full object-cover" style={{ maxHeight: 300 }} />
+            <img src={draft.image} alt={draft.name} className="w-full object-contain" style={{ aspectRatio: "3 / 4", maxHeight: "55vh" }} />
           ) : (
             <div className="w-full flex items-center justify-center" style={{ height: 220, background: "rgba(199,179,139,0.08)" }}>
               <span style={{ fontSize: "42px" }}>{CATEGORY_EMOJI[draft.category] ?? "👔"}</span>
@@ -788,9 +788,9 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
           {photos.map((photo, index) => (
             <button key={`${photo}-${index}`} onClick={() => updateDraft({ image: photo })}
               className="relative shrink-0 rounded-xl overflow-hidden"
-              style={{ width: 72, height: 72, border: draft.image === photo ? "2px solid var(--gold)" : "1px solid var(--border)", background: "var(--surface)", cursor: "pointer" }}>
+              style={{ width: 72, height: 96, border: draft.image === photo ? "2px solid var(--gold)" : "1px solid var(--border)", background: "var(--surface)", cursor: "pointer" }}>
               {isPersistentImage(photo) ? (
-                <img src={photo} alt="" className="w-full h-full object-cover" />
+                <img src={photo} alt="" className="w-full h-full object-contain" />
               ) : (
                 <span style={{ fontSize: "24px" }}>{CATEGORY_EMOJI[draft.category] ?? "👔"}</span>
               )}
@@ -803,7 +803,7 @@ function WardrobeItemDetail({ item, onClose, onSave, onDelete, onAskIris }: {
           ))}
           {isEditing && (
             <label className="shrink-0 rounded-xl flex flex-col items-center justify-center gap-1"
-              style={{ width: 72, height: 72, border: "1px dashed var(--border)", background: "transparent", cursor: "pointer" }}>
+              style={{ width: 72, height: 96, border: "1px dashed var(--border)", background: "transparent", cursor: "pointer" }}>
               <ImagePlus size={18} style={{ color: "var(--gold)" }} />
               <span style={{ color: "var(--muted-foreground)", fontSize: 9 }}>Photo</span>
               <input
