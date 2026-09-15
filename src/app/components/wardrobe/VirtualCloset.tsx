@@ -221,7 +221,7 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
   }
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
+    <div style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
       <div className="px-6 pt-5 pb-4">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -245,7 +245,7 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
       </div>
 
       {view === "builder" ? (
-        <div className="flex-1 overflow-y-auto pb-28">
+        <div>
           <div className="px-6 mb-4">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles size={13} style={{ color: "var(--gold)" }} />
@@ -416,7 +416,7 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto px-6 pb-28">
+        <div className="px-6">
           {savedOutfits.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
               <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: "rgba(199,179,139,0.1)", border: "1px solid var(--border)" }}>

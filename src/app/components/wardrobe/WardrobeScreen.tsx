@@ -300,7 +300,9 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
   const closetProgress = getClosetMilestoneStatus(myItems.length);
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
+    // Keep headings, filters, and garments in one scroll area. Nested panes leave
+    // too little room for the actual closet on phones with browser bars visible.
+    <div className="h-full overflow-y-auto pb-8" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
 
       {/* Upload flow — full screen overlay */}
       <AnimatePresence>
@@ -527,7 +529,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
       </div>
 
       {/* Content */}
-      <div className={view === "items" ? "flex-1 overflow-y-auto pb-24" : "flex-1 overflow-hidden"}>
+      <div>
 
         {/* ── Virtual Closet ── */}
         {view === "closet" && (loading ? <WardrobeLoadingState /> : (
