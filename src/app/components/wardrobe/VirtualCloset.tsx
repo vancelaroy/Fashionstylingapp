@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Plus, Sparkles, RotateCcw, Share2, Heart, Camera, X, Trash2 } from "lucide-react";
 import type { WardrobeItem } from "./WardrobeUpload";
@@ -6,7 +6,11 @@ import { loadSavedOutfits, persistSavedOutfits, readLocalSavedOutfits, type Save
 import { buildConceptOutfitSuggestion, getRecentOutfitItemIds, type OutfitSuggestion, type OutfitSlots } from "../../lib/outfitIntelligence";
 import { getClosetMilestoneStatus } from "../../lib/closetMilestones";
 
+import { GarmentBrowser } from "./GarmentBrowser";
+
 interface VirtualClosetProps {
+  outfit: OutfitSlots;
+  setOutfit: Dispatch<SetStateAction<OutfitSlots>>;
   items: WardrobeItem[];
   accessToken?: string | null;
   savedOutfitsKey: string;
@@ -77,8 +81,8 @@ function getOutfitItemCount(slots: OutfitSlots) {
   return Object.values(slots).filter(Boolean).length;
 }
 
-export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView = "builder", onAddPiece, pendingItemIds, onPendingItemIdsConsumed }: VirtualClosetProps) {
-  const [outfit, setOutfit] = useState<OutfitSlots>(EMPTY_SLOTS);
+export function VirtualCloset({ outfit, setOutfit, items, accessToken, savedOutfitsKey, initialView = "builder", onAddPiece, pendingItemIds, onPendingItemIdsConsumed }: VirtualClosetProps) {
+  const [browseCategory, setBrowseCategory] = useState<string | null>(null);
   const [activeSlot, setActiveSlot] = useState<OutfitSlotKey | null>(null);
   const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>(() => readLocalSavedOutfits(savedOutfitsKey));
   const [outfitName, setOutfitName] = useState("");
@@ -124,31 +128,17 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
     ].filter((suggestion) => getOutfitItemCount(suggestion.slots) > 0);
   }, [items, savedOutfits]);
 
-  const activeSlotConfig = activeSlot ? OUTFIT_SLOTS.find((slot) => slot.key === activeSlot) : null;
-  const availableItems = activeSlotConfig
-    ? items.filter((item) => activeSlotConfig.accepts.includes(item.category))
-    : [];
   const hasAnyItem = getOutfitItemCount(outfit) > 0;
-
-  const selectItem = (item: WardrobeItem) => {
-    if (!activeSlot) return;
-    if (item.category === "dresses") {
-      setOutfit((current) => ({ ...current, top: item, bottom: null }));
-    } else {
-      setOutfit((current) => ({ ...current, [activeSlot]: item }));
-    }
-    setActiveSlot(null);
-  };
-
-  const addItemDirectly = (item: WardrobeItem) => {
+  const toggleBrowserItem = (item: WardrobeItem) => {
     const slot = getSlotForCategory(item.category);
     if (!slot) return;
-    if (item.category === "dresses") {
-      setOutfit((current) => ({ ...current, top: item, bottom: null }));
-    } else {
-      setOutfit((current) => ({ ...current, [slot]: item }));
-    }
-    setView("builder");
+    setOutfit(current => {
+      if (current[slot]?.id === item.id) return { ...current, [slot]: null };
+      const next = { ...current, [slot]: item };
+      if (item.category === "dresses") next.bottom = null;
+      if (slot === "bottom" && next.top?.category === "dresses") next.top = null;
+      return next;
+    });
   };
 
   const clearSlot = (key: OutfitSlotKey) => {
@@ -247,6 +237,11 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
       {view === "builder" ? (
         <div>
           <div className="px-6 mb-4">
+            <button onClick={() => setBrowseCategory("all")} className="w-full rounded-2xl px-4 py-4" style={{ background: "var(--gold)", color: "var(--charcoal)", fontWeight: 600 }}>
+              Browse all {items.length} pieces
+            </button>
+          </div>
+          <div className="px-6 mb-4">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles size={13} style={{ color: "var(--gold)" }} />
               <p style={{ color: "var(--gold)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>Iris outfit starters</p>
@@ -314,9 +309,10 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
                   const item = outfit[slot.key];
                   const isActive = activeSlot === slot.key;
                   return (
-                    <motion.button key={slot.key} whileTap={{ scale: 0.96 }} onClick={() => setActiveSlot(isActive ? null : slot.key)}
+                    <motion.div key={slot.key} whileTap={{ scale: 0.96 }}
                       className="rounded-xl overflow-hidden relative flex flex-col items-center justify-center transition-all"
                       style={{ background: "var(--surface-2)", border: `1.5px solid ${isActive ? "var(--gold)" : item ? "rgba(199,179,139,0.25)" : "var(--border)"}`, aspectRatio: "3 / 4", cursor: "pointer" }}>
+                      <button aria-label={`Choose ${slot.label}`} onClick={() => setBrowseCategory(slot.accepts[0])} className="absolute inset-0 w-full h-full flex flex-col items-center justify-center">
                       {item ? (
                         <>
                           {isPersistentImage(item.image) ? (
@@ -325,11 +321,6 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
                             <span style={{ fontSize: "30px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
                           )}
                           <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(14,13,12,0.78) 0%, transparent 58%)" }} />
-                          <button onClick={(event) => { event.stopPropagation(); clearSlot(slot.key); }}
-                            className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center"
-                            style={{ background: "rgba(14,13,12,0.82)", border: "none", cursor: "pointer", color: "var(--cream)" }}>
-                            <X size={10} />
-                          </button>
                           <div className="absolute bottom-1 left-1 right-1">
                             <p style={{ color: "var(--cream)", fontSize: "8.5px", textAlign: "center", lineHeight: 1.2, textShadow: "0 1px 4px rgba(0,0,0,0.8)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.name}</p>
                           </div>
@@ -340,80 +331,22 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
                           <p style={{ color: isActive ? "var(--gold)" : "var(--muted-foreground)", fontSize: "9px", textAlign: "center", lineHeight: 1.3 }}>{slot.label}</p>
                         </>
                       )}
-                    </motion.button>
+                      </button>
+                      {item && <button aria-label={`Remove ${slot.label}`} onClick={() => clearSlot(slot.key)} className="absolute top-1 right-1 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(14,13,12,0.82)", color: "var(--cream)" }}><X size={14} /></button>}
+                    </motion.div>
                   );
                 })}
               </div>
 
               {!hasAnyItem && (
                 <p style={{ color: "var(--muted-foreground)", fontSize: "12px", textAlign: "center", marginTop: 12 }}>
-                  Tap a slot, choose a piece below, or start with Iris.
+                  Tap a slot or browse your pieces to build a look.
                 </p>
               )}
             </div>
           </div>
 
-          <AnimatePresence>
-            {activeSlot && (
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }} className="px-6 mb-4">
-                <p style={{ color: "var(--gold)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
-                  Choose {activeSlotConfig?.label}
-                </p>
-                <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
-                  {availableItems.length > 0 ? availableItems.map((item) => (
-                    <motion.button key={item.id} whileTap={{ scale: 0.95 }} onClick={() => selectItem(item)}
-                      className="shrink-0 rounded-xl overflow-hidden relative"
-                      style={{ width: 96, height: 128, border: "1px solid var(--border)", cursor: "pointer", background: "var(--surface)" }}>
-                      {isPersistentImage(item.image) ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span style={{ fontSize: "28px" }}>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
-                        </div>
-                      )}
-                      <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(14,13,12,0.82) 0%, transparent 55%)" }} />
-                      <div className="absolute bottom-1 left-1 right-1">
-                        <p style={{ color: "var(--cream)", fontSize: "9px", textAlign: "center", lineHeight: 1.25 }}>{item.name}</p>
-                      </div>
-                    </motion.button>
-                  )) : (
-                    <div className="flex flex-col items-center justify-center w-full py-6 gap-3">
-                      <p style={{ color: "var(--muted-foreground)", fontSize: "12px" }}>No {activeSlotConfig?.label.toLowerCase()} pieces yet</p>
-                      <button onClick={onAddPiece} className="px-4 py-2 rounded-xl flex items-center gap-1.5"
-                        style={{ background: "rgba(199,179,139,0.1)", border: "1px solid rgba(199,179,139,0.2)", color: "var(--gold)", fontSize: "11px", cursor: "pointer" }}>
-                        <Plus size={12} /> Add piece
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
-          <div className="px-6">
-            <p style={{ color: "var(--muted-foreground)", fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
-              Quick add from closet
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {items.slice(0, 8).map((item) => (
-                <button key={item.id} onClick={() => addItemDirectly(item)}
-                  className="rounded-xl p-2 flex items-center gap-2 text-left"
-                  style={{ background: "var(--surface)", border: "1px solid var(--border)", cursor: "pointer" }}>
-                  <div className="w-9 h-12 rounded-lg overflow-hidden shrink-0 flex items-center justify-center" style={{ background: "var(--surface-2)" }}>
-                    {isPersistentImage(item.image) ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
-                    ) : (
-                      <span>{CATEGORY_EMOJI[item.category] ?? "👔"}</span>
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p style={{ color: "var(--cream)", fontSize: "11px", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</p>
-                    <p style={{ color: "var(--muted-foreground)", fontSize: "9px", textTransform: "capitalize" }}>{item.category}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       ) : (
         <div className="px-6">
@@ -473,6 +406,7 @@ export function VirtualCloset({ items, accessToken, savedOutfitsKey, initialView
         </div>
       )}
 
+      {browseCategory !== null && <GarmentBrowser items={items} outfit={outfit} initialCategory={browseCategory} onSelect={toggleBrowserItem} onClose={() => setBrowseCategory(null)} />}
       <AnimatePresence>
         {showSaveModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}

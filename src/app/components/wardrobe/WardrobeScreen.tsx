@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Plus, Search, Camera, X, Trash2, Save, ImagePlus, Sparkles, Pencil } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import type { OutfitSlots } from "../../lib/outfitIntelligence";
 import { VirtualCloset } from "./VirtualCloset";
 import { WardrobeUpload, type WardrobeItem } from "./WardrobeUpload";
 import { getClosetMilestoneStatus } from "../../lib/closetMilestones";
@@ -202,6 +203,7 @@ interface WardrobeScreenProps {
 }
 
 export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendingOutfitItemIds, onPendingOutfitConsumed }: WardrobeScreenProps) {
+  const [outfit, setOutfit] = useState<OutfitSlots>({ top: null, bottom: null, outer: null, shoes: null, bag: null, accessory: null });
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeSeason, setActiveSeason] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -212,6 +214,8 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
   const [loading, setLoading] = useState(true);
   const [uploadRead, setUploadRead] = useState<UploadRead | null>(null);
   const myItemsRef = useRef<WardrobeItem[]>([]);
+
+  useEffect(() => { setOutfit({ top: null, bottom: null, outer: null, shoes: null, bag: null, accessory: null }); }, [savedOutfitsKey]);
 
   // Load wardrobe from server on mount
   useEffect(() => {
@@ -533,7 +537,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
 
         {/* ── Virtual Closet ── */}
         {view === "closet" && (loading ? <WardrobeLoadingState /> : (
-          <VirtualCloset
+          <VirtualCloset outfit={outfit} setOutfit={setOutfit}
             items={myItems}
             accessToken={accessToken}
             savedOutfitsKey={savedOutfitsKey}
@@ -658,7 +662,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
         )}
 
         {/* ── Outfits ── */}
-        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} accessToken={accessToken} savedOutfitsKey={savedOutfitsKey} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
+        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset outfit={outfit} setOutfit={setOutfit} items={myItems} accessToken={accessToken} savedOutfitsKey={savedOutfitsKey} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
       </div>
     </div>
   );
