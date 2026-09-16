@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Plus, Search, Camera, X, Trash2, Save, ImagePlus, Sparkles, Pencil } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import type { OutfitSlots } from "../../lib/outfitIntelligence";
 import { VirtualCloset } from "./VirtualCloset";
 import { WardrobeUpload, type WardrobeItem } from "./WardrobeUpload";
 import { getClosetMilestoneStatus } from "../../lib/closetMilestones";
@@ -202,6 +203,7 @@ interface WardrobeScreenProps {
 }
 
 export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendingOutfitItemIds, onPendingOutfitConsumed }: WardrobeScreenProps) {
+  const [outfit, setOutfit] = useState<OutfitSlots>({ top: null, bottom: null, outer: null, shoes: null, bag: null, accessory: null });
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeSeason, setActiveSeason] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -212,6 +214,8 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
   const [loading, setLoading] = useState(true);
   const [uploadRead, setUploadRead] = useState<UploadRead | null>(null);
   const myItemsRef = useRef<WardrobeItem[]>([]);
+
+  useEffect(() => { setOutfit({ top: null, bottom: null, outer: null, shoes: null, bag: null, accessory: null }); }, [savedOutfitsKey]);
 
   // Load wardrobe from server on mount
   useEffect(() => {
@@ -300,7 +304,9 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
   const closetProgress = getClosetMilestoneStatus(myItems.length);
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
+    // Keep headings, filters, and garments in one scroll area. Nested panes leave
+    // too little room for the actual closet on phones with browser bars visible.
+    <div className="h-full overflow-y-auto pb-8" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
 
       {/* Upload flow — full screen overlay */}
       <AnimatePresence>
@@ -527,11 +533,11 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
       </div>
 
       {/* Content */}
-      <div className={view === "items" ? "flex-1 overflow-y-auto pb-24" : "flex-1 overflow-hidden"}>
+      <div>
 
         {/* ── Virtual Closet ── */}
         {view === "closet" && (loading ? <WardrobeLoadingState /> : (
-          <VirtualCloset
+          <VirtualCloset outfit={outfit} setOutfit={setOutfit}
             items={myItems}
             accessToken={accessToken}
             savedOutfitsKey={savedOutfitsKey}
@@ -656,7 +662,7 @@ export function WardrobeScreen({ accessToken, savedOutfitsKey, onAskIris, pendin
         )}
 
         {/* ── Outfits ── */}
-        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset items={myItems} accessToken={accessToken} savedOutfitsKey={savedOutfitsKey} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
+        {view === "outfits" && (loading ? <WardrobeLoadingState /> : <VirtualCloset outfit={outfit} setOutfit={setOutfit} items={myItems} accessToken={accessToken} savedOutfitsKey={savedOutfitsKey} initialView="saved" onAddPiece={() => setShowUpload(true)} />)}
       </div>
     </div>
   );
