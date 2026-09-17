@@ -309,6 +309,7 @@ export default function App() {
           )}
           {activeTab === "profile" && (
             <ProfileScreen
+              accessToken={accessToken}
               profile={profile}
               onProfileUpdate={handleProfileUpdate}
               onReset={handleReset}
