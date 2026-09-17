@@ -1,3 +1,4 @@
+import { AlphaWelcome } from "../feedback/AlphaWelcome";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, Camera, CheckCircle2, CloudSun, Heart, MapPin, RefreshCw, Shirt, Sparkles, Sun, Thermometer, Wand2, X } from "lucide-react";
@@ -322,7 +323,9 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
 
   return (
     <div className="flex flex-col h-full overflow-y-auto overflow-x-hidden" style={{ background: "var(--charcoal)", fontFamily: "var(--font-body)" }}>
-      <div className="px-6 pt-14 pb-4">
+      <div className="px-6 pt-6 pb-4">
+        <p style={{ color: "var(--gold)", fontSize: 10, letterSpacing: "0.18em", marginBottom: 6 }}>IRYS · PRIVATE ALPHA</p>
+        <p style={{ color: "var(--muted-foreground)", fontSize: 12, marginBottom: 16 }}>You’re using an early version of IRYS. Your experience helps us make it better.</p>
         <div className="flex items-start justify-between">
           <div>
             <p style={{ color: "var(--gold)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 500 }}>
@@ -351,6 +354,7 @@ export function HomeScreen({ profile, accessToken, savedOutfitsKey, onAskIris, o
         </div>
       </div>
 
+      {accessToken && <AlphaWelcome key={savedOutfitsKey} userKey={savedOutfitsKey} />}
       <div className="px-6 mb-5">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl overflow-hidden" style={{ background: "var(--surface)", border: "1px solid rgba(199,179,139,0.28)" }}>
