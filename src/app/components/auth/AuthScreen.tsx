@@ -1,3 +1,4 @@
+import { ForgotPassword } from "./PasswordRecovery";
 import { useState } from "react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 import { supabase } from "../../../lib/supabase";
@@ -13,6 +14,7 @@ interface AuthScreenProps {
 type Mode = "signin" | "signup";
 
 export function AuthScreen({ onAuth }: AuthScreenProps) {
+  const [forgotPassword, setForgotPassword] = useState(false);
   const [mode, setMode] = useState<Mode>("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -107,9 +109,12 @@ export function AuthScreen({ onAuth }: AuthScreenProps) {
 
   const isDisabled = loading || !email || !password || (mode === "signup" && !name);
 
+  if (forgotPassword) return <ForgotPassword onBack={() => setForgotPassword(false)} />;
+
   return (
     <div className="flex flex-col h-full" style={{ background: "var(--background)", fontFamily: "var(--font-body)" }}>
 
+      {mode === "signin" && <button onClick={() => setForgotPassword(true)} className="self-end px-6 py-3" style={{ color: "var(--gold)", fontSize: 13 }}>Forgot password?</button>}
       {/* Editorial header */}
       <div
         className="flex flex-col items-center justify-center pt-10 pb-8 px-8"
