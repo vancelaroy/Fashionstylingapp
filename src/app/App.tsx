@@ -1,3 +1,4 @@
+import { PasswordRecovery } from "./components/auth/PasswordRecovery";
 import { useState, useEffect, useCallback, type CSSProperties } from "react";
 import { publicAnonKey, projectId } from "/utils/supabase/info";
 import { supabase } from "../lib/supabase";
@@ -46,6 +47,7 @@ export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [irisItemPrompt, setIrisItemPrompt] = useState<string | null>(null);
   const [pendingOutfitItemIds, setPendingOutfitItemIds] = useState<string[] | null>(null);
+  const isRecovery = window.location.pathname === "/auth/recovery";
   const isAuthCallback = typeof window !== "undefined" && window.location.pathname === "/auth/callback";
   const savedOutfitsKey = getUserStorageKey(accessToken);
 
@@ -118,7 +120,7 @@ export default function App() {
   // SIGNED_OUT: fires after signOut()
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (isAuthCallback) return;
+      if (isAuthCallback || isRecovery) return;
       if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
         if (session?.access_token) {
           setAccessToken(session.access_token);
@@ -209,6 +211,8 @@ export default function App() {
     position: "relative",
     boxSizing: "border-box",
   };
+
+  if (isRecovery) return <PasswordRecovery />;
 
   // ── Loading splash — show until both auth resolves AND 2s timer fires ─────
   if (appState === "loading" || !splashDone) {
