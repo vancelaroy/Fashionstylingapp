@@ -4,7 +4,10 @@ import { motion, AnimatePresence } from "motion/react";
 import type { StyleProfile } from "../onboarding/OnboardingFlow";
 import { CaseStudyScreen } from "../case-study/CaseStudyScreen";
 
+import { FeedbackScreen } from "../feedback/FeedbackScreen";
+
 interface ProfileScreenProps {
+  accessToken?: string | null;
   profile: StyleProfile;
   onProfileUpdate?: (profile: StyleProfile) => void;
   onReset: () => void;
@@ -35,7 +38,8 @@ const STYLE_INSIGHTS = [
   { label: "Style Consistency", value: "92%", icon: Sparkles, color: "var(--rose)", desc: "Strong personal aesthetic" },
 ];
 
-export function ProfileScreen({ profile, onProfileUpdate, onReset, onPreview, onSignOut, isLoggedIn }: ProfileScreenProps) {
+export function ProfileScreen({ accessToken, profile, onProfileUpdate, onReset, onPreview, onSignOut, isLoggedIn }: ProfileScreenProps) {
+  const [showFeedback, setShowFeedback] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showCaseStudy, setShowCaseStudy] = useState(false);
   const [isEditingRetailMeasurements, setIsEditingRetailMeasurements] = useState(false);
@@ -44,6 +48,8 @@ export function ProfileScreen({ profile, onProfileUpdate, onReset, onPreview, on
   useEffect(() => {
     setMeasurementDraft(profile.measurements || {});
   }, [profile.measurements]);
+
+  if (showFeedback) return <FeedbackScreen accessToken={accessToken} onBack={() => setShowFeedback(false)} />;
 
   if (showCaseStudy) {
     return <CaseStudyScreen onBack={() => setShowCaseStudy(false)} />;
@@ -351,6 +357,10 @@ export function ProfileScreen({ profile, onProfileUpdate, onReset, onPreview, on
           </button>
         )}
 
+        {isLoggedIn && <button onClick={() => setShowFeedback(true)} className="w-full py-3.5 rounded-2xl flex items-center gap-3 px-4 mt-2" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          <BookOpen size={15} style={{ color: "var(--gold)" }} />
+          <div className="text-left"><span className="block" style={{ color: "var(--cream)", fontSize: 13 }}>Give Feedback</span><span style={{ color: "var(--muted-foreground)", fontSize: 10 }}>Help shape the IRYS alpha</span></div>
+        </button>}
         {/* Sign out */}
         {onSignOut && (
           <button onClick={onSignOut} className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 mt-2 mb-6 transition-all active:scale-95" style={{ background: "transparent", border: "1px solid rgba(192,57,43,0.25)", cursor: "pointer" }}>
