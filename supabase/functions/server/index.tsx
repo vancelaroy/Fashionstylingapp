@@ -1,8 +1,41 @@
+import { saveFeedback } from "./feedback.ts";
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import { createClient } from "npm:@supabase/supabase-js";
-import * as kv from "./kv_store.tsx";
+const kv = {
+  set: async (key: string, value: unknown): Promise<void> => {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { error } = await supabase.from("kv_store_7dbc8ff8").upsert({ key, value });
+    if (error) throw new Error(error.message);
+  },
+
+  get: async (key: string): Promise<unknown> => {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { data, error } = await supabase
+      .from("kv_store_7dbc8ff8")
+      .select("value")
+      .eq("key", key)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data?.value;
+  },
+
+  del: async (key: string): Promise<void> => {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { error } = await supabase.from("kv_store_7dbc8ff8").delete().eq("key", key);
+    if (error) throw new Error(error.message);
+  },
+};
 
 const app = new Hono();
 
@@ -125,6 +158,7 @@ app.post("/closet", async (c) => {
 // ── Iris — Claude AI chat ─────────────────────────────────────────────────────
 
 type WardrobeItem = {
+  id?: string;
   name?: string;
   category?: string;
   color?: string;
@@ -134,6 +168,18 @@ type WardrobeItem = {
   styleNote?: string;
   brand?: string | null;
 };
+
+function isWardrobeItem(value: unknown): value is WardrobeItem & { id: string } {
+  return typeof value === "object" && value !== null &&
+    typeof (value as WardrobeItem).id === "string" &&
+    (value as WardrobeItem).id!.trim().length > 0;
+}
+
+async function getWardrobeItems(userId: string): Promise<WardrobeItem[]> {
+  const stored = await kv.get(`wardrobe:${userId}`);
+  // Preserve every existing record, including older records that predate ids.
+  return Array.isArray(stored) ? stored : [];
+}
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -240,6 +286,15 @@ Context intelligence:
 - If the user gives a time, consider daylight, heat, commute, and whether the outfit needs to transition from day to evening.
 - If a user rejects a recommendation, treat that correction as a preference signal in this conversation and adapt quickly. Avoid repeating the same silhouette, color, or vibe they disliked.
 - When choosing from their wardrobe, prioritize event appropriateness, climate comfort, fit, color harmony, and their stated taste over simply combining the first matching categories.
+
+Wardrobe season intelligence:
+- Wardrobe items may include season tags: spring, summer, fall, winter, or year-round. Missing season tags should be treated as year-round/flexible, not as forbidden.
+- If the user gives temperature, humidity, rain, snow, wind, city, region, trip context, or a named season, use that as the strongest signal for what is wearable.
+- In hot, humid, or summer contexts, avoid winter-only items, heavy coats, scarves, bulky wool layers, and heat-trapping styling unless the user explicitly asks for them.
+- In cold, snowy, windy, or winter contexts, avoid summer-only pieces as the main outfit unless they work as a base layer.
+- If an item is tagged year-round, it can be considered across seasons, but still judge fabric, warmth, weather risk, and event appropriateness.
+- If the best outfit is missing a weather-appropriate category, say so briefly and suggest the closest owned option or a practical shopping gap.
+- When you skip a piece because of season or weather, be transparent: “I’m skipping your winter jacket because it’s too heavy for humid weather.”
 
 Response style:
 - Keep it conversational and warm — 2 to 5 sentences for most replies
@@ -379,10 +434,12 @@ app.post("/wardrobe/analyze", async (c) => {
   "color": "primary color name",
   "secondaryColor": "secondary color if applicable, or null",
   "occasions": ["array of: casual, work, evening, formal, sport, weekend"],
-  "seasons": ["array of: spring, summer, fall, winter"],
+  "seasons": ["array of: spring, summer, fall, winter, year-round"],
   "styleNote": "one sentence on how to style it best",
   "brand": "brand name if visible, or null"
-}`,
+}
+
+Use "year-round" for versatile basics that work across most seasons. Use specific seasons for heavy winter pieces, lightweight summer pieces, rain/snow pieces, or anything that is strongly climate-specific.`,
             },
           ],
         }],
@@ -409,6 +466,17 @@ app.post("/wardrobe/analyze", async (c) => {
   }
 });
 
+app.post("/feedback", async (c) => {
+  try {
+    const userId = await getUserId(c.req.header("Authorization") ?? null);
+    if (!userId) return c.json({ error: "Unauthorized" }, 401);
+    const result = await saveFeedback(userId, await c.req.json(), kv.set);
+    return c.json(result.error ? { error: result.error } : { saved: true }, result.status as 200 | 400 | 401);
+  } catch {
+    return c.json({ error: "Unable to save feedback. Please try again." }, 500);
+  }
+});
+
 // ── Wardrobe — save & load items ─────────────────────────────────────────────
 
 app.get("/wardrobe/items", async (c) => {
@@ -427,12 +495,110 @@ app.post("/wardrobe/items", async (c) => {
   try {
     const userId = await getUserId(c.req.header("Authorization") ?? null);
     if (!userId) return c.json({ error: "Unauthorized" }, 401);
-    const { items } = await c.req.json();
-    await kv.set(`wardrobe:${userId}`, items);
-    return c.json({ success: true });
+    const { item, items } = await c.req.json();
+
+    // Retain the original bulk payload for compatibility with deployed clients.
+    if (Array.isArray(items)) {
+      await kv.set(`wardrobe:${userId}`, items);
+      return c.json({ success: true, items });
+    }
+    if (!isWardrobeItem(item)) return c.json({ error: "Valid wardrobe item required" }, 400);
+
+    const current = await getWardrobeItems(userId);
+    if (current.some((existing) => existing.id === item.id)) {
+      return c.json({ error: "Wardrobe item already exists" }, 409);
+    }
+    await kv.set(`wardrobe:${userId}`, [item, ...current]);
+    return c.json({ success: true, item }, 201);
   } catch (err) {
     console.log("Save wardrobe error:", err);
     return c.json({ error: "Failed to save wardrobe" }, 500);
+  }
+});
+
+app.put("/wardrobe/items/:itemId", async (c) => {
+  try {
+    const userId = await getUserId(c.req.header("Authorization") ?? null);
+    if (!userId) return c.json({ error: "Unauthorized" }, 401);
+    const itemId = c.req.param("itemId");
+    const { item } = await c.req.json();
+    if (!isWardrobeItem(item) || item.id !== itemId) {
+      return c.json({ error: "Item id must match request path" }, 400);
+    }
+
+    const current = await getWardrobeItems(userId);
+    const index = current.findIndex((existing) => existing.id === itemId);
+    if (index === -1) return c.json({ error: "Wardrobe item not found" }, 404);
+    const next = [...current];
+    next[index] = item;
+    await kv.set(`wardrobe:${userId}`, next);
+    return c.json({ success: true, item });
+  } catch (err) {
+    console.log("Update wardrobe item error:", err);
+    return c.json({ error: "Failed to update wardrobe item" }, 500);
+  }
+});
+
+app.delete("/wardrobe/items/:itemId", async (c) => {
+  try {
+    const userId = await getUserId(c.req.header("Authorization") ?? null);
+    if (!userId) return c.json({ error: "Unauthorized" }, 401);
+    const itemId = c.req.param("itemId");
+    const current = await getWardrobeItems(userId);
+    if (!current.some((item) => item.id === itemId)) {
+      return c.json({ error: "Wardrobe item not found" }, 404);
+    }
+    await kv.set(`wardrobe:${userId}`, current.filter((item) => item.id !== itemId));
+    return c.json({ success: true });
+  } catch (err) {
+    console.log("Delete wardrobe item error:", err);
+    return c.json({ error: "Failed to delete wardrobe item" }, 500);
+  }
+});
+
+// ── Outfits — save & load saved looks ────────────────────────────────────────
+
+type SavedOutfit = {
+  id: string;
+  name: string;
+  slotItemIds: Record<string, string>;
+  createdAt: string;
+};
+
+function normalizeOutfits(value: unknown): SavedOutfit[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((outfit): outfit is SavedOutfit => (
+    typeof outfit === "object" &&
+    outfit !== null &&
+    typeof (outfit as SavedOutfit).id === "string" &&
+    typeof (outfit as SavedOutfit).name === "string" &&
+    typeof (outfit as SavedOutfit).slotItemIds === "object" &&
+    typeof (outfit as SavedOutfit).createdAt === "string"
+  ));
+}
+
+app.get("/outfits", async (c) => {
+  try {
+    const userId = await getUserId(c.req.header("Authorization") ?? null);
+    if (!userId) return c.json({ error: "Unauthorized" }, 401);
+    const outfits = await kv.get(`outfits:${userId}`);
+    return c.json({ outfits: normalizeOutfits(outfits) });
+  } catch (err) {
+    console.log("Get outfits error:", err);
+    return c.json({ error: "Failed to load outfits" }, 500);
+  }
+});
+
+app.post("/outfits", async (c) => {
+  try {
+    const userId = await getUserId(c.req.header("Authorization") ?? null);
+    if (!userId) return c.json({ error: "Unauthorized" }, 401);
+    const { outfits } = await c.req.json();
+    await kv.set(`outfits:${userId}`, normalizeOutfits(outfits));
+    return c.json({ success: true });
+  } catch (err) {
+    console.log("Save outfits error:", err);
+    return c.json({ error: "Failed to save outfits" }, 500);
   }
 });
 
